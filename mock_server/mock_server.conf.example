@@ -1,0 +1,9 @@
+[logging]
+level = INFO
+
+[db_conf]
+host = localhost
+port = 5432
+database = mock_server
+user = mock_server
+password = mock_server
