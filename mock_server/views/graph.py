@@ -19,9 +19,11 @@ class Graph(APIView):
     def post(self, request):
         graphs = request.data
         for graph in graphs:
-            if not self.graph_manager.write(graph):
+            try:
+                self.graph_manager.write(graph)
+            except Exception as e:
                 return Response(
-                    {"status": "ERROR", "msg": "name already exists"},
+                    {"status": "ERROR", "msg": str(e)},
                     status.HTTP_400_BAD_REQUEST
                 )
         return Response(
@@ -30,35 +32,33 @@ class Graph(APIView):
         )
 
     def put(self, request: Request):
-        count = 0
         graphs = request.data
         for graph in graphs:
-            if self.graph_manager.update(graph):
-                count += 1
-        if count == len(graphs):  # always one
-            return Response(
-                {"status": "SUCCESS", "count": count},
-                status.HTTP_200_OK
-            )
+            try:
+                self.graph_manager.update(graph)
+            except Exception as e:
+                return Response(
+                    {"status": "ERROR", "msg": str(e)},
+                    status.HTTP_400_BAD_REQUEST
+                )
         return Response(
-            {"status": "ERROR", "count": count},
-            status.HTTP_400_BAD_REQUEST
+            {"status": "SUCCESS"},
+            status.HTTP_200_OK
         )
 
     def delete(self, request):
         ids = request.data
-        count = 0
         for id in ids:
-            if self.graph_manager.remove(id):
-                count += 1
-        if count == len(ids):  # always one
-            return Response(
-                {"status": "SUCCESS", "count": count},
-                status.HTTP_200_OK
-            )
+            try:
+                self.graph_manager.remove(id)
+            except Exception as e:
+                return Response(
+                    {"status": "ERROR", "msg": str(e)},
+                    status.HTTP_400_BAD_REQUEST
+                )
         return Response(
-            {"status": "ERROR", "count": count},
-            status.HTTP_400_BAD_REQUEST
+            {"status": "SUCCESS"},
+            status.HTTP_200_OK
         )
 
     def get(self, request: Request):
@@ -67,6 +67,6 @@ class Graph(APIView):
             return Response(self.graph_manager.read_all(), status.HTTP_200_OK)
         try:
             graph_content = self.graph_manager.read(qs['id'][0])
-        except OSError:
-            return Response({"status": "ERROR", "msg": "no graph with such id"}, status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"status": "ERROR", "msg": str(e)}, status.HTTP_400_BAD_REQUEST)
         return Response(graph_content, status.HTTP_200_OK)

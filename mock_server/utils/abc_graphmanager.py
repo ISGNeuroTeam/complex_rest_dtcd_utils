@@ -12,13 +12,13 @@ class AbstractGraphManager(ABC):
         pass
 
     @abstractmethod
-    def write(self, graph) -> bool:
+    def write(self, graph):
         pass
 
     @abstractmethod
-    def update(self, graph) -> bool:
+    def update(self, graph):
         pass
 
     @abstractmethod
-    def remove(self, id) -> bool:
+    def remove(self, id):
         pass
