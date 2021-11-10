@@ -34,12 +34,16 @@ if not os.path.isdir(Path(__file__).parent / "public"):
 
 GRAPH_BASE_PATH = os.path.expanduser(config_parser.get('graph', 'base_path'))
 GRAPH_TMP_PATH = os.path.expanduser(config_parser.get('graph', 'tmp_path'))
+ID_NAME_MAP_PATH = os.path.expanduser(config_parser.get('graph', 'id_name_map_path'))
 
 if not os.path.isdir(GRAPH_BASE_PATH):
     os.mkdir(Path(GRAPH_BASE_PATH))
 
 if not os.path.isdir(GRAPH_TMP_PATH):
     os.mkdir(Path(GRAPH_TMP_PATH))
+
+if not os.path.isdir(ID_NAME_MAP_PATH):
+    os.mkdir(Path(ID_NAME_MAP_PATH))
 
 # configure your own database if you need
 # DATABASE = {

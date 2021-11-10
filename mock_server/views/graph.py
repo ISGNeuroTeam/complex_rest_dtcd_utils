@@ -4,7 +4,7 @@ from rest.permissions import AllowAny
 from rest_framework.request import Request
 from pathlib import Path
 from ..utils.filesystem_graphmanager import FilesystemGraphManager
-from ..settings import GRAPH_BASE_PATH, GRAPH_TMP_PATH
+from ..settings import GRAPH_BASE_PATH, GRAPH_TMP_PATH, ID_NAME_MAP_PATH
 import os
 import logging
 
@@ -14,12 +14,16 @@ logger = logging.getLogger('mock_server')
 class Graph(APIView):
     permission_classes = (AllowAny,)
     http_method_names = ['get', 'post', 'put', 'delete']
-    graph_manager = FilesystemGraphManager(GRAPH_BASE_PATH, GRAPH_TMP_PATH)
+    graph_manager = FilesystemGraphManager(GRAPH_BASE_PATH, GRAPH_TMP_PATH, ID_NAME_MAP_PATH)
 
     def post(self, request):
         graphs = request.data
         for graph in graphs:
-            self.graph_manager.write(graph)
+            if not self.graph_manager.write(graph):
+                return Response(
+                    {"status": "ERROR", "msg": "name already exists"},
+                    status.HTTP_400_BAD_REQUEST
+                )
         return Response(
             {"status": "SUCCESS"},
             status.HTTP_200_OK
@@ -57,12 +61,12 @@ class Graph(APIView):
             status.HTTP_400_BAD_REQUEST
         )
 
-    def get(self, request:Request):
+    def get(self, request: Request):
         qs = dict(request.query_params)
         if 'id' not in qs:
-            return Response('id not in query_string', status.HTTP_404_NOT_FOUND)
+            return Response(self.graph_manager.read_all(), status.HTTP_200_OK)
         try:
-            graph_content = self.graph_manager.read(int(qs['id'][0]))
-        except ValueError:
-            return Response('no graph with such id', status.HTTP_404_NOT_FOUND)
+            graph_content = self.graph_manager.read(qs['id'][0])
+        except OSError:
+            return Response({"status": "ERROR", "msg": "no graph with such id"}, status.HTTP_404_NOT_FOUND)
         return Response(graph_content, status.HTTP_200_OK)
