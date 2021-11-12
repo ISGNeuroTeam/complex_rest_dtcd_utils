@@ -28,9 +28,6 @@ if not os.path.isdir(Path(__file__).parent / "plugins"):
 if not os.path.isdir(Path(__file__).parent / "public"):
     os.mkdir(Path(__file__).parent / "public")
 
-# if not os.path.isdir(Path(__file__).parent / "graphs"):
-    # os.mkdir(Path(__file__).parent / "graphs")
-
 
 GRAPH_BASE_PATH = os.path.expanduser(config_parser.get('graph', 'base_path'))
 GRAPH_TMP_PATH = os.path.expanduser(config_parser.get('graph', 'tmp_path'))

@@ -1,1 +1,1 @@
-{'your': 'logs'}
+[{'timestamps': 1636730040992, 'logLevel': 'debug', 'guid': 'guid1', 'plugin': 'EventSystem', 'caller': 'publishEvent', 'message': "Published event 'SetNewGraph[guid14]'"}]

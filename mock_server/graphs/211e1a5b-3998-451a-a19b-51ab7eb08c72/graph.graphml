@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--Created by yFiles for HTML 2.3.0.3-->
+<graphml xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml.html/2.0/ygraphml.xsd " xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:y="http://www.yworks.com/xml/yfiles-common/3.0" xmlns:yjs="http://www.yworks.com/xml/yfiles-for-html/2.0/xaml" xmlns:x="http://www.yworks.com/xml/yfiles-common/markup/3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<key id="d0" for="node" attr.name="NodeLabels" y:attr.uri="http://www.yworks.com/xml/yfiles-common/2.0/NodeLabels"/>
+	<key id="d1" for="node" attr.name="NodeGeometry" y:attr.uri="http://www.yworks.com/xml/yfiles-common/2.0/NodeGeometry"/>
+	<key id="d2" for="all" attr.name="UserTags" y:attr.uri="http://www.yworks.com/xml/yfiles-common/2.0/UserTags"/>
+	<key id="d3" for="node" attr.name="NodeStyle" y:attr.uri="http://www.yworks.com/xml/yfiles-common/2.0/NodeStyle"/>
+	<key id="d4" for="edge" attr.name="EdgeLabels" y:attr.uri="http://www.yworks.com/xml/yfiles-common/2.0/EdgeLabels"/>
+	<key id="d5" for="edge" attr.name="EdgeGeometry" y:attr.uri="http://www.yworks.com/xml/yfiles-common/2.0/EdgeGeometry"/>
+	<key id="d6" for="edge" attr.name="EdgeStyle" y:attr.uri="http://www.yworks.com/xml/yfiles-common/2.0/EdgeStyle"/>
+	<key id="d7" for="port" attr.name="PortLabels" y:attr.uri="http://www.yworks.com/xml/yfiles-common/2.0/PortLabels"/>
+	<key id="d8" for="port" attr.name="PortLocationParameter" y:attr.uri="http://www.yworks.com/xml/yfiles-common/2.0/PortLocationParameter">
+		<default>
+			<x:Static Member="y:FreeNodePortLocationModel.NodeCenterAnchored"/>
+		</default>
+	</key>
+	<key id="d9" for="port" attr.name="PortStylef" y:attr.uri="http://www.yworks.com/xml/yfiles-common/2.0/PortStyle">
+		<default>
+			<yjs:NodeStylePortStyleAdapter>
+				<yjs:ShapeNodeStyle shape="ELLIPSE"/>
+			</yjs:NodeStylePortStyleAdapter>
+		</default>
+	</key>
+	<key id="d10" attr.name="SharedData" y:attr.uri="http://www.yworks.com/xml/yfiles-common/2.0/SharedData"/>
+	<data key="d10">
+		<y:SharedData/>
+	</data>
+	<graph id="G" edgedefault="directed">
+		<node id="n0">
+			<data key="d0">
+				<x:List>
+					<y:Label LayoutParameter="{x:Static y:InteriorStretchLabelModel.Center}" PreferredSize="204,54">
+						<y:Label.Text>ControlledRichLabelNode03_1</y:Label.Text>
+						<y:Label.Style>
+							<yjs:MarkupLabelStyle wrapping="WORD_ELLIPSIS" textFill="BLACK" insets="20">
+								<yjs:MarkupLabelStyle.font>
+									<yjs:Font fontSize="12" fontFamily="&quot;Segoe UI&quot;, Arial"/>
+								</yjs:MarkupLabelStyle.font>
+							</yjs:MarkupLabelStyle>
+						</y:Label.Style>
+						<y:Label.Tag>
+							<y:Json>{"initialLabel":"$this.primitiveID$","computedLabel":"ControlledRichLabelNode03_1"}</y:Json>
+						</y:Label.Tag>
+					</y:Label>
+				</x:List>
+			</data>
+			<data key="d1">
+				<y:RectD X="-38" Y="-116.75" Width="294" Height="148"/>
+			</data>
+			<data key="d2">
+				<y:Json>{"properties":{"testField":{"expression":"","type":"expression"}},"initPorts":[{"primitiveName":"outPort1","type":"OUT","properties":{"status":{"expression":"","type":"expression"}},"primitiveID":"ControlledRichLabelNode03_1_outPort1"},{"primitiveName":"outPort2","type":"OUT","properties":{"status":{"expression":"","type":"expression"}},"primitiveID":"ControlledRichLabelNode03_1_outPort2"},{"primitiveName":"outPort3","type":"OUT","properties":{"status":{"expression":"","type":"expression"}},"primitiveID":"ControlledRichLabelNode03_1_outPort3"}],"extensionName":"ExtensionCommonPrimitives","primitiveName":"ControlledRichLabelNode03","primitiveID":"ControlledRichLabelNode03_1","nodeTitle":"ControlledRichLabelNode03_1"}</y:Json>
+			</data>
+			<data key="d3">
+				<yjs:ShapeNodeStyle/>
+			</data>
+			<port name="p0">
+				<data key="d8">
+					<y:FreeNodePortLocationModelParameter Ratio="0.2,-0.02"/>
+				</data>
+				<data key="d2">
+					<y:Json>{"primitiveName":"outPort1","type":"OUT","properties":{"status":{"expression":"","type":"expression"}},"primitiveID":"ControlledRichLabelNode03_1_outPort1"}</y:Json>
+				</data>
+			</port>
+			<port name="p1">
+				<data key="d8">
+					<y:FreeNodePortLocationModelParameter Ratio="0.5,-0.02"/>
+				</data>
+				<data key="d2">
+					<y:Json>{"primitiveName":"outPort2","type":"OUT","properties":{"status":{"expression":"","type":"expression"}},"primitiveID":"ControlledRichLabelNode03_1_outPort2"}</y:Json>
+				</data>
+			</port>
+			<port name="p2">
+				<data key="d8">
+					<y:FreeNodePortLocationModelParameter Ratio="0.8,-0.02"/>
+				</data>
+				<data key="d2">
+					<y:Json>{"primitiveName":"outPort3","type":"OUT","properties":{"status":{"expression":"","type":"expression"}},"primitiveID":"ControlledRichLabelNode03_1_outPort3"}</y:Json>
+				</data>
+			</port>
+		</node>
+	</graph>
+</graphml>
