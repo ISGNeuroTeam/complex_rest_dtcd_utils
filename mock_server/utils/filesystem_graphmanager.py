@@ -14,12 +14,12 @@ class FilesystemGraphManager(AbstractGraphManager):
     def __init__(self, path, tmp_path, map_path):  # or better import it from settings here?
         self.final_path = path
         self.tmp_path = tmp_path + '/tmp.graphml'
-        self.map_path = map_path + '/map.json'  # not empty, at least {}
+        self.map_path = map_path + '/graph_map.json'  # not empty, at least {}
         if not os.path.isfile(self.map_path):
             with open(self.map_path, 'w') as map_file:
                 map_file.write('{}')
-        self.map_backup_path = map_path + '/backup.json'
-        self.map_tmp_path = map_path + '/tmp.json'
+        self.map_backup_path = map_path + '/graph_backup.json'
+        self.map_tmp_path = map_path + '/graph_tmp.json'
         self.default_filename = 'graph.graphml'
 
     def read(self, id):

@@ -21,7 +21,7 @@ urlpatterns = [
     # re_path(r'^get-dependence-list/?$', DependenceList.as_view()),
     re_path(r'^get-design-objects/?$', DesignObjects.as_view()),
     re_path(r'^plugins/plugins.json/?$', PluginsList.as_view()),
-    re_path(r'^workspace/object/?$', Workspace.as_view()),   # change id
+    re_path(r'^workspace/object/?$', Workspace.as_view()),
     re_path(r'^logs/object/?$', LogsView.as_view()),  # logging not ready
     re_path(r'^graphContent/object/?$', Graph.as_view()),  # not checked PUT DELETE
 ]

@@ -2,10 +2,8 @@ from rest.views import APIView
 from rest.response import Response, status
 from rest.permissions import AllowAny
 from rest_framework.request import Request
-from pathlib import Path
 from ..utils.filesystem_graphmanager import FilesystemGraphManager
-from ..settings import GRAPH_BASE_PATH, GRAPH_TMP_PATH, ID_NAME_MAP_PATH
-import os
+from ..settings import GRAPH_BASE_PATH, GRAPH_TMP_PATH, GRAPH_ID_NAME_MAP_PATH
 import logging
 
 logger = logging.getLogger('mock_server')
@@ -14,7 +12,7 @@ logger = logging.getLogger('mock_server')
 class Graph(APIView):
     permission_classes = (AllowAny,)
     http_method_names = ['get', 'post', 'put', 'delete']
-    graph_manager = FilesystemGraphManager(GRAPH_BASE_PATH, GRAPH_TMP_PATH, ID_NAME_MAP_PATH)
+    graph_manager = FilesystemGraphManager(GRAPH_BASE_PATH, GRAPH_TMP_PATH, GRAPH_ID_NAME_MAP_PATH)
 
     def post(self, request):
         graphs = request.data
