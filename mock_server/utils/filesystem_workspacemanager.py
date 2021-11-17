@@ -29,7 +29,11 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
 
     def read(self, id):
         workspaces = self._get_workspace_list()
-        return next(conf for conf in workspaces if conf["id"] == id)
+        try:
+            workspace = next(conf for conf in workspaces if conf["id"] == id)
+        except:
+            raise WorkspaceManagerException(workspacemanager_exception.NO_WORKSPACE, id)
+        return workspace
 
     def read_all(self):
         workspaces = self._get_workspace_list()

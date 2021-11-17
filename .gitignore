@@ -111,5 +111,4 @@ venv.tar.gz
 
 nginx/
 
-myplugin
-mysecondplugin
+make_build/

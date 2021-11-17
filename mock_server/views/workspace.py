@@ -18,7 +18,6 @@ class Workspace(APIView):
     workspace_manager = FilesystemWorkspaceManager(WORKSPACE_BASE_PATH, WORKSPACE_TMP_PATH)
 
     def get(self, request):
-        logger.info('ladybug')
         qs = dict(request.query_params)
         if 'id' not in qs:
             try:

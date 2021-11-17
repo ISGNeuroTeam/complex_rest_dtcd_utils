@@ -13,7 +13,9 @@ default_ini_config = {
         'database':  'mock_server',
         'user': 'mock_server',
         'password': 'mock_server'
-    }
+    },
+    'graph': {},
+    'workspace': {}
 }
 
 config_parser = configparser.ConfigParser()
@@ -30,9 +32,9 @@ if not os.path.isdir(Path(__file__).parent / "public"):
 
 # graphs configuration
 
-GRAPH_BASE_PATH = os.path.expanduser(config_parser.get('graph', 'base_path'))
-GRAPH_TMP_PATH = os.path.expanduser(config_parser.get('graph', 'tmp_path'))
-GRAPH_ID_NAME_MAP_PATH = os.path.expanduser(config_parser.get('graph', 'id_name_map_path'))
+GRAPH_BASE_PATH = ini_config['graph']['base_path']
+GRAPH_TMP_PATH = ini_config['graph']['tmp_path']
+GRAPH_ID_NAME_MAP_PATH = ini_config['graph']['id_name_map_path']
 
 if not os.path.isdir(GRAPH_BASE_PATH):
     os.mkdir(Path(GRAPH_BASE_PATH))
@@ -45,8 +47,8 @@ if not os.path.isdir(GRAPH_ID_NAME_MAP_PATH):
 
 # workspace configuration
 
-WORKSPACE_BASE_PATH = os.path.expanduser(config_parser.get('workspace', 'base_path'))
-WORKSPACE_TMP_PATH = os.path.expanduser(config_parser.get('graph', 'tmp_path'))
+WORKSPACE_BASE_PATH = ini_config['workspace']['base_path']
+WORKSPACE_TMP_PATH = ini_config['workspace']['tmp_path']
 
 if not os.path.isdir(WORKSPACE_BASE_PATH):
     os.mkdir(Path(WORKSPACE_BASE_PATH))
