@@ -1541,7 +1541,7 @@ class InteractionSystem extends SystemPlugin {
 
   constructor() {
     super();
-    this.baseURL = window.location.origin + '/mock_server/v1';
+    this.baseURL = window.location.origin;
     this.instance = axios.create({
       baseURL: this.baseURL,
       headers: { 'Access-Control-Allow-Origin': '*' },

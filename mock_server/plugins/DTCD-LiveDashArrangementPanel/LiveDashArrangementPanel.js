@@ -553,57 +553,38 @@ var pluginMeta = {
 //
 //
 //
-//
-//
-//
-//
-//
 
 var script = {
   name: 'PluginComponent',
-  data: (self) => ({
+  data: self => ({
     // root
     guid: self.$root.guid,
     logSystem: self.$root.logSystem,
     layoutList: self.$root.layoutList,
     eventSystem: self.$root.eventSystem,
-    liveDashGUID: self.$root.liveDashGUID,
     //component
     isError: false,
-    isExpanded: true,
+    isExpanded: false,
     isMorphing: false,
     errorText: '',
     selectedLayout: 'hierarchic',
   }),
   computed: {
-    sortedLayoutList () {
+    sortedLayoutList() {
       return this.layoutList.sort();
     },
   },
-  mounted () {
-    const customAction = this.eventSystem.createActionByCallback(
-      'applyingArrangementComplete',
-      this.guid,
-      this.applyFinishHandler,
-    );
-    const customEvent = this.eventSystem.createEvent(
-      this.liveDashGUID,
-      'ApplyingArrangementComplete',
-    );
-    this.eventSystem.subscribe(customEvent, customAction);
-    this.logSystem.debug('ApplyingArrangementComplete event subscription');
-  },
   methods: {
-    applyArrangement () {
+    applyArrangement() {
       this.logSystem.debug(`Trying to apply ${this.selectedLayout} layout`);
       this.isError = false;
       this.isMorphing = true;
-      this.eventSystem.createAndPublish(this.guid, 'ApplyArrangement', {
+      this.eventSystem.publishEvent('ApplyArrangement', {
         layoutType: this.selectedLayout,
       });
     },
 
-    applyFinishHandler (event) {
+    applyFinishHandler(event) {
       const { status, layoutType, message } = event.args;
       if (status === 'failed') {
         this.isError = true;
@@ -845,11 +826,11 @@ __vue_render__._withStripped = true;
   /* style */
   const __vue_inject_styles__ = function (inject) {
     if (!inject) return
-    inject("data-v-a250a0e2_0", { source: "*[data-v-a250a0e2] {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Open Sans\", \"Helvetica Neue\", sans-serif;\n}\n.container[data-v-a250a0e2] {\n  display: flex;\n  background-color: #fff;\n  border: thin solid rgba(0, 0, 0, 0.5);\n  padding: 10px;\n  position: absolute;\n  right: 20px;\n  bottom: 20px;\n  z-index: 1;\n  transition: 0.3s;\n}\n.container .expand[data-v-a250a0e2] {\n  width: 30px;\n  height: 30px;\n}\n.container .content[data-v-a250a0e2] {\n  flex: 1 0;\n  display: flex;\n  justify-content: space-between;\n  margin-left: 15px;\n}\n.container .content .error[data-v-a250a0e2] {\n  display: flex;\n  align-items: center;\n  padding: 0 10px;\n  color: red;\n}\n.container .content .apply[data-v-a250a0e2] {\n  padding: 4px;\n}\n\n/*# sourceMappingURL=PluginComponent.vue.map */", map: {"version":3,"sources":["PluginComponent.vue","/home/ilya/Desktop/DTCD-LiveDashArrangementPanel/DTCD-LiveDashArrangementPanel/src/PluginComponent.vue"],"names":[],"mappings":"AAAA;EACE,sBAAsB;EACtB,SAAS;EACT,UAAU;EACV,wIAAwI;AAC1I;ACqFA;EACA,aAAA;EACA,sBAAA;EACA,qCAAA;EACA,aAAA;EACA,kBAAA;EACA,WAAA;EACA,YAAA;EACA,UAAA;EACA,gBAAA;ADlFA;ACoFA;EACA,WAAA;EACA,YAAA;ADlFA;ACqFA;EACA,SAAA;EACA,aAAA;EACA,8BAAA;EACA,iBAAA;ADnFA;ACqFA;EACA,aAAA;EACA,mBAAA;EACA,eAAA;EACA,UAAA;ADnFA;ACsFA;EACA,YAAA;ADpFA;;AAEA,8CAA8C","file":"PluginComponent.vue","sourcesContent":["* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Open Sans\", \"Helvetica Neue\", sans-serif;\n}\n\n.container {\n  display: flex;\n  background-color: #fff;\n  border: thin solid rgba(0, 0, 0, 0.5);\n  padding: 10px;\n  position: absolute;\n  right: 20px;\n  bottom: 20px;\n  z-index: 1;\n  transition: 0.3s;\n}\n.container .expand {\n  width: 30px;\n  height: 30px;\n}\n.container .content {\n  flex: 1 0;\n  display: flex;\n  justify-content: space-between;\n  margin-left: 15px;\n}\n.container .content .error {\n  display: flex;\n  align-items: center;\n  padding: 0 10px;\n  color: red;\n}\n.container .content .apply {\n  padding: 4px;\n}\n\n/*# sourceMappingURL=PluginComponent.vue.map */","<template>\n  <div class=\"container\">\n    <button class=\"expand\" @click=\"isExpanded = !isExpanded\">\n      <span v-if=\"isExpanded\" :key=\"'expanded'\">\n        <i class=\"fas fa-chevron-right\"/>\n      </span>\n      <span v-else :key=\"'notExpanded'\">\n        <i class=\"fas fa-chevron-left\"/>\n      </span>\n    </button>\n    <div v-if=\"isExpanded\" class=\"content\">\n      <select v-model=\"selectedLayout\">\n        <option\n          v-for=\"layout in sortedLayoutList\"\n          :key=\"layout\"\n          :value=\"layout\"\n          v-text=\"layout.toUpperCase()\"\n        />\n      </select>\n      <div v-if=\"isError\" class=\"error\" :title=\"errorText\">\n        <i class=\"fas fa-exclamation-circle\"/>\n      </div>\n      <button\n        class=\"apply\"\n        :disabled=\"isMorphing\"\n        @click=\"applyArrangement\"\n        v-text=\"'Apply'\"\n      />\n    </div>\n  </div>\n</template>\n\n<script>\nexport default {\n  name: 'PluginComponent',\n  data: (self) => ({\n    // root\n    guid: self.$root.guid,\n    logSystem: self.$root.logSystem,\n    layoutList: self.$root.layoutList,\n    eventSystem: self.$root.eventSystem,\n    liveDashGUID: self.$root.liveDashGUID,\n    //component\n    isError: false,\n    isExpanded: true,\n    isMorphing: false,\n    errorText: '',\n    selectedLayout: 'hierarchic',\n  }),\n  computed: {\n    sortedLayoutList () {\n      return this.layoutList.sort();\n    },\n  },\n  mounted () {\n    const customAction = this.eventSystem.createActionByCallback(\n      'applyingArrangementComplete',\n      this.guid,\n      this.applyFinishHandler,\n    );\n    const customEvent = this.eventSystem.createEvent(\n      this.liveDashGUID,\n      'ApplyingArrangementComplete',\n    );\n    this.eventSystem.subscribe(customEvent, customAction);\n    this.logSystem.debug('ApplyingArrangementComplete event subscription');\n  },\n  methods: {\n    applyArrangement () {\n      this.logSystem.debug(`Trying to apply ${this.selectedLayout} layout`);\n      this.isError = false;\n      this.isMorphing = true;\n      this.eventSystem.createAndPublish(this.guid, 'ApplyArrangement', {\n        layoutType: this.selectedLayout,\n      });\n    },\n\n    applyFinishHandler (event) {\n      const { status, layoutType, message } = event.args;\n      if (status === 'failed') {\n        this.isError = true;\n        this.errorText = `Cannot apply ${layoutType} layout: ${message}`;\n      }\n      this.isMorphing = false;\n    },\n  },\n};\n</script>\n\n<style lang=\"scss\" scoped>\n.container {\n  display: flex;\n  background-color: #fff;\n  border: thin solid rgba(0, 0, 0, .5);\n  padding: 10px;\n  position: absolute;\n  right: 20px;\n  bottom: 20px;\n  z-index: 1;\n  transition: .3s;\n\n  .expand {\n    width: 30px;\n    height: 30px;\n  }\n\n  .content {\n    flex: 1 0;\n    display: flex;\n    justify-content: space-between;\n    margin-left: 15px;\n\n    .error {\n      display: flex;\n      align-items: center;\n      padding: 0 10px;\n      color: red;\n    }\n\n    .apply {\n      padding: 4px;\n    }\n  }\n\n}\n</style>\n"]}, media: undefined });
+    inject("data-v-22221866_0", { source: "*[data-v-22221866] {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Open Sans\", \"Helvetica Neue\", sans-serif;\n}\n.container[data-v-22221866] {\n  display: flex;\n  background-color: #fff;\n  border: thin solid rgba(0, 0, 0, 0.5);\n  padding: 10px;\n  position: absolute;\n  right: 20px;\n  bottom: 20px;\n  z-index: 1;\n  transition: 0.3s;\n}\n.container .expand[data-v-22221866] {\n  width: 30px;\n  height: 30px;\n}\n.container .content[data-v-22221866] {\n  flex: 1 0;\n  display: flex;\n  justify-content: space-between;\n  margin-left: 15px;\n}\n.container .content .error[data-v-22221866] {\n  display: flex;\n  align-items: center;\n  padding: 0 10px;\n  color: red;\n}\n.container .content .apply[data-v-22221866] {\n  padding: 4px;\n}\n\n/*# sourceMappingURL=PluginComponent.vue.map */", map: {"version":3,"sources":["PluginComponent.vue","/home/ilya/Desktop/DTCD-LiveDashArrangementPanel/DTCD-LiveDashArrangementPanel/src/PluginComponent.vue"],"names":[],"mappings":"AAAA;EACE,sBAAsB;EACtB,SAAS;EACT,UAAU;EACV,wIAAwI;AAC1I;ACkEA;EACA,aAAA;EACA,sBAAA;EACA,qCAAA;EACA,aAAA;EACA,kBAAA;EACA,WAAA;EACA,YAAA;EACA,UAAA;EACA,gBAAA;AD/DA;ACiEA;EACA,WAAA;EACA,YAAA;AD/DA;ACkEA;EACA,SAAA;EACA,aAAA;EACA,8BAAA;EACA,iBAAA;ADhEA;ACkEA;EACA,aAAA;EACA,mBAAA;EACA,eAAA;EACA,UAAA;ADhEA;ACmEA;EACA,YAAA;ADjEA;;AAEA,8CAA8C","file":"PluginComponent.vue","sourcesContent":["* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Open Sans\", \"Helvetica Neue\", sans-serif;\n}\n\n.container {\n  display: flex;\n  background-color: #fff;\n  border: thin solid rgba(0, 0, 0, 0.5);\n  padding: 10px;\n  position: absolute;\n  right: 20px;\n  bottom: 20px;\n  z-index: 1;\n  transition: 0.3s;\n}\n.container .expand {\n  width: 30px;\n  height: 30px;\n}\n.container .content {\n  flex: 1 0;\n  display: flex;\n  justify-content: space-between;\n  margin-left: 15px;\n}\n.container .content .error {\n  display: flex;\n  align-items: center;\n  padding: 0 10px;\n  color: red;\n}\n.container .content .apply {\n  padding: 4px;\n}\n\n/*# sourceMappingURL=PluginComponent.vue.map */","<template>\n  <div class=\"container\">\n    <button class=\"expand\" @click=\"isExpanded = !isExpanded\">\n      <span v-if=\"isExpanded\" :key=\"'expanded'\">\n        <i class=\"fas fa-chevron-right\" />\n      </span>\n      <span v-else :key=\"'notExpanded'\">\n        <i class=\"fas fa-chevron-left\" />\n      </span>\n    </button>\n    <div v-if=\"isExpanded\" class=\"content\">\n      <select v-model=\"selectedLayout\">\n        <option\n          v-for=\"layout in sortedLayoutList\"\n          :key=\"layout\"\n          :value=\"layout\"\n          v-text=\"layout.toUpperCase()\"\n        />\n      </select>\n      <div v-if=\"isError\" class=\"error\" :title=\"errorText\">\n        <i class=\"fas fa-exclamation-circle\" />\n      </div>\n      <button class=\"apply\" :disabled=\"isMorphing\" @click=\"applyArrangement\" v-text=\"'Apply'\" />\n    </div>\n  </div>\n</template>\n\n<script>\nexport default {\n  name: 'PluginComponent',\n  data: self => ({\n    // root\n    guid: self.$root.guid,\n    logSystem: self.$root.logSystem,\n    layoutList: self.$root.layoutList,\n    eventSystem: self.$root.eventSystem,\n    //component\n    isError: false,\n    isExpanded: false,\n    isMorphing: false,\n    errorText: '',\n    selectedLayout: 'hierarchic',\n  }),\n  computed: {\n    sortedLayoutList() {\n      return this.layoutList.sort();\n    },\n  },\n  methods: {\n    applyArrangement() {\n      this.logSystem.debug(`Trying to apply ${this.selectedLayout} layout`);\n      this.isError = false;\n      this.isMorphing = true;\n      this.eventSystem.publishEvent('ApplyArrangement', {\n        layoutType: this.selectedLayout,\n      });\n    },\n\n    applyFinishHandler(event) {\n      const { status, layoutType, message } = event.args;\n      if (status === 'failed') {\n        this.isError = true;\n        this.errorText = `Cannot apply ${layoutType} layout: ${message}`;\n      }\n      this.isMorphing = false;\n    },\n  },\n};\n</script>\n\n<style lang=\"scss\" scoped>\n.container {\n  display: flex;\n  background-color: #fff;\n  border: thin solid rgba(0, 0, 0, 0.5);\n  padding: 10px;\n  position: absolute;\n  right: 20px;\n  bottom: 20px;\n  z-index: 1;\n  transition: 0.3s;\n\n  .expand {\n    width: 30px;\n    height: 30px;\n  }\n\n  .content {\n    flex: 1 0;\n    display: flex;\n    justify-content: space-between;\n    margin-left: 15px;\n\n    .error {\n      display: flex;\n      align-items: center;\n      padding: 0 10px;\n      color: red;\n    }\n\n    .apply {\n      padding: 4px;\n    }\n  }\n}\n</style>\n"]}, media: undefined });
 
   };
   /* scoped */
-  const __vue_scope_id__ = "data-v-a250a0e2";
+  const __vue_scope_id__ = "data-v-22221866";
   /* module identifier */
   const __vue_module_identifier__ = undefined;
   /* functional template */
@@ -884,27 +865,31 @@ class LiveDashArrangementPanel extends ExtensionPlugin {
     };
   }
 
-  constructor(guid, selector, liveDashGUID, layoutList) {
+  constructor(guid, selector, layoutList) {
     super();
     const logSystem = new LogSystemAdapter(guid, pluginMeta.name);
     logSystem.debug(`Start of ${pluginMeta.name} creation`);
-    const eventSystem = new EventSystemAdapter();
+    const eventSystem = new EventSystemAdapter(guid);
     const {
       default: VueJS
     } = this.getDependence('Vue');
     const data = {
       guid,
-      liveDashGUID,
       layoutList,
       logSystem,
       eventSystem
     };
-    new VueJS({
+    this.vue = new VueJS({
       data: () => data,
       render: h => h(__vue_component__)
     }).$mount(selector);
     logSystem.debug(`End of ${pluginMeta.name} creation`);
     logSystem.info(`${pluginMeta.name} initialization complete`);
+  }
+
+  applyFinishHandler(event) {
+    const component = this.vue.$children[0];
+    return component.applyFinishHandler(event);
   }
 
 }

@@ -92,7 +92,7 @@ function n(n, r) {
   }
 }
 
-var css$3 = "body {\n  margin: 0;\n}\n\n.grid-stack {\n  margin-bottom: 30px;\n}\n\n.grid-stack-item-content {\n  position: relative;\n  border: 1px solid gray;\n  transition: 0.3s;\n}\n.gridstack-content-container {\n  height: 100%;\n}\n\n.gridstack-panel-overlay:before {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  left: 0;\n  height: 100%;\n  width: 100%;\n  z-index: 1500;\n  background-color: #3c1c7836;\n}\n\n.gridstack-panel-header {\n  display: flex;\n  justify-content: flex-end;\n  align-items: center;\n  position: absolute;\n  z-index: 2000;\n  width: 100%;\n  height: 2em;\n  background-color: rgb(102, 102, 102);\n}\n\n.default-select-panel {\n  border: none;\n  outline: none;\n  background: transparent;\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  appearance: none;\n  border-radius: 0;\n  margin: 0;\n  display: block;\n  width: 100%;\n  padding: 12px 55px 15px 15px;\n  font-size: 14px;\n  background-color: hsla(212, 44%, 51%, 0.418);\n}\n.default-select-panel:after {\n  position: absolute;\n  right: 0;\n  top: 0;\n  width: 50px;\n  height: 100%;\n  line-height: 38px;\n  content: '∨';\n  text-align: center;\n  color: #714bb9;\n  font-size: 24px;\n  border-left: 1px solid #3c1c78;\n  z-index: -1;\n}\n\n.close-panel-button {\n  background-color: none;\n  width: 10px;\n  margin-right: 0.5em;\n}\n\n.handle-drag-of-panel {\n  /* cursor: grab; */\n}\n.handle-drag-of-panel > * {\n  /* cursor: pointer; */\n}\n.ui-resizable-handle {\n  z-index: 15000 !important;\n}\n";
+var css$3 = "body {\n  margin: 0;\n  background-color: #f4f4fa;\n}\n\n.grid-stack {\n  margin-bottom: 30px;\n}\n\n.grid-stack-item-content {\n  position: relative;\n  border: 2px solid #f4f4fa;\n  transition: 0.3s;\n  padding: 6px;\n  background-color: #fefefe;\n}\n.gridstack-content-container {\n  height: 100%;\n}\n\n.gridstack-panel-overlay:before {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  left: 0;\n  height: 100%;\n  width: 100%;\n  z-index: 1500;\n  background-color: #3c1c7836;\n}\n\n.gridstack-panel-header {\n  display: flex;\n  justify-content: flex-end;\n  align-items: center;\n  z-index: 2000;\n  height: 2em;\n  background-color: rgb(102, 102, 102);\n}\n\n.default-select-panel {\n  border: none;\n  outline: none;\n  background: transparent;\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  appearance: none;\n  border-radius: 0;\n  margin: 0;\n  display: block;\n  width: 100%;\n  padding: 12px 55px 15px 15px;\n  font-size: 14px;\n  background-color: hsla(212, 44%, 51%, 0.418);\n}\n.default-select-panel:after {\n  position: absolute;\n  right: 0;\n  top: 0;\n  width: 50px;\n  height: 100%;\n  line-height: 38px;\n  content: '∨';\n  text-align: center;\n  color: #714bb9;\n  font-size: 24px;\n  border-left: 1px solid #3c1c78;\n  z-index: -1;\n}\n\n.close-panel-button {\n  background-color: none;\n  width: 10px;\n  margin-right: 0.5em;\n}\n\n.handle-drag-of-panel {\n  /* cursor: grab; */\n}\n.handle-drag-of-panel > * {\n  /* cursor: pointer; */\n}\n.ui-resizable-handle {\n  z-index: 15000 !important;\n}\n";
 n(css$3,{});
 
 var css$2 = ".workspace-header {\n  height: 30px;\n  width: 100%;\n  background-color: #272A3A;\n  color: #FFF;\n}\n\n.workspace-header-wrapper {\n  height: 30px;\n  display: flex;\n  justify-content: space-between;\n  margin: 0 15px;\n}\n\n.workspace-header-menu {\n  height: 30px;\n  display: flex;\n  align-items: center;\n  column-gap: 40px;\n}\n\n.workspace-header-logo {\n  font-size: 18px;\n  font-weight: 800;\n}\n\n.workspace-header-item {\n  font-size: 13px;\n  /* cursor: pointer; */\n}\n\n.workspace-header-right-menu { \n  height: 30px;\n  display: flex;\n  align-items: center;\n}\n\n.user-icon {\n  height: 18px;\n  width: 18px;\n  background-color: #AF52DE;\n  border-radius: 50%;\n  margin-left: 29px;\n}\n\n.username {\n  font-size: 13px;\n  font-weight: 600;\n  margin-left: 6px;\n  margin-right: 9px;\n}";
@@ -100,10 +100,6 @@ n(css$2,{});
 
 var css$1 = ".workspace-footer {\n  width: 100%;\n  height: 30px;\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  background-color: #FEFEFE;\n  display: flex;\n  line-height: 30px;\n}\n.workspace-footer-item {\n  font-size: 15px;\n  font-style: normal;\n  font-weight: normal;\n  color: #51515C;\n  padding: 0 16px;\n  background-color: rgba(198, 198, 212, 0.12);\n  cursor: pointer;\n}\n.active-tab {\n  background: rgba(5, 121, 247, 0.12);\n  color: #0579F7;\n}";
 n(css$1,{});
-
-var headerTemplate = "<div class=\"workspace-header-wrapper\">\n  <div class=\"workspace-header-menu\">\n    <div class=\"workspace-header-logo\">LOGO</div>\n    <div class=\"workspace-header-item\">DataCAD</div>\n    <div class=\"workspace-header-item\">Работа с данными</div>\n    <div class=\"workspace-header-item\">Дашборды</div>\n    <div class=\"workspace-header-item\">Приложения</div>\n    <div class=\"workspace-header-item\">Помощь</div>\n  </div>\n  <div class=\"workspace-header-right-menu\">\n    <svg width=\"18\" height=\"18\" viewBox=\"0 0 18 18\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <path d=\"M9 16.5C8.17204 16.4959 7.50069 15.8279 7.4925 15H10.4925C10.4941 15.2005 10.4558 15.3994 10.38 15.585C10.1832 16.0365 9.78136 16.3658 9.3 16.47H9.29625H9.285H9.2715H9.26475C9.17761 16.4881 9.08899 16.4982 9 16.5ZM15 14.25H3V12.75L4.5 12V7.875C4.46049 6.81684 4.69945 5.76684 5.193 4.83C5.68428 3.96113 6.52402 3.34416 7.5 3.135V1.5H10.5V3.135C12.4342 3.5955 13.5 5.2785 13.5 7.875V12L15 12.75V14.25Z\" fill=\"white\"/>\n    </svg>\n    <div class=\"user-icon\"></div>\n    <div class=\"username\">Username</div>\n    <svg width=\"18\" height=\"18\" viewBox=\"0 0 18 18\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <path d=\"M8.99993 11.7848L13.5074 7.27725L12.4477 6.216L8.99993 9.666L5.55293 6.216L4.49243 7.2765L8.99993 11.7848Z\" fill=\"white\"/>\n    </svg>\n  </div>\n</div>\n";
-
-var footerTemplate = "<div onclick=\"selectTab(1)\" class=\"workspace-footer-item active-tab\">\n  Чистая прибыль EBITDA\n</div>\n<div onclick=\"selectTab(2)\" class=\"workspace-footer-item\">\n  Дашборд ГД\n</div>\n<div onclick=\"selectTab(3)\" class=\"workspace-footer-item\">\n  Дашборд ЗГД\n</div>\n";
 
 class BaseAdapter {
   /**
@@ -277,181 +273,165 @@ class LogSystemAdapter extends BaseAdapter {
 
 }
 
+var _guid$1 = /*#__PURE__*/new WeakMap();
+
+var _instance = /*#__PURE__*/new WeakMap();
+
 class EventSystemAdapter extends BaseAdapter {
   /**
    * @constructor
+   * @param {String} guid guid of plugin, in which the adapter instance will be inited
    */
-  constructor() {
+  constructor(guid) {
     super();
-    this.instance = this.getSystem('EventSystem');
+
+    _classPrivateFieldInitSpec(this, _guid$1, {
+      writable: true,
+      value: void 0
+    });
+
+    _classPrivateFieldInitSpec(this, _instance, {
+      writable: true,
+      value: void 0
+    });
+
+    _classPrivateFieldSet(this, _guid$1, guid);
+
+    _classPrivateFieldSet(this, _instance, this.getSystem('EventSystem'));
   }
   /**
-   * Adding CustomEvent object to events array
-   * @param {Object} customEvent
-   */
-
-
-  registerEvent(customEvent) {
-    this.instance.registerEvent(customEvent);
-    return true;
-  }
-  /**
-   * Creates and publishes a new event to EventSystem
-   * @param {Number} guid identifier of plugin instance
-   * @param {String} eventName event name
-   * @param {*} args additional data in event for action
-   */
-
-
-  createAndPublish(guid, eventName, args) {
-    this.instance.createAndPublish(guid, eventName, args);
-  }
-  /**
-   * Publishes event from CustomEvent instance
-   * @param {CustomEvent} customEvent instance of CustomEvent
-   */
-
-
-  publishEvent(customEvent) {
-    this.instance.publishEvent(customEvent);
-  }
-  /**
-   * Creates new instance of CustomEvent
-   * @param {Number} guid identifier of plugin instance
-   * @param {String} eventName event name
-   * @param {*} args additional data in event for action
-   * @returns {CustomEvent} created instance of CustomEvent
-   */
-
-
-  createEvent(guid, eventName, args = null) {
-    return this.instance.createEvent(guid, eventName, args);
-  }
-  /**
-   * Creates new instance of CustomAction
-   * @param {String} actionName action name
-   * @param {Number} guid identifier of plugin instance
-   * @param {*} args ...
-   * @returns {CustomAction} created instance of CustomAction
-   */
-
-
-  createAction(actionName, guid, args = null) {
-    return this.instance.createAction(actionName, guid, args);
-  }
-  /**
-   * Creates instance of CustomAction from the given callback and pushes it to action list
-   * @param {String} actionName action name
-   * @param {Number} guid identifier of plugin instance
-   * @param {Function} callback callback whitch invoked on event
-   * @param {*} args ...
-   * @returns {CustomAction} created instance of CustomAction
-   */
-
-
-  createActionByCallback(actionName, guid, callback, args = null) {
-    return this.instance.createActionByCallback(actionName, guid, callback, args);
-  }
-  /**
-   * Subsribes all events with the given name to action with the given actionID
-   * @param {String} eventName event name
-   * @param {String} actionID action id
+   * Configure state of EventSystem by object
+   * @method
+   * @param {*} conf Config object
    * @returns {Boolean} true, if everything is ok
    */
 
 
-  subscribeEventsByName(eventName, actionID) {
-    return this.instance.subscribeEventsByName(eventName, actionID);
+  setPluginConfig(conf) {
+    return _classPrivateFieldGet(this, _instance).setPluginConfig(conf);
   }
   /**
-   * Subsribes all events with the given eventName to all action with the given actionName
+   * Getting state of EventSystem
+   * @method
+   * @returns {*} State of system by object
+   */
+
+
+  getPluginConfig() {
+    return _classPrivateFieldGet(this, _instance).getPluginConfig();
+  } // ---- getters ----
+
+
+  get events() {
+    return _classPrivateFieldGet(this, _instance).events;
+  }
+
+  get actions() {
+    return _classPrivateFieldGet(this, _instance).actions;
+  }
+
+  get subscriptions() {
+    return _classPrivateFieldGet(this, _instance).subscriptions;
+  }
+  /**
+   * Register methods of instance as actions in EventSystem. Register events of instance by names.
+   * @method
+   * @param {*} obj An instance of the plugin being registered
+   * @param {String[]} eventList Array of eventNames of plugin that being registered
+   * @param {String} customGUID instance guid of plugin that will register
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  registerPluginInstance(obj, eventList, customGUID) {
+    if (typeof customGUID === 'undefined') return _classPrivateFieldGet(this, _instance).registerPluginInstance(_classPrivateFieldGet(this, _guid$1), obj, eventList);else return _classPrivateFieldGet(this, _instance).registerPluginInstance(customGUID, obj, eventList);
+  }
+  /**
+   * Adding event type to event list into eventSystem (register them)
+   * @method
    * @param {String} eventName event name
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  registerEvent(eventName, args) {
+    return _classPrivateFieldGet(this, _instance).registerEvent(_classPrivateFieldGet(this, _guid$1), eventName, args);
+  }
+  /**
+   * Register new action
+   * @method
    * @param {String} actionName action name
+   * @param {Function} callback callback whitch invoked on event
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  registerAction(actionName, callback) {
+    return _classPrivateFieldGet(this, _instance).createActionByCallback(_classPrivateFieldGet(this, _guid$1), actionName, callback);
+  }
+  /**
+   * Publishes event from instance by name
+   * @method
+   * @param {String} eventName event name
+   * @param {*} args ...
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  publishEvent(eventName, args) {
+    return _classPrivateFieldGet(this, _instance).publishEvent(_classPrivateFieldGet(this, _guid$1), eventName, args);
+  }
+  /**
+   * Subscribing
+   * @method
+   * @param {String} eventGUID instance guid of firing plugin
+   * @param {String} eventName name of event
+   * @param {String} actionsGUID instance guid of plugin whom invoke callback
+   * @param {String} actionName name of action
+   * @returns {String} token of subscription
+   */
+
+
+  subscribe(eventGUID, eventName, actionGUID, actionName) {
+    return _classPrivateFieldGet(this, _instance).subscribe(eventGUID, eventName, actionGUID, actionName);
+  }
+  /**
+   * Subsribes all events with the given name to the action
+   * @method
+   * @param {String} actionsGUID instance guid of plugin who invokes callback
+   * @param {String} actionName name of action
+   * @param {String} eventName name of event
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  subscribeActionOnEventName(actionGUID, actionName, eventName) {
+    return _classPrivateFieldGet(this, _instance).subscribeActionOnEventName(actionGUID, actionName, eventName);
+  }
+  /**
+   * Subsribes all events with the given name to the action
+   * @method
+   * @param {String} eventGUID instance guid of plugin who publishes the event
+   * @param {String} eventName name of action
+   * @param {String} actionName name of action
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  subscribeEventOnActionName(eventGUID, eventName, actionName) {
+    return _classPrivateFieldGet(this, _instance).subscribeEventOnActionName(eventGUID, eventName, actionName);
+  }
+  /**
+   * Subsribe all actions with the given name on all events with name
+   * @method
+   * @param {String} eventName name of action
+   * @param {String} actionName name of action
    * @returns {Boolean} true, if everything is ok
    */
 
 
   subscribeByNames(eventName, actionName) {
-    return this.instance.subscribeByNames(eventName, actionName);
-  }
-  /**
-   * Subscribes the given instance of event to the given instace of action
-   * @param {CustomEvent} event instance of CustomEvent
-   * @param {CustomAction} action instance of CustomAction
-   * @returns {Boolean} true, if everything is ok
-   */
-
-
-  subscribe(event, action) {
-    return this.instance.subscribe(event, action);
-  }
-  /**
-   * Subscribes to all events with the given event name and sets the given callback
-   * @param {String} eventName
-   * @param {Function} callback
-   */
-
-
-  subscribeEventNameByCallback(eventName, callback) {
-    this.instance.subscribeEventNameByCallback(eventName, callback);
-  }
-  /**
-   * Returns instace of action stored in EventSystem from the given actionID
-   * @param {String} actionID actionID of the action
-   * @returns {CustomAction} instance of CustomAction stored in EventSystem
-   */
-
-
-  findActionById(actionID) {
-    return this.instance.findAction(actionID);
-  }
-  /**
-   * Returns instace of event stored in EventSystem from the given eventID
-   * @param {String} eventID eventID of the event
-   * @returns {CustomEvent} instance of CustomEvent stored in EventSystem
-   */
-
-
-  findEventById(eventID) {
-    return this.instance.findEventById(eventID);
-  }
-  /**
-   * Returns instaces of events stored in EventSystem from the given event name
-   * @param {String} eventName event name
-   * @returns {Array} instaces of events stored in EventSystem
-   */
-
-
-  findEventsByName(eventName) {
-    return this.instance.findEventsByName(eventName);
-  }
-  /**
-   * Returns instaces of actions stored in EventSystem from the given action name
-   * @param {String} actionName
-   * @returns {Array} instaces of actions stored in EventSystem
-   */
-
-
-  findActionsByName(actionName) {
-    return this.instance.findActionsByName(actionName);
-  }
-  /**
-   * Return list of available event instances stored in EventSystem
-   * @returns {Array} instaces of events stored in EventSystem
-   */
-
-
-  showAvailableEvents() {
-    return this.instance.showAvailableEvents();
-  }
-  /**
-   * Return list of available action instances stored in EventSystem
-   * @returns {Array} instaces of actions stored in EventSystem
-   */
-
-
-  showAvailableActions() {
-    return this.instance.showAvailableActions();
+    return _classPrivateFieldGet(this, _instance).subscribeByNames(eventName, actionName);
   }
 
 }
@@ -661,6 +641,16 @@ class AbstractPlugin {
 
   getGUID(instance) {
     return Application.getGUID(instance);
+  }
+  /**
+   * Getting list of all GUID's
+   * @method
+   * @returns {String[]}
+   */
+
+
+  getGUIDList() {
+    return Application.getGUIDList();
   }
 
   getPlugin(name, type = false) {
@@ -6298,81 +6288,78 @@ createCommonjsModule(function (module, exports) {
   gridstackDd.GridStackDD.registerPlugin(GridStackDDNative);
 });
 
-var title = "Empty configuration";
-var column = 12;
-var systems = [
+var headerTemplate = "<div class=\"workspace-header-wrapper\">\n  <div class=\"workspace-header-menu\">\n    <div class=\"workspace-header-logo\">LOGO</div>\n    <div class=\"workspace-header-item\">DataCAD</div>\n    <div class=\"workspace-header-item\">Работа с данными</div>\n    <div class=\"workspace-header-item\">Дашборды</div>\n    <div class=\"workspace-header-item\">Приложения</div>\n    <div class=\"workspace-header-item\">Помощь</div>\n  </div>\n  <div class=\"workspace-header-right-menu\">\n    <svg width=\"18\" height=\"18\" viewBox=\"0 0 18 18\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <path d=\"M9 16.5C8.17204 16.4959 7.50069 15.8279 7.4925 15H10.4925C10.4941 15.2005 10.4558 15.3994 10.38 15.585C10.1832 16.0365 9.78136 16.3658 9.3 16.47H9.29625H9.285H9.2715H9.26475C9.17761 16.4881 9.08899 16.4982 9 16.5ZM15 14.25H3V12.75L4.5 12V7.875C4.46049 6.81684 4.69945 5.76684 5.193 4.83C5.68428 3.96113 6.52402 3.34416 7.5 3.135V1.5H10.5V3.135C12.4342 3.5955 13.5 5.2785 13.5 7.875V12L15 12.75V14.25Z\" fill=\"white\"/>\n    </svg>\n    <div class=\"user-icon\"></div>\n    <div class=\"username\">Username</div>\n    <svg width=\"18\" height=\"18\" viewBox=\"0 0 18 18\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <path d=\"M8.99993 11.7848L13.5074 7.27725L12.4477 6.216L8.99993 9.666L5.55293 6.216L4.49243 7.2765L8.99993 11.7848Z\" fill=\"white\"/>\n    </svg>\n  </div>\n</div>\n";
+
+var footerTemplate = "<div onclick=\"selectTab(1)\" class=\"workspace-footer-item active-tab\">\n  Чистая прибыль EBITDA\n</div>\n<div onclick=\"selectTab(2)\" class=\"workspace-footer-item\">\n  Дашборд ГД\n</div>\n<div onclick=\"selectTab(3)\" class=\"workspace-footer-item\">\n  Дашборд ЗГД\n</div>\n";
+
+function toMountTemplates() {
+  const header = document.createElement('div');
+  header.innerHTML = headerTemplate;
+  header.classList.add('workspace-header');
+  document.body.appendChild(header);
+  const gridBody = document.createElement('div');
+  gridBody.setAttribute('class', 'grid-stack');
+  gridBody.style = 'width:100%;height:100%';
+  document.body.appendChild(gridBody);
+  const footer = document.createElement('div');
+  footer.innerHTML = footerTemplate;
+  footer.classList.add('workspace-footer');
+  document.body.appendChild(footer);
+}
+
+var column$1 = 12;
+var plugins$1 = [
 	{
-		name: "WorkspaceSystem",
-		version: "0.2.0",
-		guid: "guid1",
-		metadata: {
-		}
-	}
-];
-var panels = [
-	{
-		name: "MenuPanel",
-		undeletable: true,
-		version: "1.0.0",
-		guid: "guid2",
+		meta: {
+			type: "panel",
+			name: "MenuPanel",
+			title: "Панель меню",
+			version: "0.1.0"
+		},
 		position: {
-			x: 0,
-			y: 0,
-			w: 12,
-			h: 1
+			w: 12
 		},
-		metadata: {
-		}
-	}
-];
-var subscriptions = [
-	{
-		event: {
-			name: "ChangeWorkspaceEditMode",
-			guid: "guid2"
-		},
-		action: {
-			name: "changeMode",
-			guid: "guid1"
-		}
-	},
-	{
-		event: {
-			name: "DefaultAddWorkspacePanel",
-			guid: "guid2"
-		},
-		action: {
-			name: "createEmptyCell",
-			guid: "guid1"
-		}
-	},
-	{
-		event: {
-			name: "CompactWorkspacePanel",
-			guid: "guid2"
-		},
-		action: {
-			name: "compactAllPanels",
-			guid: "guid1"
-		}
-	},
-	{
-		event: {
-			name: "BackToWorkspaceSelection",
-			guid: "guid2"
-		},
-		action: {
-			name: "setDefaultConfiguration",
-			guid: "guid1"
-		}
+		undeletable: true
 	}
 ];
 var emptyConfiguration = {
-	title: title,
+	column: column$1,
+	plugins: plugins$1
+};
+
+var column = 12;
+var id = -1;
+var title = "Default workspace configuration";
+var plugins = [
+	{
+		meta: {
+			name: "WorkspaceSystem",
+			version: "0.2.0",
+			type: "core"
+		},
+		guid: "guid1"
+	},
+	{
+		guid: "guid2",
+		undeletable: true,
+		position: {
+			x: 3,
+			y: 1,
+			w: 5,
+			h: 5
+		},
+		meta: {
+			name: "WorkspacePanel",
+			version: "0.1.0",
+			type: "panel"
+		}
+	}
+];
+var defaultConfiguration = {
 	column: column,
-	systems: systems,
-	panels: panels,
-	subscriptions: subscriptions
+	id: id,
+	title: title,
+	plugins: plugins
 };
 
 document.selectTab = async function (tabNumber) {
@@ -6383,33 +6370,36 @@ document.selectTab = async function (tabNumber) {
 
 var _guid = /*#__PURE__*/new WeakMap();
 
-var _editMode = /*#__PURE__*/new WeakMap();
-
 var _eventSystem = /*#__PURE__*/new WeakMap();
 
 var _interactionSystem = /*#__PURE__*/new WeakMap();
 
 var _logSystem = /*#__PURE__*/new WeakMap();
 
-var _panels = /*#__PURE__*/new WeakMap();
+var _emptyConfiguration = /*#__PURE__*/new WeakMap();
 
 var _defaultConfiguration = /*#__PURE__*/new WeakMap();
 
-var _currentConfiguration = /*#__PURE__*/new WeakMap();
+var _panels = /*#__PURE__*/new WeakMap();
+
+var _currentTitle = /*#__PURE__*/new WeakMap();
+
+var _currentID = /*#__PURE__*/new WeakMap();
+
+var _column = /*#__PURE__*/new WeakMap();
 
 var _grid = /*#__PURE__*/new WeakMap();
 
+var _editMode = /*#__PURE__*/new WeakMap();
+
 var _numberPanelIncrement = /*#__PURE__*/new WeakMap();
-
-var _emptyConfiguration = /*#__PURE__*/new WeakMap();
-
-var _downloadConfiguration = /*#__PURE__*/new WeakSet();
-
-var _setConfiguration = /*#__PURE__*/new WeakSet();
 
 var _createUndeletableCell = /*#__PURE__*/new WeakSet();
 
-class Plugin extends SystemPlugin {
+class WorkspaceSystem extends SystemPlugin {
+  // ---- PLUGIN PROPS ----
+  // ---- STATE ----
+  // ---- INTERNAL'S ----
   static getRegistrationMeta() {
     return {
       name: 'WorkspaceSystem',
@@ -6421,25 +6411,12 @@ class Plugin extends SystemPlugin {
     };
   }
 
-  get panels() {
-    return _classPrivateFieldGet(this, _panels);
-  }
-
   constructor(_guid2) {
     super();
 
     _classPrivateMethodInitSpec(this, _createUndeletableCell);
 
-    _classPrivateMethodInitSpec(this, _setConfiguration);
-
-    _classPrivateMethodInitSpec(this, _downloadConfiguration);
-
     _classPrivateFieldInitSpec(this, _guid, {
-      writable: true,
-      value: void 0
-    });
-
-    _classPrivateFieldInitSpec(this, _editMode, {
       writable: true,
       value: void 0
     });
@@ -6459,7 +6436,7 @@ class Plugin extends SystemPlugin {
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _panels, {
+    _classPrivateFieldInitSpec(this, _emptyConfiguration, {
       writable: true,
       value: void 0
     });
@@ -6469,7 +6446,22 @@ class Plugin extends SystemPlugin {
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _currentConfiguration, {
+    _classPrivateFieldInitSpec(this, _panels, {
+      writable: true,
+      value: void 0
+    });
+
+    _classPrivateFieldInitSpec(this, _currentTitle, {
+      writable: true,
+      value: void 0
+    });
+
+    _classPrivateFieldInitSpec(this, _currentID, {
+      writable: true,
+      value: void 0
+    });
+
+    _classPrivateFieldInitSpec(this, _column, {
       writable: true,
       value: void 0
     });
@@ -6479,69 +6471,33 @@ class Plugin extends SystemPlugin {
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _numberPanelIncrement, {
+    _classPrivateFieldInitSpec(this, _editMode, {
       writable: true,
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _emptyConfiguration, {
+    _classPrivateFieldInitSpec(this, _numberPanelIncrement, {
       writable: true,
       value: void 0
     });
 
     _classPrivateFieldSet(this, _guid, _guid2);
 
-    _classPrivateFieldSet(this, _editMode, false);
-
-    _classPrivateFieldSet(this, _eventSystem, new EventSystemAdapter());
+    _classPrivateFieldSet(this, _eventSystem, new EventSystemAdapter(_guid2));
 
     _classPrivateFieldSet(this, _interactionSystem, new InteractionSystemAdapter());
 
     _classPrivateFieldSet(this, _logSystem, new LogSystemAdapter(_classPrivateFieldGet(this, _guid), 'WorkspaceSystem'));
 
-    _classPrivateFieldSet(this, _panels, []);
-
-    _classPrivateFieldSet(this, _defaultConfiguration, {
-      column: 12,
-      title: 'Default workspace configuration',
-      systems: [{
-        name: 'WorkspaceSystem',
-        version: '0.2.0',
-        guid: 'guid1',
-        metadata: {}
-      }],
-      panels: [{
-        name: 'WorkspacePanel',
-        version: '0.1.0',
-        guid: 'guid2',
-        undeletable: true,
-        position: {
-          x: 3,
-          y: 1,
-          w: 5,
-          h: 5
-        },
-        metadata: {}
-      }],
-      subscriptions: []
-    });
+    _classPrivateFieldSet(this, _defaultConfiguration, defaultConfiguration);
 
     _classPrivateFieldSet(this, _emptyConfiguration, emptyConfiguration);
 
-    _classPrivateFieldSet(this, _currentConfiguration, {});
+    _classPrivateFieldSet(this, _panels, []);
 
-    const header = document.createElement('div');
-    header.innerHTML = headerTemplate;
-    header.classList.add('workspace-header');
-    document.body.appendChild(header);
-    const gridBody = document.createElement('div');
-    gridBody.setAttribute('class', 'grid-stack');
-    gridBody.style = 'width:100%;height:100%';
-    document.body.appendChild(gridBody);
-    const footer = document.createElement('div');
-    footer.innerHTML = footerTemplate;
-    footer.classList.add('workspace-footer');
-    document.body.appendChild(footer); // GRIDSTACK INSTANCE OPTIONS
+    _classPrivateFieldSet(this, _editMode, false);
+
+    toMountTemplates(); // GRIDSTACK INSTANCE OPTIONS
 
     _classPrivateFieldSet(this, _grid, gridstack.GridStack.init({
       styleInHead: true,
@@ -6559,14 +6515,25 @@ class Plugin extends SystemPlugin {
     _classPrivateFieldSet(this, _numberPanelIncrement, 0);
   }
 
+  get currentWorkspaceTitle() {
+    return _classPrivateFieldGet(this, _currentTitle);
+  }
+
+  get currentWorkspaceID() {
+    return _classPrivateFieldGet(this, _currentID);
+  }
+
+  get panels() {
+    return _classPrivateFieldGet(this, _panels);
+  }
+
   async init() {
     const parsedURL = new URLSearchParams(window.location.search);
 
     if (!parsedURL.has('workspace')) {
       _classPrivateFieldGet(this, _logSystem).debug('Initializing default workspace configuration');
 
-      _classPrivateMethodGet(this, _setConfiguration, _setConfiguration2).call(this, _classPrivateFieldGet(this, _defaultConfiguration));
-
+      await this.setPluginConfig(_classPrivateFieldGet(this, _defaultConfiguration));
       return;
     }
 
@@ -6577,88 +6544,173 @@ class Plugin extends SystemPlugin {
     await this.setConfiguration(id);
   }
 
-  async getConfigurationList() {
-    const response = await _classPrivateFieldGet(this, _interactionSystem).GETRequest('/workspace/object');
-    return response.data;
-  }
+  getPluginConfig() {
+    const plugins = [];
+    this.getGUIDList().map(this.getInstance).forEach(instance => {
+      // ---- pluginInfo {guid, meta, config, position, undeletable}
+      const guid = this.getGUID(instance);
+      const meta = instance.constructor.getRegistrationMeta();
+      const config = typeof instance.getPluginConfig === 'function' && instance !== this ? instance.getPluginConfig() : null;
+      let position;
+      let undeletable;
 
-  async setConfiguration(id) {
-    if (typeof id != 'number') {
-      _classPrivateFieldGet(this, _logSystem).error('Wrong argument type: must be integer');
+      const panel = _classPrivateFieldGet(this, _panels).find(panel => panel.instance === instance);
 
-      return;
-    }
-
-    await _classPrivateMethodGet(this, _downloadConfiguration, _downloadConfiguration2).call(this, id);
-
-    _classPrivateMethodGet(this, _setConfiguration, _setConfiguration2).call(this, _classPrivateFieldGet(this, _currentConfiguration));
-  }
-
-  setDefaultConfiguration() {
-    if (_classPrivateFieldGet(this, _editMode)) this.changeMode();
-
-    _classPrivateMethodGet(this, _setConfiguration, _setConfiguration2).call(this, _classPrivateFieldGet(this, _defaultConfiguration));
-  }
-
-  async saveConfiguration() {
-    _classPrivateFieldGet(this, _logSystem).info('Saving current configuration');
-
-    _classPrivateFieldGet(this, _currentConfiguration).panels = _classPrivateFieldGet(this, _panels).map(panel => {
-      let panelMeta;
-
-      if (!panel.plugin) {
-        panelMeta = {
-          name: '',
-          undeletable: false,
-          position: panel.widget.gridstackNode._orig
-        };
-      } else {
-        panelMeta = {
-          guid: panel.guid,
-          name: panel.name,
-          version: panel.version,
-          position: panel.widget.gridstackNode._orig,
-          undeletable: panel.undeletable
-        };
-        if (!panel.plugin.getPluginConfig) panelMeta.metadata = {};
-
-        if (panel.plugin.getPluginConfig) {
-          _classPrivateFieldGet(this, _logSystem).debug(`Getting panel configuration: ${panel.name}`);
-
-          panelMeta.metadata = panel.plugin.getPluginConfig();
-        } else {
-          _classPrivateFieldGet(this, _logSystem).warn(`Plugin ${panel.name} v${panel.version} doesn't provide public method for getting configuration`);
-        }
+      if (panel) {
+        position = panel === null || panel === void 0 ? void 0 : panel.widget.gridstackNode._orig;
+        undeletable = panel.undeletable;
       }
 
-      return panelMeta;
+      plugins.push({
+        guid,
+        meta,
+        config,
+        position,
+        undeletable
+      });
     });
-
-    _classPrivateFieldGet(this, _logSystem).debug('Sending updated configuration to server');
-
-    _classPrivateFieldGet(this, _interactionSystem).PUTRequest('/workspace/object', [{
-      id: _classPrivateFieldGet(this, _currentConfiguration).id,
-      title: _classPrivateFieldGet(this, _currentConfiguration).title,
-      content: JSON.stringify(_classPrivateFieldGet(this, _currentConfiguration))
-    }]);
+    return {
+      id: _classPrivateFieldGet(this, _currentID),
+      title: _classPrivateFieldGet(this, _currentTitle),
+      column: _classPrivateFieldGet(this, _column),
+      plugins
+    };
   }
 
-  resetConfiguration() {
+  async setPluginConfig(config = {}) {
+    this.resetWorkspace();
+
+    _classPrivateFieldGet(this, _logSystem).info(`Setting workspace configuration (id:${config === null || config === void 0 ? void 0 : config.id}, title:${config === null || config === void 0 ? void 0 : config.title})`); // ---- COLUMN ----
+
+
+    if (typeof config.column != 'undefined') this.setColumn(config.column);
+
+    _classPrivateFieldSet(this, _currentTitle, config.title);
+
+    _classPrivateFieldSet(this, _currentID, config.id); // ---- PLUGINS ----
+
+
+    this.getSystem('EventSystem').resetSystem();
+    let subscriptions; // From workspace config for eventSystem process only subscriptions
+    // ---- installing-plugins-from-config ----
+
+    const GUIDMap = {};
+
+    pluginsLoop: for (let plugin of config.plugins) {
+      let {
+        meta,
+        config,
+        undeletable,
+        position = {},
+        guid
+      } = plugin;
+
+      switch (meta === null || meta === void 0 ? void 0 : meta.type) {
+        case 'panel':
+          const {
+            w,
+            h,
+            x,
+            y
+          } = position;
+          let widget;
+
+          if (typeof meta.name !== 'undefined') {
+            const pluginExists = this.getPlugin(meta.name);
+
+            if (pluginExists) {
+              _classPrivateFieldGet(this, _logSystem).debug('Creating empty cell');
+
+              if (undeletable) widget = _classPrivateMethodGet(this, _createUndeletableCell, _createUndeletableCell2).call(this, meta.name, w, h, x, y, false);else widget = this.createCell(meta.name, w, h, x, y, false);
+            }
+
+            const plugin = _classPrivateFieldGet(this, _panels).find(panel => panel.widget === widget).instance;
+
+            const pluginGUID = this.getGUID(plugin);
+
+            _classPrivateFieldGet(this, _logSystem).debug(`Mapping guid of ${meta.name} from ${guid} to ${pluginGUID}`);
+
+            GUIDMap[guid] = pluginGUID;
+          } else {
+            this.createEmptyCell(w, h, x, y, false);
+          }
+
+          break;
+
+        case 'core':
+          const systemInstance = this.getSystem(meta.name);
+          const systemGUID = this.getGUID(systemInstance);
+
+          _classPrivateFieldGet(this, _logSystem).debug(`Mapped guid of ${meta.name} from ${guid} to ${systemGUID}`);
+
+          GUIDMap[guid] = systemGUID;
+
+          if (meta.name === 'EventSystem') {
+            subscriptions = config.subscriptions;
+            continue pluginsLoop;
+          }
+
+          if (meta.name === 'WorkspaceSystem') continue pluginsLoop;
+          break;
+      }
+
+      const instance = this.getInstance(GUIDMap[guid]);
+      if (instance && instance !== this && instance.setPluginConfig && config) await instance.setPluginConfig(config);
+    } // EVENT-SYSTEM-MAPPING
+
+
+    if (subscriptions) for (let sub of subscriptions) {
+      const {
+        event,
+        action
+      } = sub;
+      event.guid = GUIDMap[event.guid];
+      action.guid = GUIDMap[action.guid];
+    }
+    await this.getSystem('EventSystem').setPluginConfig({
+      subscriptions
+    });
+    return true;
+  }
+
+  async downloadConfiguration(id) {
+    _classPrivateFieldGet(this, _logSystem).debug(`Trying to download configuration with id:${id}`);
+
+    try {
+      const {
+        data
+      } = await _classPrivateFieldGet(this, _interactionSystem).GETRequest(`/mock_server/v1/workspace/object?id=${id}`);
+
+      _classPrivateFieldGet(this, _logSystem).debug(`Parsing configuration from response`);
+
+      const content = data.content;
+      content['id'] = data.id;
+      content['title'] = data.title;
+      return content;
+    } catch (err) {
+      _classPrivateFieldGet(this, _logSystem).error(`Error occured while downloading workspace configuration: ${err.message}`);
+    }
+  }
+
+  resetWorkspace() {
     _classPrivateFieldGet(this, _logSystem).debug('Resetting current workspace configuration');
 
-    _classPrivateFieldGet(this, _panels).forEach(panel => {
-      _classPrivateFieldGet(this, _logSystem).debug(`Removing workspace widget id:${panel.widget.gridstackNode._id}, name:${panel.name ? panel.name : 'Empty cell'}`);
+    _classPrivateFieldGet(this, _panels).forEach((plugin, idx) => {
+      const {
+        meta,
+        widget,
+        instance
+      } = plugin;
 
-      _classPrivateFieldGet(this, _grid).removeWidget(panel.widget);
-
-      _classPrivateFieldGet(this, _logSystem).debug(`Uninstalling widget plugin: ${panel.name ? panel.name + ' v' + panel.version : 'empty cell with no plugin'} `);
-
-      this.uninstallPluginByInstance(panel.plugin);
+      if ((meta === null || meta === void 0 ? void 0 : meta.type) !== 'core') {
+        if (widget) _classPrivateFieldGet(this, _grid).removeWidget(widget);
+        if (instance) this.uninstallPluginByInstance(instance);
+      }
     });
 
-    _classPrivateFieldGet(this, _logSystem).debug(`Clearing panels array`);
-
     _classPrivateFieldSet(this, _panels, []);
+
+    _classPrivateFieldGet(this, _logSystem).debug(`Clearing panels array`);
 
     this.setColumn();
   }
@@ -6667,7 +6719,7 @@ class Plugin extends SystemPlugin {
     try {
       _classPrivateFieldGet(this, _logSystem).debug(`Trying to delete workspace configuration with id:${id}`);
 
-      await _classPrivateFieldGet(this, _interactionSystem).DELETERequest('/workspace/object', {
+      await _classPrivateFieldGet(this, _interactionSystem).DELETERequest('/mock_server/v1/workspace/object', {
         data: [id]
       });
 
@@ -6677,24 +6729,40 @@ class Plugin extends SystemPlugin {
     }
   }
 
-  async createEmptyConfiguration(configurationTitle) {
-    _classPrivateFieldGet(this, _logSystem).debug(`Trying to create new empty configuration with title:'${configurationTitle}`);
+  async createEmptyConfiguration(title) {
+    _classPrivateFieldGet(this, _logSystem).debug(`Trying to create new empty configuration with title:'${title}`);
 
-    let tempConf = _classPrivateFieldGet(this, _emptyConfiguration);
-
-    tempConf.title = configurationTitle;
+    let tempConf = JSON.parse(JSON.stringify(_classPrivateFieldGet(this, _emptyConfiguration)));
+    tempConf.title = title;
 
     try {
       _classPrivateFieldGet(this, _logSystem).debug(`Sending request to create configurations`);
 
-      await _classPrivateFieldGet(this, _interactionSystem).POSTRequest('/workspace/object', [{
-        title: configurationTitle,
-        content: JSON.stringify(tempConf)
+      await _classPrivateFieldGet(this, _interactionSystem).POSTRequest('/mock_server/v1/workspace/object', [{
+        title: title,
+        content: tempConf
       }]);
 
-      _classPrivateFieldGet(this, _logSystem).info(`Successfully created new configuration with title:'${configurationTitle}'`);
+      _classPrivateFieldGet(this, _logSystem).info(`Successfully created new configuration with title:'${title}'`);
     } catch (err) {
       _classPrivateFieldGet(this, _logSystem).error(`Error occured while downloading workspace configuration: ${err.message}`);
+    }
+  }
+
+  async importConfiguration(configuration) {
+    _classPrivateFieldGet(this, _logSystem).debug(`Trying to import configuration with title:'${configuration.title}`);
+
+    try {
+      _classPrivateFieldGet(this, _logSystem).debug(`Sending request to import configurations`);
+
+      await _classPrivateFieldGet(this, _interactionSystem).POSTRequest('/mock_server/v1/workspace/object', [{
+        title: configuration.title,
+        content: configuration
+      }]);
+
+      _classPrivateFieldGet(this, _logSystem).info(`Successfully imported configuration with title:'${configuration.title}'`);
+    } catch (err) {
+      _classPrivateFieldGet(this, _logSystem).error(`Error occured while importing workspace configuration: ${err.message}`);
     }
   }
 
@@ -6702,7 +6770,7 @@ class Plugin extends SystemPlugin {
     _classPrivateFieldGet(this, _logSystem).debug(`Trying to change configuration title with id:${id} to value:'${newTitle}'`);
 
     try {
-      await _classPrivateFieldGet(this, _interactionSystem).PUTRequest('/workspace/object', [{
+      await _classPrivateFieldGet(this, _interactionSystem).PUTRequest('/mock_server/v1/workspace/object', [{
         id,
         title: newTitle
       }]);
@@ -6728,7 +6796,7 @@ class Plugin extends SystemPlugin {
     const widget = _classPrivateFieldGet(this, _grid).addWidget(`
       <div class="grid-stack-item">
         <div class="grid-stack-item-content">
-          <div class="handle-drag-of-panel gridstack-panel-header" style="visibility:${_classPrivateFieldGet(this, _editMode) ? 'visible' : 'hidden'}">
+          <div class="handle-drag-of-panel gridstack-panel-header" style="display:${_classPrivateFieldGet(this, _editMode) ? 'flex' : 'none'}">
             <div id="closePanelBtn-${panelID}" class="close-panel-button">
               <i  class="fas fa-lg fa-times"></i>
             </div>
@@ -6748,6 +6816,14 @@ class Plugin extends SystemPlugin {
       id: panelID
     });
 
+    _classPrivateFieldGet(this, _panels).push({
+      widget,
+      meta: {
+        type: 'panel'
+      }
+    }); // Panel select
+
+
     const selectEl = document.createElement('select');
     selectEl.classList = 'default-select-panel';
     selectEl.options[0] = new Option('Выбрать панель ↓');
@@ -6763,28 +6839,23 @@ class Plugin extends SystemPlugin {
         selectEl.options[nextOptionIndex] = new Option(title, name);
         nextOptionIndex++;
       }
-    });
-    let instanceOfPanel;
+    }); // Creating instance of panel handler
+
+    let instance;
 
     selectEl.onchange = evt => {
       _classPrivateFieldGet(this, _logSystem).info(`Selected plugin '${selectEl.value}' in empty cell with id ${panelID}`);
 
       const idCell = evt.target.parentElement.getAttribute('id');
       const workspaceCellID = idCell.split('-').pop();
-      const {
-        name,
-        version
-      } = this.getPlugin(selectEl.value).getRegistrationMeta();
-      instanceOfPanel = this.installPlugin(selectEl.value, `#panel-${workspaceCellID}`);
-      const guid = this.getGUID(instanceOfPanel);
+      const meta = this.getPlugin(selectEl.value).getRegistrationMeta();
+      instance = this.installPlugin(meta.name, `#panel-${workspaceCellID}`);
 
-      let obj = _classPrivateFieldGet(this, _panels).find(panel => panel.widget === widget);
+      let pluginInfo = _classPrivateFieldGet(this, _panels).find(panel => panel.widget === widget);
 
-      Object.assign(obj, {
-        plugin: instanceOfPanel,
-        version,
-        name,
-        guid,
+      Object.assign(pluginInfo, {
+        instance,
+        meta,
         undeletable: false
       });
     };
@@ -6792,19 +6863,14 @@ class Plugin extends SystemPlugin {
     document.getElementById(`panel-${panelID}`).appendChild(selectEl); // closePanelBtn
 
     document.getElementById(`closePanelBtn-${panelID}`).addEventListener('click', evt => {
-      _classPrivateFieldSet(this, _panels, _classPrivateFieldGet(this, _panels).filter(panel => panel.widget !== widget));
+      _classPrivateFieldGet(this, _panels).splice(_classPrivateFieldGet(this, _panels).findIndex(plg => plg.widget !== widget), 1);
 
       _classPrivateFieldGet(this, _grid).removeWidget(widget);
 
-      if (instanceOfPanel) this.uninstallPluginByInstance(instanceOfPanel);
+      if (instance) this.uninstallPluginByInstance(instance);
 
       _classPrivateFieldGet(this, _logSystem).info(`Widget with id ${panelID} was removed from workspace`);
     });
-
-    _classPrivateFieldGet(this, _panels).push({
-      widget
-    });
-
     _classPrivateFieldSet(this, _numberPanelIncrement, (+_classPrivateFieldGet(this, _numberPanelIncrement)) + 1);
 
     _classPrivateFieldGet(this, _logSystem).info('Added empty widget');
@@ -6843,43 +6909,6 @@ class Plugin extends SystemPlugin {
     return widget;
   }
 
-  selectPluginInCell(cellID, pluginName) {
-    _classPrivateFieldGet(this, _logSystem).debug(`Trying to select panel-plugin '${pluginName}' in empty cell with id:${cellID}`);
-
-    const panel = _classPrivateFieldGet(this, _panels).find(panel => !panel.plugin && panel.widget.gridstackNode._id === cellID);
-
-    if (!panel) {
-      _classPrivateFieldGet(this, _logSystem).error(`Cannot find empty cell with given cellID:${cellID}!`);
-
-      return;
-    }
-
-    const selectElement = panel.widget.querySelector('select');
-    const optionElements = selectElement.options;
-    let options = [];
-
-    for (let i = 0; i < optionElements.length; i++) {
-      options.push(optionElements[i].value);
-    }
-
-    if (!options.includes(pluginName)) {
-      _classPrivateFieldGet(this, _logSystem).error(`Cannot find plugin with the given name:${pluginName}!`);
-
-      return;
-    }
-
-    const panelIndex = options.indexOf(pluginName);
-
-    _classPrivateFieldGet(this, _logSystem).debug(`Setting select selected option index to '${panelIndex}`);
-
-    selectElement.selectedIndex = panelIndex;
-
-    _classPrivateFieldGet(this, _logSystem).debug(`Dispatching select event 'change' to trigger callback`);
-
-    const changeEvent = new Event('change');
-    selectElement.dispatchEvent(changeEvent);
-  }
-
   deleteCell(cellID) {
     _classPrivateFieldGet(this, _logSystem).debug(`Trying to delete cell from workspace with id: ${cellID}`);
 
@@ -6909,7 +6938,7 @@ class Plugin extends SystemPlugin {
   changeMode() {
     const panelHeaders = document.querySelectorAll('.gridstack-panel-header');
     panelHeaders.forEach(header => {
-      header.style.visibility = _classPrivateFieldGet(this, _editMode) ? 'hidden' : 'visible';
+      header.style.display = _classPrivateFieldGet(this, _editMode) ? 'none' : 'flex';
     });
     const panelContents = document.querySelectorAll('.gridstack-content-container');
     const overlayClass = 'gridstack-panel-overlay';
@@ -6931,160 +6960,86 @@ class Plugin extends SystemPlugin {
     _classPrivateFieldGet(this, _logSystem).info(`Workspace edit mode turned ${_classPrivateFieldGet(this, _editMode) ? 'on' : 'off'}`);
   }
 
-  setColumn(count) {
+  async getConfigurationList() {
+    const response = await _classPrivateFieldGet(this, _interactionSystem).GETRequest('/mock_server/v1/workspace/object');
+    return response.data;
+  }
+
+  async setConfiguration(id) {
+    const config = await this.downloadConfiguration(id);
+    return this.setPluginConfig(config);
+  }
+
+  async saveConfiguration() {
+    _classPrivateFieldGet(this, _logSystem).info('Saving current configuration');
+
+    _classPrivateFieldGet(this, _interactionSystem).PUTRequest('/mock_server/v1/workspace/object/', [{
+      id: _classPrivateFieldGet(this, _currentID),
+      title: _classPrivateFieldGet(this, _currentTitle),
+      content: this.getPluginConfig()
+    }]);
+  }
+
+  setDefaultConfiguration() {
+    if (_classPrivateFieldGet(this, _editMode)) this.changeMode();
+    this.setPluginConfig(_classPrivateFieldGet(this, _defaultConfiguration));
+  }
+
+  setColumn(newColumn) {
+    const column = typeof newColumn !== 'undefined' ? newColumn : 12;
     const head = document.head || document.getElementsByTagName('head')[0];
     let styleEl = head.querySelector('style#gridstack-custom-style');
     if (styleEl) head.removeChild(styleEl);
 
-    if (typeof count !== 'undefined') {
-      _classPrivateFieldGet(this, _grid).column(count);
+    _classPrivateFieldGet(this, _grid).column(column);
 
-      _classPrivateFieldGet(this, _grid).el.querySelectorAll('.grid-stack-item').forEach(itemEl => {
-        itemEl.style.minWidth = `${100 / count}%`;
-      });
+    _classPrivateFieldGet(this, _grid).el.querySelectorAll('.grid-stack-item').forEach(itemEl => {
+      itemEl.style.minWidth = `${100 / column}%`;
+    });
 
-      styleEl = document.createElement('style');
-      styleEl.setAttribute('id', 'gridstack-custom-style');
-      styleEl.setAttribute('type', 'text/css');
-      let style = '';
+    styleEl = document.createElement('style');
+    styleEl.setAttribute('id', 'gridstack-custom-style');
+    styleEl.setAttribute('type', 'text/css');
+    let style = '';
 
-      for (let i = 0; i < count + 1; i++) {
-        style += `
-      .grid-stack > .grid-stack-item[gs-w='${i}']{width:${100 / count * i}%}
-      .grid-stack > .grid-stack-item[gs-x='${i}']{left:${100 / count * i}%}
-      .grid-stack > .grid-stack-item[gs-min-w='${i}']{min-width:${100 / count * i}%}
-      .grid-stack > .grid-stack-item[gs-max-w='${i}']{max-width:${100 / count * i}%}
+    for (let i = 0; i < column + 1; i++) {
+      style += `
+      .grid-stack > .grid-stack-item[gs-w='${i}']{width:${100 / column * i}%}
+      .grid-stack > .grid-stack-item[gs-x='${i}']{left:${100 / column * i}%}
+      .grid-stack > .grid-stack-item[gs-min-w='${i}']{min-width:${100 / column * i}%}
+      .grid-stack > .grid-stack-item[gs-max-w='${i}']{max-width:${100 / column * i}%}
       `;
-      }
-
-      styleEl.innerHTML = style;
-      head.appendChild(styleEl);
-      _classPrivateFieldGet(this, _currentConfiguration).column = count;
     }
+
+    styleEl.innerHTML = style;
+    head.appendChild(styleEl);
+
+    _classPrivateFieldSet(this, _column, column);
   }
 
 }
 
-async function _downloadConfiguration2(id) {
-  _classPrivateFieldGet(this, _logSystem).debug(`Trying to download configuration with id:${id}`);
-
-  try {
-    const response = await _classPrivateFieldGet(this, _interactionSystem).GETRequest(`/workspace/object?id=${id}`);
-
-    _classPrivateFieldGet(this, _logSystem).debug(`Parsing configuration from response`);
-
-    const data = response.data;
-    let content = JSON.parse(data.content);
-    content['id'] = data.id;
-    content['title'] = data.title;
-
-    _classPrivateFieldSet(this, _currentConfiguration, content);
-  } catch (err) {
-    _classPrivateFieldGet(this, _logSystem).error(`Error occured while downloading workspace configuration: ${err.message}`);
-  }
-}
-
-function _setConfiguration2(configuration) {
-  this.resetConfiguration();
-
-  _classPrivateFieldGet(this, _logSystem).info(`Setting workspace configuration (id:${configuration.id}, title:${configuration.title})`);
-
-  if (typeof configuration.column != 'undefined') this.setColumn(configuration.column);
-  let guidMap = new Map();
-
-  _classPrivateFieldGet(this, _logSystem).debug('Mapping guids of systems from configuration');
-
-  configuration.systems.forEach(system => {
-    const systemInstance = this.getSystem(system.name);
-    const systemGUID = this.getGUID(systemInstance);
-
-    _classPrivateFieldGet(this, _logSystem).debug(`Mapped guid of ${system.name} from ${system.guid} to ${systemGUID}`);
-
-    guidMap.set(system.guid, systemGUID);
-    system.guid = systemGUID;
-  });
-
-  _classPrivateFieldGet(this, _logSystem).debug('Initializing panels from configuration');
-
-  configuration.panels.forEach(panel => {
-    let widget;
-    const {
-      w,
-      h,
-      x,
-      y
-    } = panel.position;
-
-    if (panel.name === '') {
-      _classPrivateFieldGet(this, _logSystem).debug('Creating empty cell');
-
-      this.createEmptyCell(w, h, x, y, false);
-      return;
-    }
-
-    if (panel.undeletable) {
-      _classPrivateFieldGet(this, _logSystem).debug(`Creating undeletable widget for panel: ${panel.name}`);
-
-      widget = _classPrivateMethodGet(this, _createUndeletableCell, _createUndeletableCell2).call(this, panel);
-    } else {
-      _classPrivateFieldGet(this, _logSystem).debug(`Creating widget for panel: ${panel.name}`);
-
-      widget = this.createCell(panel.name, w, h, x, y, false);
-    }
-
-    const plugin = _classPrivateFieldGet(this, _panels).find(panel => panel.widget === widget).plugin;
-
-    const pluginGUID = this.getGUID(plugin);
-
-    _classPrivateFieldGet(this, _logSystem).debug(`Mapping guid of ${panel.name} from ${panel.guid} to ${pluginGUID}`);
-
-    guidMap.set(panel.guid, pluginGUID);
-    panel.guid = pluginGUID;
-
-    if (plugin.setPluginConfig) {
-      _classPrivateFieldGet(this, _logSystem).debug(`Setting configuration for panel ${panel.name}`);
-
-      plugin.setPluginConfig(panel.metadata);
-    } else _classPrivateFieldGet(this, _logSystem).warn(`Plugin ${panel.name} v${panel.version} doesn't provide public method for setting metadata`);
-  });
-
-  _classPrivateFieldGet(this, _logSystem).debug(`Initializing subscriptions from configuration`);
-
-  configuration.subscriptions.forEach(sub => {
-    sub.action.guid = guidMap.get(sub.action.guid);
-    sub.event.guid = guidMap.get(sub.event.guid);
-    const instance = this.getInstance(sub.action.guid);
-    const eventName = sub.event.name + '[' + sub.event.guid + ']';
-
-    _classPrivateFieldGet(this, _logSystem).debug(`Subscribing event '${eventName}' to plugin action '${sub.action.name}' with guid ${sub.action.guid}`);
-
-    PubSub.subscribe(eventName, instance[sub.action.name].bind(instance));
-  });
-}
-
-function _createUndeletableCell2(panel) {
-  const {
-    name,
-    version
-  } = this.getPlugin(panel.name).getRegistrationMeta();
-  const options = { ...panel.position,
-    autoPosition: false
-  };
-
+function _createUndeletableCell2(name, w, h, x, y, autoposition) {
   const widget = _classPrivateFieldGet(this, _grid).addWidget(`<div class="grid-stack-item">
       <div class="grid-stack-item-content handle-drag-of-panel">
-        <div id="panel-${panel.name}"></div>
+        <div id="panel-${name}"></div>
       </div>
-    </div>`, options);
+    </div>`, {
+    x,
+    y,
+    w,
+    h,
+    autoposition
+  });
 
-  const plugin = this.installPlugin(panel.name, `#panel-${panel.name}`);
-  const guid = this.getGUID(plugin);
+  const instance = this.installPlugin(name, `#panel-${name}`);
+  const guid = this.getGUID(instance);
+  const meta = this.getPlugin(name, 'panel').getRegistrationMeta();
 
   _classPrivateFieldGet(this, _panels).push({
+    meta,
     widget,
-    plugin,
-    name,
-    version,
+    instance,
     guid,
     undeletable: true
   });
@@ -7092,4 +7047,4 @@ function _createUndeletableCell2(panel) {
   return widget;
 }
 
-export { Plugin };
+export { WorkspaceSystem };

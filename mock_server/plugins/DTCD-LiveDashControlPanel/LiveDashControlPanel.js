@@ -41,47 +41,13 @@ staticRenderFns: [],
   },
   mounted() {
     document.addEventListener('click', this.graphListIsActiveHandler);
-
-    const { eventSystem } = this.$root;
-
-    // ----LiveDashPanel events----
-    const eventList = [
-      'ClearGraph',
-      'DeleteFromServer',
-      'OpenFromFile',
-      'SaveToServer',
-      'SaveToFile',
-      'SaveToStorage',
-      'StartCalculatingGraph',
-      'FitContent',
-      'ZoomIn',
-      'ZoomOut',
-      'ZoomOriginal',
-      'CutItems',
-      'CopyItems',
-      'PasteItems',
-      'DeleteItems',
-      'UndoGraph',
-      'RedoGraph',
-    ];
-    eventList.forEach(evtName =>
-      eventSystem.registerEvent(eventSystem.createEvent(this.$root.guid, evtName))
-    );
-
-    const customEvent = eventSystem.createEvent(this.$root.liveDashGUID, 'SetNewGraph');
-    const customAction = eventSystem.createActionByCallback(
-      'setNewGraphInfo',
-      this.$root.guid,
-      this.setNewGraphInfo.bind(this)
-    );
-    eventSystem.subscribe(customEvent, customAction);
   },
   beforeDestroy() {
     document.removeEventListener('click', this.graphListIsActiveHandler);
   },
   methods: {
     publishEvent(eventName, args) {
-      this.$root.eventSystem.createAndPublish(this.$root.guid, eventName, args);
+      this.$root.eventSystem.publishEvent(eventName, args);
     },
     graphListIsActiveHandler(evt) {
       if (this.$refs.graphListDropDown && !this.$refs.graphListDropDown.$el.contains(evt.target))
@@ -90,9 +56,9 @@ staticRenderFns: [],
     closeSelectNewGraph() {
       this.graphListIsActive = false;
     },
-    setNewGraphInfo(data) {
-      if (data.args) {
-        const { id = null, name = '' } = data.args;
+    setNewGraphInfo(graphInfo) {
+      if (graphInfo) {
+        const { id = null, name = '' } = graphInfo;
         this.currentGraphID = id;
         this.currentGraphName = name;
       } else {
@@ -105,7 +71,7 @@ staticRenderFns: [],
     },
 
     toSelectNewGraph() {
-      this.$root.interactionSystem.GETRequest('/graphContent/object').then(resp => {
+      this.$root.interactionSystem.GETRequest('/mock_server/v1/graphContent/object').then(resp => {
         this.graphList = resp.data;
         this.graphListIsActive = true;
       });
@@ -155,162 +121,143 @@ class BaseAdapter {
 }
 
 class EventSystemAdapter extends BaseAdapter {
+  #guid;
+  #instance;
+
   /**
    * @constructor
+   * @param {String} guid guid of plugin, in which the adapter instance will be inited
    */
-  constructor() {
+  constructor(guid) {
     super();
-    this.instance = this.getSystem('EventSystem');
+    this.#guid = guid;
+    this.#instance = this.getSystem('EventSystem');
   }
 
   /**
-   * Adding CustomEvent object to events array
-   * @param {Object} customEvent
-   */
-  registerEvent(customEvent) {
-    this.instance.registerEvent(customEvent);
-    return true;
-  }
-  /**
-   * Creates and publishes a new event to EventSystem
-   * @param {Number} guid identifier of plugin instance
-   * @param {String} eventName event name
-   * @param {*} args additional data in event for action
-   */
-  createAndPublish(guid, eventName, args) {
-    this.instance.createAndPublish(guid, eventName, args);
-  }
-
-  /**
-   * Publishes event from CustomEvent instance
-   * @param {CustomEvent} customEvent instance of CustomEvent
-   */
-  publishEvent(customEvent) {
-    this.instance.publishEvent(customEvent);
-  }
-
-  /**
-   * Creates new instance of CustomEvent
-   * @param {Number} guid identifier of plugin instance
-   * @param {String} eventName event name
-   * @param {*} args additional data in event for action
-   * @returns {CustomEvent} created instance of CustomEvent
-   */
-  createEvent(guid, eventName, args = null) {
-    return this.instance.createEvent(guid, eventName, args);
-  }
-
-  /**
-   * Creates new instance of CustomAction
-   * @param {String} actionName action name
-   * @param {Number} guid identifier of plugin instance
-   * @param {*} args ...
-   * @returns {CustomAction} created instance of CustomAction
-   */
-  createAction(actionName, guid, args = null) {
-    return this.instance.createAction(actionName, guid, args);
-  }
-
-  /**
-   * Creates instance of CustomAction from the given callback and pushes it to action list
-   * @param {String} actionName action name
-   * @param {Number} guid identifier of plugin instance
-   * @param {Function} callback callback whitch invoked on event
-   * @param {*} args ...
-   * @returns {CustomAction} created instance of CustomAction
-   */
-  createActionByCallback(actionName, guid, callback, args = null) {
-    return this.instance.createActionByCallback(actionName, guid, callback, args);
-  }
-
-  /**
-   * Subsribes all events with the given name to action with the given actionID
-   * @param {String} eventName event name
-   * @param {String} actionID action id
+   * Configure state of EventSystem by object
+   * @method
+   * @param {*} conf Config object
    * @returns {Boolean} true, if everything is ok
    */
-  subscribeEventsByName(eventName, actionID) {
-    return this.instance.subscribeEventsByName(eventName, actionID);
+  setPluginConfig(conf) {
+    return this.#instance.setPluginConfig(conf);
   }
+
   /**
-   * Subsribes all events with the given eventName to all action with the given actionName
+   * Getting state of EventSystem
+   * @method
+   * @returns {*} State of system by object
+   */
+  getPluginConfig() {
+    return this.#instance.getPluginConfig();
+  }
+
+  // ---- getters ----
+  get events() {
+    return this.#instance.events;
+  }
+
+  get actions() {
+    return this.#instance.actions;
+  }
+
+  get subscriptions() {
+    return this.#instance.subscriptions;
+  }
+
+  /**
+   * Register methods of instance as actions in EventSystem. Register events of instance by names.
+   * @method
+   * @param {*} obj An instance of the plugin being registered
+   * @param {String[]} eventList Array of eventNames of plugin that being registered
+   * @param {String} customGUID instance guid of plugin that will register
+   * @returns {Boolean} true, if everything is ok
+   */
+  registerPluginInstance(obj, eventList, customGUID) {
+    if (typeof customGUID === 'undefined')
+      return this.#instance.registerPluginInstance(this.#guid, obj, eventList);
+    else return this.#instance.registerPluginInstance(customGUID, obj, eventList);
+  }
+
+  /**
+   * Adding event type to event list into eventSystem (register them)
+   * @method
    * @param {String} eventName event name
+   * @returns {Boolean} true, if everything is ok
+   */
+  registerEvent(eventName, args) {
+    return this.#instance.registerEvent(this.#guid, eventName, args);
+  }
+
+  /**
+   * Register new action
+   * @method
    * @param {String} actionName action name
+   * @param {Function} callback callback whitch invoked on event
+   * @returns {Boolean} true, if everything is ok
+   */
+  registerAction(actionName, callback) {
+    return this.#instance.createActionByCallback(this.#guid, actionName, callback);
+  }
+
+  /**
+   * Publishes event from instance by name
+   * @method
+   * @param {String} eventName event name
+   * @param {*} args ...
+   * @returns {Boolean} true, if everything is ok
+   */
+  publishEvent(eventName, args) {
+    return this.#instance.publishEvent(this.#guid, eventName, args);
+  }
+
+  /**
+   * Subscribing
+   * @method
+   * @param {String} eventGUID instance guid of firing plugin
+   * @param {String} eventName name of event
+   * @param {String} actionsGUID instance guid of plugin whom invoke callback
+   * @param {String} actionName name of action
+   * @returns {String} token of subscription
+   */
+  subscribe(eventGUID, eventName, actionGUID, actionName) {
+    return this.#instance.subscribe(eventGUID, eventName, actionGUID, actionName);
+  }
+
+  /**
+   * Subsribes all events with the given name to the action
+   * @method
+   * @param {String} actionsGUID instance guid of plugin who invokes callback
+   * @param {String} actionName name of action
+   * @param {String} eventName name of event
+   * @returns {Boolean} true, if everything is ok
+   */
+  subscribeActionOnEventName(actionGUID, actionName, eventName) {
+    return this.#instance.subscribeActionOnEventName(actionGUID, actionName, eventName);
+  }
+
+  /**
+   * Subsribes all events with the given name to the action
+   * @method
+   * @param {String} eventGUID instance guid of plugin who publishes the event
+   * @param {String} eventName name of action
+   * @param {String} actionName name of action
+   * @returns {Boolean} true, if everything is ok
+   */
+  subscribeEventOnActionName(eventGUID, eventName, actionName) {
+    return this.#instance.subscribeEventOnActionName(eventGUID, eventName, actionName);
+  }
+
+  /**
+   * Subsribe all actions with the given name on all events with name
+   * @method
+   * @param {String} eventName name of action
+   * @param {String} actionName name of action
    * @returns {Boolean} true, if everything is ok
    */
   subscribeByNames(eventName, actionName) {
-    return this.instance.subscribeByNames(eventName, actionName);
-  }
-
-  /**
-   * Subscribes the given instance of event to the given instace of action
-   * @param {CustomEvent} event instance of CustomEvent
-   * @param {CustomAction} action instance of CustomAction
-   * @returns {Boolean} true, if everything is ok
-   */
-  subscribe(event, action) {
-    return this.instance.subscribe(event, action);
-  }
-
-  /**
-   * Subscribes to all events with the given event name and sets the given callback
-   * @param {String} eventName
-   * @param {Function} callback
-   */
-  subscribeEventNameByCallback(eventName, callback) {
-    this.instance.subscribeEventNameByCallback(eventName, callback);
-  }
-
-  /**
-   * Returns instace of action stored in EventSystem from the given actionID
-   * @param {String} actionID actionID of the action
-   * @returns {CustomAction} instance of CustomAction stored in EventSystem
-   */
-  findActionById(actionID) {
-    return this.instance.findAction(actionID);
-  }
-
-  /**
-   * Returns instace of event stored in EventSystem from the given eventID
-   * @param {String} eventID eventID of the event
-   * @returns {CustomEvent} instance of CustomEvent stored in EventSystem
-   */
-  findEventById(eventID) {
-    return this.instance.findEventById(eventID);
-  }
-
-  /**
-   * Returns instaces of events stored in EventSystem from the given event name
-   * @param {String} eventName event name
-   * @returns {Array} instaces of events stored in EventSystem
-   */
-  findEventsByName(eventName) {
-    return this.instance.findEventsByName(eventName);
-  }
-
-  /**
-   * Returns instaces of actions stored in EventSystem from the given action name
-   * @param {String} actionName
-   * @returns {Array} instaces of actions stored in EventSystem
-   */
-  findActionsByName(actionName) {
-    return this.instance.findActionsByName(actionName);
-  }
-
-  /**
-   * Return list of available event instances stored in EventSystem
-   * @returns {Array} instaces of events stored in EventSystem
-   */
-  showAvailableEvents() {
-    return this.instance.showAvailableEvents();
-  }
-
-  /**
-   * Return list of available action instances stored in EventSystem
-   * @returns {Array} instaces of actions stored in EventSystem
-   */
-  showAvailableActions() {
-    return this.instance.showAvailableActions();
+    return this.#instance.subscribeByNames(eventName, actionName);
   }
 }
 
@@ -393,6 +340,21 @@ class StorageSystemAdapter extends BaseAdapter {
 
 }
 
+class CustomError extends Error {
+  constructor (msg) {
+    super(msg);
+    this.name = this.constructor.name;
+  }
+}
+
+class AbstractMethodImplementError extends CustomError {
+  constructor (methodName, className) {
+    super(
+      `The "${methodName}" method must be implemented in the ${className} class`
+    );
+  }
+}
+
 /**
  * @typedef {Object} PluginMeta
  * @property {String} title
@@ -413,7 +375,7 @@ class AbstractPlugin {
    * @return {String[]} meta.dependencies
    */
   static getRegistrationMeta() {
-    throw new Error('Implement the getRegistrationMeta static method!');
+    throw new AbstractMethodImplementError('Implement the getRegistrationMeta static method!');
   }
 
   /**
@@ -515,15 +477,30 @@ class AbstractPlugin {
   getGUID(instance) {
     return Application.getGUID(instance);
   }
+
+  /**
+   * Getting list of all GUID's
+   * @method
+   * @returns {String[]}
+   */
+  getGUIDList() {
+    return Application.getGUIDList();
+  }
+
+  getPlugin(name, type = false) {
+    return Application.getPlugin(name, type);
+  }
 }
 
 class PanelPlugin extends AbstractPlugin {
-	/**
-	 * This method will be executed after the style theme of the whole application has changed.
-	 */
-	updateTheme() {
-		throw new Error('Implement the updateTheme method for updating style properties of this panel');
-	}
+  /**
+   * This method will be executed after the style theme of the whole application has changed.
+   */
+  updateTheme() {
+    throw new AbstractMethodImplementError(
+      'Implement the updateTheme method for updating style properties of this panel'
+    );
+  }
 }
 
 class Plugin extends PanelPlugin {
@@ -531,20 +508,25 @@ class Plugin extends PanelPlugin {
     return pluginMeta;
   }
 
-  constructor(guid, selector, liveDashGUID) {
+  constructor(guid, selector) {
     super();
 
-    const eventSystem = new EventSystemAdapter();
+    const eventSystem = new EventSystemAdapter(guid);
     const storageSystem = new StorageSystemAdapter();
     const interactionSystem = new InteractionSystemAdapter();
 
     const VueJS = this.getDependence('Vue');
-    const data = {guid, liveDashGUID, eventSystem, storageSystem, interactionSystem};
+    const data = { guid, eventSystem, storageSystem, interactionSystem };
 
-    new VueJS.default({
+    this.vue = new VueJS.default({
       data: () => data,
       render: h => h(PluginComponent),
     }).$mount(selector);
+  }
+
+  setNewGraphInfo(graphData) {
+    const component = this.vue.$children[0].$children[0];
+    return component.setNewGraphInfo(graphData);
   }
 }
 

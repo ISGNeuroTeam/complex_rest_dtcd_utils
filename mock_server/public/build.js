@@ -273,13 +273,16 @@
       return Object.keys(_classPrivateFieldGet(this, _guids)).find(guid => _classPrivateFieldGet(this, _guids)[guid] === instance);
     }
 
+    getGUIDList() {
+      return Object.keys(_classPrivateFieldGet(this, _guids));
+    }
+
   }
 
   async function _fillPlugins2() {
     // Getting list of all plugins
     const pluginList = await (await fetch('/mock_server/v1/plugins/plugins.json')).json(); // Getting each module from server as module
 
-    // const modules = await Promise.all(pluginList.map(pathToFile => import('/mock_server/v1/plugins/' + pathToFile))); // Plugin is what with the getRegistrationMeta method
     const modules = await Promise.all(pluginList.map(pathToFile => import('/plugins/' + pathToFile))); // Plugin is what with the getRegistrationMeta method
 
     modules.forEach((module, index) => {
@@ -339,9 +342,10 @@
         const splittedRelativePath = pluginObject.path.split('/');
         if (splittedRelativePath[0] === '.' || '') splittedRelativePath.shift(); // Getting splitted path with static directory of plugins
 
-        // const pathToPlgDir = ['/mock_server/v1/plugins', ...splittedRelativePath].slice(0, -1); // First we get manifest.json with description of dependencies
         const pathToPlgDir = ['/plugins', ...splittedRelativePath].slice(0, -1); // First we get manifest.json with description of dependencies
+
         let manifest = await (await fetch([...pathToPlgDir, 'manifest.json'].join('/'))).json();
+
         for (let dep of manifest) {
           /*
           Structure of #dependencies property of Application class:

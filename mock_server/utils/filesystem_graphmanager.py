@@ -23,9 +23,15 @@ class FilesystemGraphManager(AbstractGraphManager):
         self.default_filename = 'graph.graphml'
 
     def read(self, id):
+        graph_data = {}
         try:
             with open(Path(self.final_path) / id / self.default_filename, 'r') as graph:
-                return graph.read()
+                graph_data['content'] = graph.read()
+            shutil.copyfile(self.map_path, self.map_backup_path)
+            with open(self.map_path, 'r') as map_file:
+                id_map = json.load(map_file)
+                graph_data['name'] = id_map[id]['name']
+            return graph_data
         except OSError:
             raise GraphManagerException(graphmanager_exception.NO_GRAPH, id)
 

@@ -364,184 +364,165 @@ class LogSystemAdapter extends BaseAdapter {
 
 }
 
+var _guid$1 = /*#__PURE__*/new WeakMap();
+
+var _instance = /*#__PURE__*/new WeakMap();
+
 class EventSystemAdapter extends BaseAdapter {
   /**
    * @constructor
+   * @param {String} guid guid of plugin, in which the adapter instance will be inited
    */
-  constructor() {
+  constructor(guid) {
     super();
-    this.instance = this.getSystem('EventSystem');
+
+    _classPrivateFieldInitSpec(this, _guid$1, {
+      writable: true,
+      value: void 0
+    });
+
+    _classPrivateFieldInitSpec(this, _instance, {
+      writable: true,
+      value: void 0
+    });
+
+    _classPrivateFieldSet(this, _guid$1, guid);
+
+    _classPrivateFieldSet(this, _instance, this.getSystem('EventSystem'));
   }
   /**
-   * Adding CustomEvent object to events array
-   * @param {Object} customEvent
-   */
-
-
-  registerEvent(customEvent) {
-    this.instance.registerEvent(customEvent);
-    return true;
-  }
-  /**
-   * Creates and publishes a new event to EventSystem
-   * @param {Number} guid identifier of plugin instance
-   * @param {String} eventName event name
-   * @param {*} args additional data in event for action
-   */
-
-
-  createAndPublish(guid, eventName, args) {
-    this.instance.createAndPublish(guid, eventName, args);
-  }
-  /**
-   * Publishes event from CustomEvent instance
-   * @param {CustomEvent} customEvent instance of CustomEvent
-   */
-
-
-  publishEvent(customEvent) {
-    this.instance.publishEvent(customEvent);
-  }
-  /**
-   * Creates new instance of CustomEvent
-   * @param {Number} guid identifier of plugin instance
-   * @param {String} eventName event name
-   * @param {*} args additional data in event for action
-   * @returns {CustomEvent} created instance of CustomEvent
-   */
-
-
-  createEvent(guid, eventName) {
-    var args = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    return this.instance.createEvent(guid, eventName, args);
-  }
-  /**
-   * Creates new instance of CustomAction
-   * @param {String} actionName action name
-   * @param {Number} guid identifier of plugin instance
-   * @param {*} args ...
-   * @returns {CustomAction} created instance of CustomAction
-   */
-
-
-  createAction(actionName, guid) {
-    var args = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    return this.instance.createAction(actionName, guid, args);
-  }
-  /**
-   * Creates instance of CustomAction from the given callback and pushes it to action list
-   * @param {String} actionName action name
-   * @param {Number} guid identifier of plugin instance
-   * @param {Function} callback callback whitch invoked on event
-   * @param {*} args ...
-   * @returns {CustomAction} created instance of CustomAction
-   */
-
-
-  createActionByCallback(actionName, guid, callback) {
-    var args = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-    return this.instance.createActionByCallback(actionName, guid, callback, args);
-  }
-  /**
-   * Subsribes all events with the given name to action with the given actionID
-   * @param {String} eventName event name
-   * @param {String} actionID action id
+   * Configure state of EventSystem by object
+   * @method
+   * @param {*} conf Config object
    * @returns {Boolean} true, if everything is ok
    */
 
 
-  subscribeEventsByName(eventName, actionID) {
-    return this.instance.subscribeEventsByName(eventName, actionID);
+  setPluginConfig(conf) {
+    return _classPrivateFieldGet(this, _instance).setPluginConfig(conf);
   }
   /**
-   * Subsribes all events with the given eventName to all action with the given actionName
+   * Getting state of EventSystem
+   * @method
+   * @returns {*} State of system by object
+   */
+
+
+  getPluginConfig() {
+    return _classPrivateFieldGet(this, _instance).getPluginConfig();
+  } // ---- getters ----
+
+
+  get events() {
+    return _classPrivateFieldGet(this, _instance).events;
+  }
+
+  get actions() {
+    return _classPrivateFieldGet(this, _instance).actions;
+  }
+
+  get subscriptions() {
+    return _classPrivateFieldGet(this, _instance).subscriptions;
+  }
+  /**
+   * Register methods of instance as actions in EventSystem. Register events of instance by names.
+   * @method
+   * @param {*} obj An instance of the plugin being registered
+   * @param {String[]} eventList Array of eventNames of plugin that being registered
+   * @param {String} customGUID instance guid of plugin that will register
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  registerPluginInstance(obj, eventList, customGUID) {
+    if (typeof customGUID === 'undefined') return _classPrivateFieldGet(this, _instance).registerPluginInstance(_classPrivateFieldGet(this, _guid$1), obj, eventList);else return _classPrivateFieldGet(this, _instance).registerPluginInstance(customGUID, obj, eventList);
+  }
+  /**
+   * Adding event type to event list into eventSystem (register them)
+   * @method
    * @param {String} eventName event name
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  registerEvent(eventName, args) {
+    return _classPrivateFieldGet(this, _instance).registerEvent(_classPrivateFieldGet(this, _guid$1), eventName, args);
+  }
+  /**
+   * Register new action
+   * @method
    * @param {String} actionName action name
+   * @param {Function} callback callback whitch invoked on event
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  registerAction(actionName, callback) {
+    return _classPrivateFieldGet(this, _instance).createActionByCallback(_classPrivateFieldGet(this, _guid$1), actionName, callback);
+  }
+  /**
+   * Publishes event from instance by name
+   * @method
+   * @param {String} eventName event name
+   * @param {*} args ...
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  publishEvent(eventName, args) {
+    return _classPrivateFieldGet(this, _instance).publishEvent(_classPrivateFieldGet(this, _guid$1), eventName, args);
+  }
+  /**
+   * Subscribing
+   * @method
+   * @param {String} eventGUID instance guid of firing plugin
+   * @param {String} eventName name of event
+   * @param {String} actionsGUID instance guid of plugin whom invoke callback
+   * @param {String} actionName name of action
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  subscribe(eventGUID, eventName, actionGUID, actionName) {
+    return _classPrivateFieldGet(this, _instance).subscribe(eventGUID, eventName, actionGUID, actionName);
+  }
+  /**
+   * Subsribes all events with the given name to the action
+   * @method
+   * @param {String} actionsGUID instance guid of plugin who invokes callback
+   * @param {String} actionName name of action
+   * @param {String} eventName name of event
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  subscribeActionOnEventName(actionGUID, actionName, eventName) {
+    return _classPrivateFieldGet(this, _instance).subscribeActionOnEventName(actionGUID, actionName, eventName);
+  }
+  /**
+   * Subsribes all events with the given name to the action
+   * @method
+   * @param {String} eventGUID instance guid of plugin who publishes the event
+   * @param {String} eventName name of action
+   * @param {String} actionName name of action
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  subscribeEventOnActionName(eventGUID, eventName, actionName) {
+    return _classPrivateFieldGet(this, _instance).subscribeEventOnActionName(eventGUID, eventName, actionName);
+  }
+  /**
+   * Subsribe all actions with the given name on all events with name
+   * @method
+   * @param {String} eventName name of action
+   * @param {String} actionName name of action
    * @returns {Boolean} true, if everything is ok
    */
 
 
   subscribeByNames(eventName, actionName) {
-    return this.instance.subscribeByNames(eventName, actionName);
-  }
-  /**
-   * Subscribes the given instance of event to the given instace of action
-   * @param {CustomEvent} event instance of CustomEvent
-   * @param {CustomAction} action instance of CustomAction
-   * @returns {Boolean} true, if everything is ok
-   */
-
-
-  subscribe(event, action) {
-    return this.instance.subscribe(event, action);
-  }
-  /**
-   * Subscribes to all events with the given event name and sets the given callback
-   * @param {String} eventName
-   * @param {Function} callback
-   */
-
-
-  subscribeEventNameByCallback(eventName, callback) {
-    this.instance.subscribeEventNameByCallback(eventName, callback);
-  }
-  /**
-   * Returns instace of action stored in EventSystem from the given actionID
-   * @param {String} actionID actionID of the action
-   * @returns {CustomAction} instance of CustomAction stored in EventSystem
-   */
-
-
-  findActionById(actionID) {
-    return this.instance.findAction(actionID);
-  }
-  /**
-   * Returns instace of event stored in EventSystem from the given eventID
-   * @param {String} eventID eventID of the event
-   * @returns {CustomEvent} instance of CustomEvent stored in EventSystem
-   */
-
-
-  findEventById(eventID) {
-    return this.instance.findEventById(eventID);
-  }
-  /**
-   * Returns instaces of events stored in EventSystem from the given event name
-   * @param {String} eventName event name
-   * @returns {Array} instaces of events stored in EventSystem
-   */
-
-
-  findEventsByName(eventName) {
-    return this.instance.findEventsByName(eventName);
-  }
-  /**
-   * Returns instaces of actions stored in EventSystem from the given action name
-   * @param {String} actionName
-   * @returns {Array} instaces of actions stored in EventSystem
-   */
-
-
-  findActionsByName(actionName) {
-    return this.instance.findActionsByName(actionName);
-  }
-  /**
-   * Return list of available event instances stored in EventSystem
-   * @returns {Array} instaces of events stored in EventSystem
-   */
-
-
-  showAvailableEvents() {
-    return this.instance.showAvailableEvents();
-  }
-  /**
-   * Return list of available action instances stored in EventSystem
-   * @returns {Array} instaces of actions stored in EventSystem
-   */
-
-
-  showAvailableActions() {
-    return this.instance.showAvailableActions();
+    return _classPrivateFieldGet(this, _instance).subscribeByNames(eventName, actionName);
   }
 
 }
@@ -863,6 +844,21 @@ class AbstractPlugin {
 
   getGUID(instance) {
     return Application.getGUID(instance);
+  }
+  /**
+   * Getting list of all GUID's
+   * @method
+   * @returns {String[]}
+   */
+
+
+  getGUIDList() {
+    return Application.getGUIDList();
+  }
+
+  getPlugin(name) {
+    var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    return Application.getPlugin(name, type);
   }
 
 }
@@ -16811,10 +16807,7 @@ function createInputMode(guid, yFiles, logSystem, eventSystem, broadcastPrimitiv
       args.owner.tag.nodeTitle = '';
     }
 
-    var customEvent = eventSystem.createEvent(guid, 'DeleteLiveDashItem', args.item); // TODO: nextline not global
-
-    customEvent.id = 'DeleteLiveDashItem';
-    eventSystem.publishEvent(customEvent);
+    eventSystem.publishEvent('DeleteLiveDashItem', args.item);
   });
   return mode;
 }
@@ -17466,7 +17459,7 @@ class Plugin extends PanelPlugin {
 
     _classPrivateFieldSet(this, _styleSystem, new StyleSystemAdapter());
 
-    _classPrivateFieldSet(this, _eventSystem, new EventSystemAdapter());
+    _classPrivateFieldSet(this, _eventSystem, new EventSystemAdapter(guid));
 
     _classPrivateFieldSet(this, _logSystem, new LogSystemAdapter(guid, 'LiveDashPanel'));
 
@@ -17498,10 +17491,18 @@ class Plugin extends PanelPlugin {
     var gridContainer = document.querySelector(selector).parentNode;
     gridContainer.innerHTML = '';
     gridContainer.style = 'width:100%;height:100%';
-    var liveDashControlPanelElement = document.createElement('div');
-    gridContainer.appendChild(liveDashControlPanelElement);
+    var extensions = this.getExtensions('LiveDashPanel');
+    var controlPanel = extensions.find(extension => extension.name === 'LiveDashControlPanel');
 
-    _classPrivateFieldSet(this, _liveDashControlPanel, this.installExtension('LiveDashPanel', 'LiveDashControlPanel', liveDashControlPanelElement, _classPrivateFieldGet(this, _guid)));
+    if (controlPanel) {
+      var liveDashControlPanelElement = document.createElement('div');
+      gridContainer.appendChild(liveDashControlPanelElement);
+      var plugin = new controlPanel.plugin(_classPrivateFieldGet(this, _guid), liveDashControlPanelElement);
+      var pluginAPI = Object.getOwnPropertyNames(plugin.__proto__).filter(item => item !== 'constructor' && typeof plugin[item] === 'function');
+      pluginAPI.forEach(method => {
+        this.__proto__[method] = plugin[method].bind(plugin);
+      });
+    }
 
     var graphComponentElement = document.createElement('div');
     graphComponentElement.setAttribute('style', 'height: 100%; width: 100%;position: relative; background-color: var(--main-bg-color-panel)');
@@ -17515,25 +17516,32 @@ class Plugin extends PanelPlugin {
 
     _classPrivateFieldSet(this, _graphOverview, new (_classPrivateFieldGet(this, _yFiles).GraphOverviewComponent)(liveDashOverviewElement, _classPrivateFieldGet(this, _graphComponent)));
 
-    var liveDasharrangementPanelElement = document.createElement('div');
-    gridContainer.appendChild(liveDasharrangementPanelElement);
+    var arrangementPanel = extensions.find(extension => extension.name === 'LiveDashArrangementPanel');
 
-    _classPrivateFieldSet(this, _liveDasharrangementPanel, this.installExtension('LiveDashPanel', 'LiveDashArrangementPanel', liveDasharrangementPanelElement, _classPrivateFieldGet(this, _guid), this.getArrangementLayoutList())); // ---- INPUT MODE ----
+    if (arrangementPanel) {
+      var liveDasharrangementPanelElement = document.createElement('div');
+      gridContainer.appendChild(liveDasharrangementPanelElement);
+
+      var _plugin = new arrangementPanel.plugin(_classPrivateFieldGet(this, _guid), liveDasharrangementPanelElement, this.getArrangementLayoutList());
+
+      var _pluginAPI = Object.getOwnPropertyNames(_plugin.__proto__).filter(item => item !== 'constructor' && typeof _plugin[item] === 'function');
+
+      _pluginAPI.forEach(method => {
+        this.__proto__[method] = _plugin[method].bind(_plugin);
+      });
+    }
+
+    _classPrivateFieldGet(this, _eventSystem).registerPluginInstance(this, ['ClearGraph', 'DeleteFromServer', 'OpenFromFile', 'SaveToServer', 'SaveToFile', 'SaveToStorage', 'StartCalculatingGraph', 'FitContent', 'ZoomIn', 'ZoomOut', 'ZoomOriginal', 'CutItems', 'CopyItems', 'PasteItems', 'DeleteItems', 'UndoGraph', 'RedoGraph', 'SetNewGraph', 'LiveDashPanelSelectionChanged', 'ApplyArrangement', 'ApplyingArrangementComplete', 'SetNewGraph', 'DeleteLiveDashItem', 'ApplyingArrangementComplete', 'OpenFromServer', 'BroadcastPrimitiveInfo']); // ---- INPUT MODE ----
 
 
     var inputMode = createInputMode.call(this, _classPrivateFieldGet(this, _guid), _classPrivateFieldGet(this, _yFiles), _classPrivateFieldGet(this, _logSystem), _classPrivateFieldGet(this, _eventSystem), _classPrivateMethodGet(this, _broadcastPrimitiveInfo, _broadcastPrimitiveInfo2).bind(this), _classPrivateMethodGet(this, _updateLabelTokens, _updateLabelTokens2).bind(this)); // DropItemCreator
 
     inputMode.nodeDropInputMode.itemCreator = dropItemCreator.bind(this, _classPrivateFieldGet(this, _yFiles), _classPrivateFieldGet(this, _extensions));
-    _classPrivateFieldGet(this, _graphComponent).inputMode = inputMode; // ---- INSTALLING EXTENSIONS ----
-
-    this.getExtensions('LiveDashPanel').forEach(_ref => {
-      var {
-        name
-      } = _ref;
-
-      if (!['LiveDashControlPanel', 'LiveDashArrangementPanel'].includes(name)) {
-        var extensionInstance = this.installPlugin(name);
-        _classPrivateFieldGet(this, _extensions)[name] = extensionInstance;
+    _classPrivateFieldGet(this, _graphComponent).inputMode = inputMode;
+    this.getExtensions('LiveDashPanel').forEach(extension => {
+      if (!['LiveDashControlPanel', 'LiveDashArrangementPanel'].includes(extension.name)) {
+        var extensionInstance = new extension.plugin();
+        _classPrivateFieldGet(this, _extensions)[extension.name] = extensionInstance;
       }
     }); // ---- GRAPH ----
 
@@ -17655,44 +17663,11 @@ class Plugin extends PanelPlugin {
 
     _classPrivateFieldSet(this, _graphCalculator, new GraphCalculator(_classPrivateFieldGet(this, _guid), _classPrivateFieldGet(this, _logSystem), _classPrivateFieldGet(this, _dataSourceSystem), _classPrivateFieldGet(this, _eventSystem), this));
 
-    _classPrivateFieldGet(this, _graphCalculator).setNewGraph(_classPrivateFieldGet(this, _graphComponent).graph); // ---- SELECTION ----
-
-
-    var eventName = 'LiveDashPanelSelectionChanged';
-
-    var _customEvent = _classPrivateFieldGet(this, _eventSystem).createEvent(_classPrivateFieldGet(this, _guid), eventName, _classPrivateFieldGet(this, _graphComponent).selection);
-
-    _customEvent.id = eventName;
-
-    _classPrivateFieldGet(this, _eventSystem).registerEvent(_customEvent);
+    _classPrivateFieldGet(this, _graphCalculator).setNewGraph(_classPrivateFieldGet(this, _graphComponent).graph);
 
     _classPrivateFieldGet(this, _graphComponent).selection.addItemSelectionChangedListener((src, args) => {
-      _classPrivateFieldGet(this, _eventSystem).publishEvent(_customEvent);
-    }); // ---- Actions ----
-
-
-    var actionList = ['clearGraph', 'deleteFromServer', 'openFromFile', 'openFromServer', 'saveToServer', 'saveToFile', // 'saveToStorage',
-    'startCalculatingGraph', 'calculateGraph', 'fitContent', 'zoomIn', 'zoomOut', 'zoomOriginal', 'cutItems', 'copyItems', 'pasteItems', 'deleteItems', 'undoGraph', 'redoGraph'];
-    actionList.forEach(actionName => {
-      var customEventName = actionName.charAt(0).toUpperCase() + actionName.slice(1);
-
-      var customEvent = _classPrivateFieldGet(this, _eventSystem).createEvent(this.getGUID(_classPrivateFieldGet(this, _liveDashControlPanel)), customEventName); // Destructure evt into only args object
-
-
-      var customAction = _classPrivateFieldGet(this, _eventSystem).createActionByCallback(actionName, _classPrivateFieldGet(this, _guid), _classPrivateMethodGet(this, _actionDecorator, _actionDecorator2).call(this, this[actionName]).bind(this));
-
-      _classPrivateFieldGet(this, _eventSystem).subscribe(customEvent, customAction);
+      _classPrivateFieldGet(this, _eventSystem).publishEvent('LiveDashPanelSelectionChanged');
     });
-
-    var applyArrangementEvent = _classPrivateFieldGet(this, _eventSystem).createEvent(this.getGUID(_classPrivateFieldGet(this, _liveDasharrangementPanel)), 'ApplyArrangement');
-
-    var applyArrangementAction = _classPrivateFieldGet(this, _eventSystem).createActionByCallback('applyArrangement', _classPrivateFieldGet(this, _guid), _classPrivateMethodGet(this, _actionDecorator, _actionDecorator2).call(this, this.applyArrangement).bind(this));
-
-    _classPrivateFieldGet(this, _eventSystem).registerEvent(applyArrangementEvent);
-
-    _classPrivateFieldGet(this, _eventSystem).subscribe(applyArrangementEvent, applyArrangementAction);
-
-    _classPrivateFieldGet(this, _eventSystem).subscribeEventNameByCallback('ThemeUpdate', this.updateTheme.bind(this));
   }
 
   setPluginConfig(config) {
@@ -17881,17 +17856,27 @@ class Plugin extends PanelPlugin {
   }
 
   clearGraph() {
-    _classPrivateFieldGet(this, _eventSystem).createAndPublish(_classPrivateFieldGet(this, _guid), 'SetNewGraph', {});
+    _classPrivateFieldGet(this, _eventSystem).publishEvent('SetNewGraph', {});
 
     _classPrivateFieldGet(this, _graphComponent).graph.clear();
+
+    _classPrivateFieldSet(this, _graphID, null);
 
     return true;
   }
 
-  deleteFromServer(id) {
-    _classPrivateFieldGet(this, _interactionSystem).DELETERequest('/graphContent/object', {
-      data: [Number(id)]
-    }).then(this.clearGraph());
+  deleteFromServer(eventData) {
+    var {
+      id
+    } = eventData;
+
+    _classPrivateFieldGet(this, _interactionSystem).DELETERequest('/mock_server/v1/graphContent/object', {
+      data: [id]
+    }).then(() => {
+      this.clearGraph();
+
+      _classPrivateFieldSet(this, _graphID, null);
+    });
   }
 
   openFromText(text) {
@@ -17921,6 +17906,8 @@ class Plugin extends PanelPlugin {
   }
 
   openFromFile() {
+    _classPrivateFieldSet(this, _graphID, null);
+
     var fileInputElement = document.createElement('input');
     fileInputElement.setAttribute('type', 'file');
     fileInputElement.style.display = 'none';
@@ -17944,7 +17931,7 @@ class Plugin extends PanelPlugin {
 
             _classPrivateFieldGet(this, _graphComponent).graph.undoEngine.clear();
 
-            _classPrivateFieldGet(this, _eventSystem).createAndPublish(_classPrivateFieldGet(this, _guid), 'SetNewGraph', {
+            _classPrivateFieldGet(this, _eventSystem).publishEvent('SetNewGraph', {
               name: fileReader.fileName
             });
           } else {
@@ -17964,7 +17951,7 @@ class Plugin extends PanelPlugin {
   }
 
   openFromServer(id) {
-    _classPrivateFieldGet(this, _interactionSystem).GETRequest("/graphContent/object", {
+    _classPrivateFieldGet(this, _interactionSystem).GETRequest("/mock_server/v1/graphContent/object", {
       params: {
         id
       }
@@ -17975,20 +17962,20 @@ class Plugin extends PanelPlugin {
     }
 
     function _responseCallback() {
-      _responseCallback = _asyncToGenerator(function* (_ref2) {
+      _responseCallback = _asyncToGenerator(function* (_ref) {
         var {
           data: {
             name,
             content
           }
-        } = _ref2;
+        } = _ref;
         yield this.openFromText(content);
 
         _classPrivateFieldSet(this, _graphID, id);
 
         _classPrivateFieldGet(this, _graphComponent).graph.undoEngine.clear();
 
-        _classPrivateFieldGet(this, _eventSystem).createAndPublish(_classPrivateFieldGet(this, _guid), 'SetNewGraph', {
+        _classPrivateFieldGet(this, _eventSystem).publishEvent('SetNewGraph', {
           id,
           name
         });
@@ -17997,10 +17984,15 @@ class Plugin extends PanelPlugin {
     }
   }
 
-  saveToServer(name, id) {
+  saveToServer(eventData) {
     var _this2 = this;
 
     return _asyncToGenerator(function* () {
+      var {
+        name,
+        id
+      } = eventData;
+
       if (!name) {
         alert('Please enter graph name!');
         return false;
@@ -18012,17 +18004,24 @@ class Plugin extends PanelPlugin {
 
       _classPrivateMethodGet(_this2, _restoreGraphComplexVisual, _restoreGraphComplexVisual2).call(_this2);
 
-      if (id === null) return _classPrivateFieldGet(_this2, _interactionSystem).POSTRequest('/graphContent/object', [{
+      if (id === null) return _classPrivateFieldGet(_this2, _interactionSystem).POSTRequest('/mock_server/v1/graphContent/object', [{
         content: graphContent,
         name
-      }]).then(data => {
-        _classPrivateFieldGet(_this2, _eventSystem).createAndPublish(_classPrivateFieldGet(_this2, _guid), 'SetNewGraph', data.data);
-      });else return _classPrivateFieldGet(_this2, _interactionSystem).PUTRequest('/graphContent/object', [{
+      }]).then(_ref2 => {
+        var {
+          data
+        } = _ref2;
+
+        _classPrivateFieldGet(_this2, _eventSystem).publishEvent('SetNewGraph', {
+          name,
+          id: data.id
+        });
+      });else return _classPrivateFieldGet(_this2, _interactionSystem).PUTRequest('/mock_server/v1/graphContent/object', [{
         content: graphContent,
         name,
-        id: Number(id)
+        id: id
       }]).then(() => {
-        _classPrivateFieldGet(_this2, _eventSystem).createAndPublish(_classPrivateFieldGet(_this2, _guid), 'SetNewGraph', {
+        _classPrivateFieldGet(_this2, _eventSystem).publishEvent('SetNewGraph', {
           name,
           id
         });
@@ -18043,10 +18042,13 @@ class Plugin extends PanelPlugin {
       var blobURL = URL.createObjectURL(new Blob([fileContent], {
         type: 'application/xml'
       }));
-      if (window.navigator.msSaveOrOpenBlob) window.navigator.msSaveOrOpenBlob(blobURL, "".concat(graphName, ".graphml"));else {
+
+      if (window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveOrOpenBlob(blobURL, "".concat(graphName, ".graphml"));
+      } else {
         var aElement = document.createElement('a');
         aElement.setAttribute('href', blobURL);
-        aElement.setAttribute('download', "".concat(graphName));
+        aElement.setAttribute('download', "".concat(graphName, ".graphml"));
         aElement.style.display = 'none';
         document.body.appendChild(aElement);
         aElement.click();
@@ -18193,7 +18195,7 @@ class Plugin extends PanelPlugin {
     var publishCompleteEvent = function publishCompleteEvent() {
       var argsObject = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      _classPrivateFieldGet(_this4, _eventSystem).createAndPublish(_classPrivateFieldGet(_this4, _guid), 'ApplyingArrangementComplete', argsObject);
+      _classPrivateFieldGet(_this4, _eventSystem).publishEvent('ApplyingArrangementComplete', argsObject);
     };
 
     var morphParams = {
@@ -18256,25 +18258,6 @@ class Plugin extends PanelPlugin {
 
 }
 
-function _actionDecorator2(func) {
-  var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
-  var ARGUMENT_NAMES = /([^\s,]+)/g;
-  var fnStr = func.toString().replace(STRIP_COMMENTS, '');
-  var paramsList = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
-  return _ref3 => {
-    var {
-      args
-    } = _ref3;
-
-    if (typeof args === 'object') {
-      var argumentsList = paramsList ? paramsList.map(param => args[param]) : [];
-      return func.apply(this, argumentsList);
-    } else {
-      return func.apply(this, [args]);
-    }
-  };
-}
-
 function _broadcastPrimitiveInfo2(primitiveID) {
   var broadcastObject;
 
@@ -18290,11 +18273,7 @@ function _broadcastPrimitiveInfo2(primitiveID) {
     }
   }
 
-  var customEvent = _classPrivateFieldGet(this, _eventSystem).createEvent(_classPrivateFieldGet(this, _guid), 'BroadcastPrimitiveInfo', broadcastObject);
-
-  customEvent.id = 'BroadcastPrimitiveInfo';
-
-  _classPrivateFieldGet(this, _eventSystem).publishEvent(customEvent);
+  _classPrivateFieldGet(this, _eventSystem).publishEvent('BroadcastPrimitiveInfo', broadcastObject);
 }
 
 function _createPrimitive2(extensionName, primitiveName, tagInfo) {
