@@ -1,7 +1,4 @@
-from rest.urls import path
 from cache import cache_page
-from .views.read_html import ReadHTML
-from .views.dependence_list import DependenceList
 from .views.log_config import LogsView
 from .views.design_objects import DesignObjects
 from .views.plugins_list import PluginsList
@@ -18,10 +15,9 @@ from django.conf.urls.static import static
 # ]
 
 urlpatterns = [
-    # re_path(r'^get-dependence-list/?$', DependenceList.as_view()),
     re_path(r'^get-design-objects/?$', DesignObjects.as_view()),
     re_path(r'^plugins/plugins.json/?$', PluginsList.as_view()),
     re_path(r'^workspace/object/?$', Workspace.as_view()),
-    re_path(r'^logs/object/?$', LogsView.as_view()),  # logging not ready
-    re_path(r'^graphContent/object/?$', Graph.as_view()),  # not checked PUT DELETE
+    re_path(r'^logs/object/?$', LogsView.as_view()),
+    re_path(r'^graphContent/object/?$', Graph.as_view()),
 ]
