@@ -92,7 +92,7 @@ function n(n, r) {
   }
 }
 
-var css$3 = "body {\n  margin: 0;\n  background-color: #f4f4fa;\n}\n\n.grid-stack {\n  margin-bottom: 30px;\n}\n\n.grid-stack-item-content {\n  position: relative;\n  border: 2px solid #f4f4fa;\n  transition: 0.3s;\n  padding: 6px;\n  background-color: #fefefe;\n}\n.gridstack-content-container {\n  height: 100%;\n}\n\n.gridstack-panel-overlay:before {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  left: 0;\n  height: 100%;\n  width: 100%;\n  z-index: 1500;\n  background-color: #3c1c7836;\n}\n\n.gridstack-panel-header {\n  display: flex;\n  justify-content: flex-end;\n  align-items: center;\n  z-index: 2000;\n  height: 2em;\n  background-color: rgb(102, 102, 102);\n}\n\n.default-select-panel {\n  border: none;\n  outline: none;\n  background: transparent;\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  appearance: none;\n  border-radius: 0;\n  margin: 0;\n  display: block;\n  width: 100%;\n  padding: 12px 55px 15px 15px;\n  font-size: 14px;\n  background-color: hsla(212, 44%, 51%, 0.418);\n}\n.default-select-panel:after {\n  position: absolute;\n  right: 0;\n  top: 0;\n  width: 50px;\n  height: 100%;\n  line-height: 38px;\n  content: '∨';\n  text-align: center;\n  color: #714bb9;\n  font-size: 24px;\n  border-left: 1px solid #3c1c78;\n  z-index: -1;\n}\n\n.close-panel-button {\n  background-color: none;\n  width: 10px;\n  margin-right: 0.5em;\n}\n\n.handle-drag-of-panel {\n  /* cursor: grab; */\n}\n.handle-drag-of-panel > * {\n  /* cursor: pointer; */\n}\n.ui-resizable-handle {\n  z-index: 15000 !important;\n}\n";
+var css$3 = "body {\n  margin: 0;\n  background-color: #f4f4fa;\n}\n\n.grid-stack {\n  margin-bottom: 30px;\n}\n\n.grid-stack-item-content {\n  position: relative;\n  border: 2px solid #f4f4fa;\n  transition: 0.3s;\n  background-color: #fefefe;\n}\n.gridstack-content-container {\n  height: 100%;\n}\n\n.gridstack-panel-overlay:before {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  left: 0;\n  height: 100%;\n  width: 100%;\n  z-index: 1500;\n  background-color: #3c1c7836;\n}\n\n.gridstack-panel-header {\n  display: flex;\n  justify-content: flex-end;\n  align-items: center;\n  position: absolute;\n  z-index: 2000;\n  width: 100%;\n  height: 2em;\n  background-color: rgb(102, 102, 102);\n}\n\n.default-select-panel {\n  border: none;\n  outline: none;\n  background: transparent;\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  appearance: none;\n  border-radius: 0;\n  margin: 0;\n  display: block;\n  width: 100%;\n  padding: 12px 55px 15px 15px;\n  font-size: 14px;\n  background-color: hsla(212, 44%, 51%, 0.418);\n}\n.default-select-panel:after {\n  position: absolute;\n  right: 0;\n  top: 0;\n  width: 50px;\n  height: 100%;\n  line-height: 38px;\n  content: '∨';\n  text-align: center;\n  color: #714bb9;\n  font-size: 24px;\n  border-left: 1px solid #3c1c78;\n  z-index: -1;\n}\n\n.close-panel-button {\n  background-color: none;\n  width: 10px;\n  margin-right: 0.5em;\n}\n\n.handle-drag-of-panel {\n  /* cursor: grab; */\n}\n.handle-drag-of-panel > * {\n  /* cursor: pointer; */\n}\n.ui-resizable-handle {\n  z-index: 15000 !important;\n}\n";
 n(css$3,{});
 
 var css$2 = ".workspace-header {\n  height: 30px;\n  width: 100%;\n  background-color: #272A3A;\n  color: #FFF;\n}\n\n.workspace-header-wrapper {\n  height: 30px;\n  display: flex;\n  justify-content: space-between;\n  margin: 0 15px;\n}\n\n.workspace-header-menu {\n  height: 30px;\n  display: flex;\n  align-items: center;\n  column-gap: 40px;\n}\n\n.workspace-header-logo {\n  font-size: 18px;\n  font-weight: 800;\n}\n\n.workspace-header-item {\n  font-size: 13px;\n  /* cursor: pointer; */\n}\n\n.workspace-header-right-menu { \n  height: 30px;\n  display: flex;\n  align-items: center;\n}\n\n.user-icon {\n  height: 18px;\n  width: 18px;\n  background-color: #AF52DE;\n  border-radius: 50%;\n  margin-left: 29px;\n}\n\n.username {\n  font-size: 13px;\n  font-weight: 600;\n  margin-left: 6px;\n  margin-right: 9px;\n}";
@@ -388,7 +388,7 @@ class EventSystemAdapter extends BaseAdapter {
    * @param {String} eventName name of event
    * @param {String} actionsGUID instance guid of plugin whom invoke callback
    * @param {String} actionName name of action
-   * @returns {String} token of subscription
+   * @returns {Boolean} true, if everything is ok
    */
 
 
@@ -6290,7 +6290,7 @@ createCommonjsModule(function (module, exports) {
 
 var headerTemplate = "<div class=\"workspace-header-wrapper\">\n  <div class=\"workspace-header-menu\">\n    <div class=\"workspace-header-logo\">LOGO</div>\n    <div class=\"workspace-header-item\">DataCAD</div>\n    <div class=\"workspace-header-item\">Работа с данными</div>\n    <div class=\"workspace-header-item\">Дашборды</div>\n    <div class=\"workspace-header-item\">Приложения</div>\n    <div class=\"workspace-header-item\">Помощь</div>\n  </div>\n  <div class=\"workspace-header-right-menu\">\n    <svg width=\"18\" height=\"18\" viewBox=\"0 0 18 18\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <path d=\"M9 16.5C8.17204 16.4959 7.50069 15.8279 7.4925 15H10.4925C10.4941 15.2005 10.4558 15.3994 10.38 15.585C10.1832 16.0365 9.78136 16.3658 9.3 16.47H9.29625H9.285H9.2715H9.26475C9.17761 16.4881 9.08899 16.4982 9 16.5ZM15 14.25H3V12.75L4.5 12V7.875C4.46049 6.81684 4.69945 5.76684 5.193 4.83C5.68428 3.96113 6.52402 3.34416 7.5 3.135V1.5H10.5V3.135C12.4342 3.5955 13.5 5.2785 13.5 7.875V12L15 12.75V14.25Z\" fill=\"white\"/>\n    </svg>\n    <div class=\"user-icon\"></div>\n    <div class=\"username\">Username</div>\n    <svg width=\"18\" height=\"18\" viewBox=\"0 0 18 18\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <path d=\"M8.99993 11.7848L13.5074 7.27725L12.4477 6.216L8.99993 9.666L5.55293 6.216L4.49243 7.2765L8.99993 11.7848Z\" fill=\"white\"/>\n    </svg>\n  </div>\n</div>\n";
 
-var footerTemplate = "<div onclick=\"selectTab(1)\" class=\"workspace-footer-item active-tab\">\n  Чистая прибыль EBITDA\n</div>\n<div onclick=\"selectTab(2)\" class=\"workspace-footer-item\">\n  Дашборд ГД\n</div>\n<div onclick=\"selectTab(3)\" class=\"workspace-footer-item\">\n  Дашборд ЗГД\n</div>\n";
+var footerTemplate = "<div onclick=\"selectTab(0)\" class=\"workspace-footer-item active-tab\">Чистая прибыль EBITDA</div>\n<div onclick=\"selectTab(1)\" class=\"workspace-footer-item\">Дашборд ГД</div>\n<div onclick=\"selectTab(2)\" class=\"workspace-footer-item\">Дашборд ЗГД</div>\n";
 
 function toMountTemplates() {
   const header = document.createElement('div');
@@ -6363,9 +6363,13 @@ var defaultConfiguration = {
 };
 
 document.selectTab = async function (tabNumber) {
-  await Application.getSystem('WorkspaceSystem').setConfiguration(tabNumber);
-  document.querySelectorAll('.workspace-footer-item').forEach(tab => tab.classList.remove('active-tab'));
-  document.querySelectorAll('.workspace-footer-item')[tabNumber - 1].classList.add('active-tab');
+  const list = await Application.getSystem('WorkspaceSystem').getConfigurationList();
+
+  if (list[tabNumber]) {
+    await Application.getSystem('WorkspaceSystem').setConfiguration(list[tabNumber].id);
+    document.querySelectorAll('.workspace-footer-item').forEach(tab => tab.classList.remove('active-tab'));
+    document.querySelectorAll('.workspace-footer-item')[tabNumber].classList.add('active-tab');
+  } else console.warn('There is no workspace for that tab!');
 };
 
 var _guid = /*#__PURE__*/new WeakMap();
@@ -6537,7 +6541,7 @@ class WorkspaceSystem extends SystemPlugin {
       return;
     }
 
-    const id = parseInt(parsedURL.get('workspace'));
+    const id = parsedURL.get('workspace');
 
     _classPrivateFieldGet(this, _logSystem).debug(`Initializing configuration from url param with id:${id}`);
 
@@ -6578,6 +6582,7 @@ class WorkspaceSystem extends SystemPlugin {
   }
 
   async setPluginConfig(config = {}) {
+    this.getSystem('EventSystem').resetSystem();
     this.resetWorkspace();
 
     _classPrivateFieldGet(this, _logSystem).info(`Setting workspace configuration (id:${config === null || config === void 0 ? void 0 : config.id}, title:${config === null || config === void 0 ? void 0 : config.title})`); // ---- COLUMN ----
@@ -6590,7 +6595,6 @@ class WorkspaceSystem extends SystemPlugin {
     _classPrivateFieldSet(this, _currentID, config.id); // ---- PLUGINS ----
 
 
-    this.getSystem('EventSystem').resetSystem();
     let subscriptions; // From workspace config for eventSystem process only subscriptions
     // ---- installing-plugins-from-config ----
 
@@ -6863,7 +6867,7 @@ class WorkspaceSystem extends SystemPlugin {
     document.getElementById(`panel-${panelID}`).appendChild(selectEl); // closePanelBtn
 
     document.getElementById(`closePanelBtn-${panelID}`).addEventListener('click', evt => {
-      _classPrivateFieldGet(this, _panels).splice(_classPrivateFieldGet(this, _panels).findIndex(plg => plg.widget !== widget), 1);
+      _classPrivateFieldGet(this, _panels).splice(_classPrivateFieldGet(this, _panels).findIndex(plg => plg.widget === widget), 1);
 
       _classPrivateFieldGet(this, _grid).removeWidget(widget);
 
@@ -6973,7 +6977,7 @@ class WorkspaceSystem extends SystemPlugin {
   async saveConfiguration() {
     _classPrivateFieldGet(this, _logSystem).info('Saving current configuration');
 
-    _classPrivateFieldGet(this, _interactionSystem).PUTRequest('/mock_server/v1/workspace/object/', [{
+    _classPrivateFieldGet(this, _interactionSystem).PUTRequest('/mock_server/v1/workspace/object', [{
       id: _classPrivateFieldGet(this, _currentID),
       title: _classPrivateFieldGet(this, _currentTitle),
       content: this.getPluginConfig()

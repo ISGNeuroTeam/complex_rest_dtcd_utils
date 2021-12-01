@@ -229,142 +229,6 @@ class InteractionSystemAdapter extends BaseAdapter {
 	}
 }
 
-class LogSystemAdapter extends BaseAdapter {
-  /**
-   * @constructor
-   * @param {String} guid guid of plugin instance
-   * @param {String} pluginName name of plugin
-   */
-  constructor(guid, pluginName) {
-    super();
-    this.instance = this.getSystem('LogSystem');
-    this.guid = guid;
-    this.pluginName = pluginName;
-  }
-
-  /**
-   * Adds new fatal level log record to the system
-   * @param {String} message - log message to record
-   * @returns {Boolean} - indicatior of success
-   */
-  fatal(message) {
-    return this.instance.fatal(this.guid, this.pluginName, message);
-  }
-
-  /**
-   * Adds new error level log record to the system
-   * @param {String} message - log message to record
-   * @returns {Boolean} - indicatior of success
-   */
-  error(message) {
-    return this.instance.error(this.guid, this.pluginName, message);
-  }
-
-  /**
-   * Adds new warn level log record to the system
-   * @param {String} message - log message to record
-   * @returns {Boolean} - indicatior of success
-   */
-  warn(message) {
-    return this.instance.warn(this.guid, this.pluginName, message);
-  }
-
-  /**
-   * Adds new info level log record to the system
-   * @param {String} message - log message to record
-   * @returns {Boolean} - indicatior of success
-   */
-  info(message) {
-    return this.instance.info(this.guid, this.pluginName, message);
-  }
-
-  /**
-   * Adds new debug level log record to the system
-   * @param {String} message - log message to record
-   * @returns {Boolean} - indicatior of success
-   */
-  debug(message) {
-    return this.instance.debug(this.guid, this.pluginName, message);
-  }
-
-  /**
-   * Invokes callback if current log level is above or equel to the given, otherwise nothing happens
-   * @param {(String|Number)} logLevel - level on what callback should be invoked
-   * @param {callback} callback - callback which should be invoked if level is suitable, should return String message!
-   * @returns {Boolean} - indicatior of success
-   */
-  invokeOnLevel(logLevel, callback) {
-    return this.instance.invokeOnLevel(this.guid, this.pluginName, logLevel, callback);
-  }
-
-  /**
-   * Returns current global log level
-   * @returns {String} - current global log level
-   */
-  getGlobalLogLevel() {
-    return this.instance.getGlobalLogLevel();
-  }
-
-  /**
-   * Sets new global log level
-   * @param {(String|Number)} logLevel - new log level
-   * @returns {Boolean} - indicatior of success
-   */
-  setGlobalLogLevel(logLevel) {
-    this.instance.setGlobalLogLevel(logLevel);
-  }
-
-  /**
-   * Returns current log level for plugin
-   * @returns {String} - current log level of plugin
-   */
-  getPluginLogLevel() {
-    return this.instance.getPluginLogLevel(this.guid, this.pluginName);
-  }
-
-  /**
-   * Sets new plugin log level
-   * @param {(String|Number)} logLevel - new log level
-   * @returns {Boolean} - indicatior of success
-   */
-  setPluginLogLevel(logLevel) {
-    return this.instance.setPluginLogLevel(this.guid, this.pluginName, logLevel);
-  }
-
-  /**
-   * Removes current log level of plugin
-   * @returns {Boolean} - indicatior of success
-   */
-  removePluginLogLevel() {
-    return this.instance.removePluginLogLevel(this.guid, this.pluginName);
-  }
-
-  /**
-   * Sets new interval for sending logs, work only after page reload
-   * @param {Number} seconds - interval in seconds
-   * @returns {Boolean} - indicatior of success
-   */
-  setSendInerval(seconds) {
-    return this.instance.setSendInerval(seconds);
-  }
-
-  /**
-   * Sets new buffer size logs, work only after page reload
-   * @param {Number} bytes - buffer size in bytes
-   * @returns {Boolean} - indicatior of success
-   */
-  setBufferSize(bytes) {
-    return this.instance.setBufferSize(bytes);
-  }
-
-  /**
-   * Resets current configuration of LogSystem
-   */
-  resetConfiguration() {
-    this.instance.resetConfiguration();
-  }
-}
-
 /**
  * @typedef {Object} PluginMeta
  * @property {String} title
@@ -471,89 +335,63 @@ class AbstractPlugin {
 class SystemPlugin extends AbstractPlugin {}
 
 class StyleSystem extends SystemPlugin {
-  static getRegistrationMeta() {
-    return {
-      name: 'StyleSystem',
-      type: 'core',
-      title: 'Дизайн система',
-      version: '0.2.0',
-      priority: 3,
-      withDependencies: false,
-    };
-  }
+	static getRegistrationMeta() {
+		return {
+			name: 'StyleSystem',
+			type: 'core',
+			title: 'Дизайн система',
+			version: '0.2.0',
+			priority: 3,
+			withDependencies: false,
+		};
+	}
 
-  constructor(guid) {
-    super();
-    this.guid = guid;
-    this.interactionSystem = new InteractionSystemAdapter();
-    this.eventSystem = new EventSystemAdapter();
-    this.logSystem = new LogSystemAdapter(guid, 'StyleSystem');
-  }
+	constructor(guid) {
+		super();
+		this.guid = guid;
+		this.interactionSystem = new InteractionSystemAdapter();
+		this.eventSystem = new EventSystemAdapter();
+		this.currentThemeName = 'light';
+	}
 
-  async init() {
-    this.logSystem.info('Initializing system');
-    try {
-      this.logSystem.debug('Requesting design object from endpoint /get-design-objects');
-      const { data } = await this.interactionSystem.GETRequest(
-        '/mock_server/v1/get-design-objects'
-      );
-      this.logSystem.debug('Setting themes received from server in system');
-      this.themes = data;
-      this.logSystem.debug(`Setting ${this.themes[0].name} as default theme in system`);
-      this.currentThemeName = this.themes[0].name;
-      this.logSystem.info('System inited successfully');
-    } catch (err) {
-      this.logSystem.fatal(
-        `'${err.name}' occured while fetching desing object.${err.message}, ${err.stack}`
-      );
-    }
-  }
+	setTheme(name) {
+		if (typeof name === 'string') {
+			const theme = this.themes.find(theme => theme.name === name);
+			if (theme) {
+				this.currentThemeName = name;
+				this.eventSystem.createAndPublish(this.guid, 'ThemeUpdate');
+			} else {
+				console.error(`Theme: ${name} doesn't exist`);
+				throw new Error('Theme not found!');
+			}
+		} else {
+			throw new Error('Wrong argument type!');
+		}
+	}
 
-  setTheme(name) {
-    this.logSystem.debug(`setTheme method called with argument ${name}`);
-    if (typeof name === 'string') {
-      const theme = this.themes.find(theme => theme.name === name);
-      if (theme) {
-        this.currentThemeName = name;
-        this.logSystem.info(`New theme '${name}' set in system`);
-        this.eventSystem.createAndPublish(this.guid, 'ThemeUpdate');
-      } else {
-        this.logSystem.warn(`Theme '${name}' doesn't exist in system!`);
-        throw new Error('Theme not found!');
-      }
-    } else {
-      this.logSystem.debug(`argument type of '${name}' is not string `);
-      throw new Error('Wrong argument type!');
-    }
-  }
+	async getThemes() {
+		const {data} = await this.interactionSystem.GETRequest('/get-design-objects');
+		this.themes = data;
+		return data;
+	}
 
-  getThemes() {
-    this.logSystem.info(`Returning all themes stored in system`);
-    return this.themes;
-  }
+	getCurrentTheme() {
+		return this.themes.find(theme => theme.name === this.currentThemeName);
+	}
 
-  getCurrentTheme() {
-    this.logSystem.info(`Returning current theme of application`);
-    return this.themes.find(theme => theme.name === this.currentThemeName);
-  }
-
-  setVariablesToElement(element, obj, startPrefix = '-') {
-    function setVariables(obj, prefix) {
-      Object.keys(obj).forEach(key => {
-        if (typeof obj[key] === 'object') {
-          const newPrefix = `${prefix}-${key}`;
-          setVariables(obj[key], newPrefix);
-        } else {
-          this.logSystem.debug(`setting '${prefix}-${key}' variable value to '${obj[key]}'`);
-          element.style.setProperty(`${prefix}-${key}`, obj[key]);
-        }
-      });
-    }
-    setVariables(obj.styleVariables, startPrefix);
-    this.logSystem.info(
-      `CSS variables from theme '${this.currentThemeName}' are installed for element ${element}`
-    );
-  }
+	setVariablesToElement(element, obj, startPrefix = '-') {
+		function setVariables(obj, prefix) {
+			Object.keys(obj).forEach(key => {
+				if (typeof obj[key] === 'object') {
+					const newPrefix = `${prefix}-${key}`;
+					setVariables(obj[key], newPrefix);
+				} else {
+					element.style.setProperty(`${prefix}-${key}`, obj[key]);
+				}
+			});
+		}
+		setVariables(obj.styleVariables, startPrefix);
+	}
 }
 
 export { StyleSystem };

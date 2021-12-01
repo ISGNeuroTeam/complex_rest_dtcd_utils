@@ -286,11 +286,11 @@ __vue_render__$2._withStripped = true;
   /* style */
   const __vue_inject_styles__$2 = function (inject) {
     if (!inject) return
-    inject("data-v-74a4d790_0", { source: "\n.modal-backdrop[data-v-74a4d790] {\n  position: fixed;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 5;\n}\n.modal[data-v-74a4d790] {\n  background: #ffffff;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);\n  height: 25vh;\n  width: 50vh;\n  display: flex;\n  flex-direction: column;\n  z-index: 30;\n  position: relative;\n}\n.modal-header[data-v-74a4d790],\n.modal-footer[data-v-74a4d790] {\n  padding: 15px;\n  display: flex;\n}\n.modal-header[data-v-74a4d790] {\n  position: relative;\n  border-bottom: 1px solid #eeeeee;\n  justify-content: space-between;\n}\n.modal-footer[data-v-74a4d790] {\n  position: absolute;\n  bottom: 0;\n  right: 0;\n  width: 100%;\n  border-top: 1px solid #eeeeee;\n  justify-content: flex-end;\n}\n.modal-body[data-v-74a4d790] {\n  position: relative;\n  padding: 20px;\n}\n.btn-close[data-v-74a4d790] {\n  position: absolute;\n  top: 0;\n  right: 5px;\n  border: none;\n  font-size: 20px;\n  padding: 10px;\n  cursor: pointer;\n  font-weight: bold;\n  color: #757575;\n  background: transparent;\n}\n.btn-close[data-v-74a4d790]:hover {\n  color: #2196f3;\n}\n.footer-btn[data-v-74a4d790] {\n  padding: 5px;\n  width: 80px;\n  margin: 2px 5px;\n}\n.input[data-v-74a4d790] {\n  padding: 0.5rem;\n  border: 1px solid rgb(199, 208, 217);\n  width: 100%;\n  max-width: 500px;\n}\n.label-wrapper[data-v-74a4d790] {\n  padding: 0.2rem;\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 1.25;\n}\n.form-field[data-v-74a4d790] {\n  margin-bottom: 10px;\n}\n", map: {"version":3,"sources":["/home/ilya/Desktop/DTCD-WorkspacePanel/DTCD-WorkspacePanel/src/components/ModalWindow.vue"],"names":[],"mappings":";AA8DA;EACA,eAAA;EACA,MAAA;EACA,SAAA;EACA,OAAA;EACA,QAAA;EACA,aAAA;EACA,uBAAA;EACA,mBAAA;EACA,UAAA;AACA;AAEA;EACA,mBAAA;EACA,uCAAA;EACA,YAAA;EACA,WAAA;EACA,aAAA;EACA,sBAAA;EACA,WAAA;EACA,kBAAA;AACA;AAEA;;EAEA,aAAA;EACA,aAAA;AACA;AAEA;EACA,kBAAA;EACA,gCAAA;EACA,8BAAA;AACA;AAEA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,WAAA;EACA,6BAAA;EACA,yBAAA;AACA;AAEA;EACA,kBAAA;EACA,aAAA;AACA;AAEA;EACA,kBAAA;EACA,MAAA;EACA,UAAA;EACA,YAAA;EACA,eAAA;EACA,aAAA;EACA,eAAA;EACA,iBAAA;EACA,cAAA;EACA,uBAAA;AACA;AACA;EACA,cAAA;AACA;AAEA;EACA,YAAA;EACA,WAAA;EACA,eAAA;AACA;AAEA;EACA,eAAA;EACA,oCAAA;EACA,WAAA;EACA,gBAAA;AACA;AACA;EACA,eAAA;EACA,eAAA;EACA,gBAAA;EACA,iBAAA;AACA;AACA;EACA,mBAAA;AACA","file":"ModalWindow.vue","sourcesContent":["<template>\n  <transition name=\"modal-fade\">\n    <div class=\"modal-backdrop\">\n      <div class=\"modal\">\n        <header class=\"modal-header\">\n          <slot name=\"header\"> Создание рабочего стола</slot>\n          <button type=\"button\" class=\"btn-close\" @click=\"close\">x</button>\n        </header>\n        <section class=\"modal-body\">\n          <div class=\"form-field\">\n            <div class=\"label-wrapper\">\n              <label :style=\"{ color: color }\">Title</label>\n            </div>\n            <input\n              id=\"ttl\"\n              type=\"text\"\n              class=\"input\"\n              v-model=\"tempTitle\"\n              :style=\"{ borderColor: color }\"\n            />\n          </div>\n        </section>\n        <footer class=\"modal-footer\">\n          <button type=\"button\" class=\"footer-btn\" @click=\"save\">Save</button>\n          <button type=\"button\" class=\"footer-btn\" @click=\"close\">Close</button>\n        </footer>\n      </div>\n    </div>\n  </transition>\n</template>\n\n<script>\nexport default {\n  name: 'ModalWindow',\n  data() {\n    return {\n      tempTitle: '',\n      color: 'none',\n    };\n  },\n  methods: {\n    close() {\n      this.$emit('close');\n      this.clearTempValue();\n    },\n    save() {\n      if (this.tempTitle === '') {\n        this.color = 'red';\n        return;\n      }\n      this.color = 'none';\n      this.$emit('createWorkspace', this.tempTitle);\n      this.close();\n    },\n    clearTempValue() {\n      this.tempTitle = '';\n    },\n  },\n};\n</script>\n\n<style scoped>\n.modal-backdrop {\n  position: fixed;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 5;\n}\n\n.modal {\n  background: #ffffff;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);\n  height: 25vh;\n  width: 50vh;\n  display: flex;\n  flex-direction: column;\n  z-index: 30;\n  position: relative;\n}\n\n.modal-header,\n.modal-footer {\n  padding: 15px;\n  display: flex;\n}\n\n.modal-header {\n  position: relative;\n  border-bottom: 1px solid #eeeeee;\n  justify-content: space-between;\n}\n\n.modal-footer {\n  position: absolute;\n  bottom: 0;\n  right: 0;\n  width: 100%;\n  border-top: 1px solid #eeeeee;\n  justify-content: flex-end;\n}\n\n.modal-body {\n  position: relative;\n  padding: 20px;\n}\n\n.btn-close {\n  position: absolute;\n  top: 0;\n  right: 5px;\n  border: none;\n  font-size: 20px;\n  padding: 10px;\n  cursor: pointer;\n  font-weight: bold;\n  color: #757575;\n  background: transparent;\n}\n.btn-close:hover {\n  color: #2196f3;\n}\n\n.footer-btn {\n  padding: 5px;\n  width: 80px;\n  margin: 2px 5px;\n}\n\n.input {\n  padding: 0.5rem;\n  border: 1px solid rgb(199, 208, 217);\n  width: 100%;\n  max-width: 500px;\n}\n.label-wrapper {\n  padding: 0.2rem;\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 1.25;\n}\n.form-field {\n  margin-bottom: 10px;\n}\n</style>\n"]}, media: undefined });
+    inject("data-v-55f242aa_0", { source: "\n.modal-backdrop[data-v-55f242aa] {\n  position: fixed;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 5;\n}\n.modal[data-v-55f242aa] {\n  background: #ffffff;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);\n  height: 25vh;\n  width: 50vh;\n  display: flex;\n  flex-direction: column;\n  z-index: 30;\n  position: relative;\n}\n.modal-header[data-v-55f242aa],\n.modal-footer[data-v-55f242aa] {\n  padding: 15px;\n  display: flex;\n}\n.modal-header[data-v-55f242aa] {\n  position: relative;\n  border-bottom: 1px solid #eeeeee;\n  justify-content: space-between;\n}\n.modal-footer[data-v-55f242aa] {\n  position: absolute;\n  bottom: 0;\n  right: 0;\n  width: 100%;\n  border-top: 1px solid #eeeeee;\n  justify-content: flex-end;\n}\n.modal-body[data-v-55f242aa] {\n  position: relative;\n  padding: 20px;\n}\n.btn-close[data-v-55f242aa] {\n  position: absolute;\n  top: 0;\n  right: 5px;\n  border: none;\n  font-size: 20px;\n  padding: 10px;\n  cursor: pointer;\n  font-weight: bold;\n  color: #757575;\n  background: transparent;\n}\n.btn-close[data-v-55f242aa]:hover {\n  color: #2196f3;\n}\n.footer-btn[data-v-55f242aa] {\n  padding: 5px;\n  width: 80px;\n  margin: 2px 5px;\n}\n.input[data-v-55f242aa] {\n  padding: 0.5rem;\n  border: 1px solid rgb(199, 208, 217);\n  width: 100%;\n  max-width: 500px;\n}\n.label-wrapper[data-v-55f242aa] {\n  padding: 0.2rem;\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 1.25;\n}\n.form-field[data-v-55f242aa] {\n  margin-bottom: 10px;\n}\n", map: {"version":3,"sources":["/home/isg-user/Repos/DTCD/DTCD-WorkspacePanel/DTCD-WorkspacePanel/src/components/ModalWindow.vue"],"names":[],"mappings":";AA8DA;EACA,eAAA;EACA,MAAA;EACA,SAAA;EACA,OAAA;EACA,QAAA;EACA,aAAA;EACA,uBAAA;EACA,mBAAA;EACA,UAAA;AACA;AAEA;EACA,mBAAA;EACA,uCAAA;EACA,YAAA;EACA,WAAA;EACA,aAAA;EACA,sBAAA;EACA,WAAA;EACA,kBAAA;AACA;AAEA;;EAEA,aAAA;EACA,aAAA;AACA;AAEA;EACA,kBAAA;EACA,gCAAA;EACA,8BAAA;AACA;AAEA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,WAAA;EACA,6BAAA;EACA,yBAAA;AACA;AAEA;EACA,kBAAA;EACA,aAAA;AACA;AAEA;EACA,kBAAA;EACA,MAAA;EACA,UAAA;EACA,YAAA;EACA,eAAA;EACA,aAAA;EACA,eAAA;EACA,iBAAA;EACA,cAAA;EACA,uBAAA;AACA;AACA;EACA,cAAA;AACA;AAEA;EACA,YAAA;EACA,WAAA;EACA,eAAA;AACA;AAEA;EACA,eAAA;EACA,oCAAA;EACA,WAAA;EACA,gBAAA;AACA;AACA;EACA,eAAA;EACA,eAAA;EACA,gBAAA;EACA,iBAAA;AACA;AACA;EACA,mBAAA;AACA","file":"ModalWindow.vue","sourcesContent":["<template>\n  <transition name=\"modal-fade\">\n    <div class=\"modal-backdrop\">\n      <div class=\"modal\">\n        <header class=\"modal-header\">\n          <slot name=\"header\"> Создание рабочего стола</slot>\n          <button type=\"button\" class=\"btn-close\" @click=\"close\">x</button>\n        </header>\n        <section class=\"modal-body\">\n          <div class=\"form-field\">\n            <div class=\"label-wrapper\">\n              <label :style=\"{ color: color }\">Title</label>\n            </div>\n            <input\n              id=\"ttl\"\n              type=\"text\"\n              class=\"input\"\n              v-model=\"tempTitle\"\n              :style=\"{ borderColor: color }\"\n            />\n          </div>\n        </section>\n        <footer class=\"modal-footer\">\n          <button type=\"button\" class=\"footer-btn\" @click=\"save\">Save</button>\n          <button type=\"button\" class=\"footer-btn\" @click=\"close\">Close</button>\n        </footer>\n      </div>\n    </div>\n  </transition>\n</template>\n\n<script>\nexport default {\n  name: 'ModalWindow',\n  data() {\n    return {\n      tempTitle: '',\n      color: 'none',\n    };\n  },\n  methods: {\n    close() {\n      this.$emit('close');\n      this.clearTempValue();\n    },\n    save() {\n      if (this.tempTitle === '') {\n        this.color = 'red';\n        return;\n      }\n      this.color = 'none';\n      this.$emit('createWorkspace', this.tempTitle);\n      this.close();\n    },\n    clearTempValue() {\n      this.tempTitle = '';\n    },\n  },\n};\n</script>\n\n<style scoped>\n.modal-backdrop {\n  position: fixed;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 5;\n}\n\n.modal {\n  background: #ffffff;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);\n  height: 25vh;\n  width: 50vh;\n  display: flex;\n  flex-direction: column;\n  z-index: 30;\n  position: relative;\n}\n\n.modal-header,\n.modal-footer {\n  padding: 15px;\n  display: flex;\n}\n\n.modal-header {\n  position: relative;\n  border-bottom: 1px solid #eeeeee;\n  justify-content: space-between;\n}\n\n.modal-footer {\n  position: absolute;\n  bottom: 0;\n  right: 0;\n  width: 100%;\n  border-top: 1px solid #eeeeee;\n  justify-content: flex-end;\n}\n\n.modal-body {\n  position: relative;\n  padding: 20px;\n}\n\n.btn-close {\n  position: absolute;\n  top: 0;\n  right: 5px;\n  border: none;\n  font-size: 20px;\n  padding: 10px;\n  cursor: pointer;\n  font-weight: bold;\n  color: #757575;\n  background: transparent;\n}\n.btn-close:hover {\n  color: #2196f3;\n}\n\n.footer-btn {\n  padding: 5px;\n  width: 80px;\n  margin: 2px 5px;\n}\n\n.input {\n  padding: 0.5rem;\n  border: 1px solid rgb(199, 208, 217);\n  width: 100%;\n  max-width: 500px;\n}\n.label-wrapper {\n  padding: 0.2rem;\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 1.25;\n}\n.form-field {\n  margin-bottom: 10px;\n}\n</style>\n"]}, media: undefined });
 
   };
   /* scoped */
-  const __vue_scope_id__$2 = "data-v-74a4d790";
+  const __vue_scope_id__$2 = "data-v-55f242aa";
   /* module identifier */
   const __vue_module_identifier__$2 = undefined;
   /* functional template */
@@ -325,6 +325,7 @@ var script$1 = {
       search: '',
       tempTitle: '',
       editTitleID: -1,
+      editMode: false,
     };
   },
   async mounted() {
@@ -365,16 +366,19 @@ var script$1 = {
           this.editTitleID = -1;
         } catch (err) {
           console.log(err);
+        } finally {
+          this.editMode = false;
         }
       }
     },
     selectWorkspace(id) {
-      this.$root.workspaceSystem.setConfiguration(id);
+      if (!this.editMode) this.$root.workspaceSystem.setConfiguration(id);
     },
     createNewWorkspace() {
       this.isModalVisible = true;
     },
     changeTemplateTitle(configuration) {
+      this.editMode = true;
       this.tempTitle = configuration.title;
       this.editTitleID = configuration.id;
     },
@@ -479,7 +483,7 @@ var __vue_render__$1 = function () {
       _c(
         "button",
         { staticClass: "btn", on: { click: _vm.createNewWorkspace } },
-        [_vm._v("Create new")]
+        [_vm._v("Create")]
       ),
       _vm._v(" "),
       _c(
@@ -521,6 +525,21 @@ var __vue_render__$1 = function () {
                     attrs: { type: "text" },
                     domProps: { value: _vm.tempTitle },
                     on: {
+                      keydown: function ($event) {
+                        if (
+                          !$event.type.indexOf("key") &&
+                          _vm._k(
+                            $event.keyCode,
+                            "enter",
+                            13,
+                            $event.key,
+                            "Enter"
+                          )
+                        ) {
+                          return null
+                        }
+                        return _vm.saveTitle(configuration)
+                      },
                       input: function ($event) {
                         if ($event.target.composing) {
                           return
@@ -661,11 +680,11 @@ __vue_render__$1._withStripped = true;
   /* style */
   const __vue_inject_styles__$1 = function (inject) {
     if (!inject) return
-    inject("data-v-ed0df6dc_0", { source: "\n.panel-container[data-v-ed0df6dc] {\n  padding: 15px;\n}\n.label-wrapper[data-v-ed0df6dc] {\n  padding: 0.4rem 0;\n  font-size: 16px;\n  font-weight: 500;\n  line-height: 1.25;\n}\n.form-field[data-v-ed0df6dc] {\n  margin-bottom: 10px;\n}\n.input[data-v-ed0df6dc] {\n  padding: 0.5rem;\n  border: 1px solid rgb(199, 208, 217);\n  width: 200px;\n}\n.btn[data-v-ed0df6dc] {\n  width: 80px;\n  height: 30px;\n}\n.configuration-list[data-v-ed0df6dc] {\n  display: flex;\n  flex-direction: column;\n}\n.list-item[data-v-ed0df6dc] {\n  cursor: pointer;\n  padding: 12px 8px;\n  background: #eee;\n  transition: 0.2s;\n  display: flex;\n  justify-content: space-between;\n}\n.list-item-button-container[data-v-ed0df6dc] {\n  display: flex;\n}\n.icon[data-v-ed0df6dc] {\n  margin-left: 5px;\n  /* color: grey; */\n}\n.list-item[data-v-ed0df6dc]:nth-child(odd) {\n  background: #f9f9f9;\n}\n.list-item[data-v-ed0df6dc]:hover {\n  background: #ddd;\n}\n", map: {"version":3,"sources":["/home/ilya/Desktop/DTCD-WorkspacePanel/DTCD-WorkspacePanel/src/components/WorkspacePanel.vue"],"names":[],"mappings":";AAkLA;EACA,aAAA;AACA;AAEA;EACA,iBAAA;EACA,eAAA;EACA,gBAAA;EACA,iBAAA;AACA;AAEA;EACA,mBAAA;AACA;AAEA;EACA,eAAA;EACA,oCAAA;EACA,YAAA;AACA;AACA;EACA,WAAA;EACA,YAAA;AACA;AACA;EACA,aAAA;EACA,sBAAA;AACA;AAEA;EACA,eAAA;EACA,iBAAA;EACA,gBAAA;EACA,gBAAA;EACA,aAAA;EACA,8BAAA;AACA;AACA;EACA,aAAA;AACA;AACA;EACA,gBAAA;EACA,iBAAA;AACA;AAEA;EACA,mBAAA;AACA;AAEA;EACA,gBAAA;AACA","file":"WorkspacePanel.vue","sourcesContent":["<template>\n  <div class=\"panel-container\">\n    <ModalWindow v-if=\"isModalVisible\" @close=\"closeModal\" @createWorkspace=\"createWorkspace\" />\n    <div class=\"panel-header\">\n      <h2>Select workspace configuration</h2>\n    </div>\n    <div class=\"form-field\">\n      <div class=\"label-wrapper\">\n        <label>Search</label>\n      </div>\n      <input type=\"text\" class=\"input\" v-model=\"search\" />\n    </div>\n    <button class=\"btn\" @click=\"createNewWorkspace\">Create new</button>\n    <button class=\"btn\" @click=\"importConfiguration\">Import</button>\n    <div class=\"configuration-list\">\n      <div\n        class=\"list-item\"\n        v-for=\"configuration in configurationsToShow\"\n        :value=\"configuration.id\"\n        :key=\"configuration.id\"\n        @click.self=\"selectWorkspace(configuration.id)\"\n      >\n        <input v-if=\"editTitleID === configuration.id\" type=\"text\" v-model=\"tempTitle\" />\n        <div v-else @click.self=\"selectWorkspace(configuration.id)\">{{ configuration.title }}</div>\n        <div class=\"list-item-button-container\">\n          <div\n            v-show=\"editTitleID === configuration.id\"\n            class=\"icon\"\n            @click=\"saveTitle(configuration)\"\n          >\n            <i class=\"fas fa-save\" />\n          </div>\n          <div\n            v-show=\"editTitleID !== configuration.id\"\n            class=\"icon\"\n            @click=\"changeTemplateTitle(configuration)\"\n          >\n            <i class=\"fas fa-edit\" />\n          </div>\n          <div\n            v-show=\"editTitleID !== configuration.id\"\n            class=\"icon\"\n            @click=\"exportConfiguration(configuration.id)\"\n          >\n            <i class=\"fas fa-file-import\"></i>\n          </div>\n          <div\n            v-show=\"editTitleID !== configuration.id\"\n            class=\"icon\"\n            @click=\"deleteConfiguration(configuration.id)\"\n          >\n            <i class=\"fas fa-trash-alt\" />\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n</template>\n\n<script>\nimport ModalWindow from '@/components/ModalWindow';\nexport default {\n  name: 'WorkspacePanel',\n  components: { ModalWindow },\n  data() {\n    return {\n      isModalVisible: false,\n      configurationList: [],\n      search: '',\n      tempTitle: '',\n      editTitleID: -1,\n    };\n  },\n  async mounted() {\n    await this.getConfigurationList();\n  },\n  computed: {\n    configurationsToShow() {\n      if (this.configurationList) {\n        if (this.search)\n          return this.configurationList.filter(conf =>\n            conf.title.toLowerCase().includes(this.search.toLowerCase())\n          );\n        return this.configurationList;\n      }\n      return [];\n    },\n  },\n  methods: {\n    async getConfigurationList() {\n      this.configurationList = await this.$root.workspaceSystem.getConfigurationList();\n    },\n    closeModal() {\n      this.isModalVisible = false;\n    },\n    async createWorkspace(newTitle) {\n      await this.$root.workspaceSystem.createEmptyConfiguration(newTitle);\n      await this.getConfigurationList();\n    },\n    async saveTitle(configuration) {\n      if (this.tempTitle != '') {\n        try {\n          await this.$root.workspaceSystem.changeConfigurationTitle(\n            configuration.id,\n            this.tempTitle\n          );\n          configuration.title = this.tempTitle;\n          this.tempTitle = '';\n          this.editTitleID = -1;\n        } catch (err) {\n          console.log(err);\n        }\n      }\n    },\n    selectWorkspace(id) {\n      this.$root.workspaceSystem.setConfiguration(id);\n    },\n    createNewWorkspace() {\n      this.isModalVisible = true;\n    },\n    changeTemplateTitle(configuration) {\n      this.tempTitle = configuration.title;\n      this.editTitleID = configuration.id;\n    },\n    async deleteConfiguration(id) {\n      await this.$root.workspaceSystem.deleteConfiguration(id);\n      this.configurationList = this.configurationList.filter(conf => conf.id != id);\n    },\n    async exportConfiguration(id) {\n      const conf = await Application.getSystem('WorkspaceSystem').downloadConfiguration(id);\n      const blobURL = URL.createObjectURL(\n        new Blob([JSON.stringify(conf)], { type: 'application/text' })\n      );\n      if (window.navigator.msSaveOrOpenBlob) {\n        window.navigator.msSaveOrOpenBlob(blobURL, `${conf.title}.json`);\n      } else {\n        const aElement = document.createElement('a');\n        aElement.setAttribute('href', blobURL);\n        aElement.setAttribute('download', `${conf.title}.json`);\n        aElement.style.display = 'none';\n        document.body.appendChild(aElement);\n        aElement.click();\n        document.body.removeChild(aElement);\n      }\n    },\n    async importConfiguration() {\n      const fileInputElement = document.createElement('input');\n      fileInputElement.setAttribute('type', 'file');\n      fileInputElement.style.display = 'none';\n      fileInputElement.addEventListener('change', () => {\n        if (!fileInputElement.files || fileInputElement.files.length <= 0) {\n          throw new Error('There is no file to open');\n        }\n        const reader = new FileReader();\n        const onLoadEndCallback = async evt => {\n          const fileReader = evt.target;\n          if (fileReader.error === null) {\n            const config = JSON.parse(fileReader.result);\n            delete config.id;\n            await Application.getSystem('WorkspaceSystem').importConfiguration(config);\n            await this.getConfigurationList();\n          } else {\n            throw Error(fileReader.error);\n          }\n        };\n        reader.fileName = fileInputElement.files[0].name;\n        reader.onloadend = onLoadEndCallback;\n        reader.readAsText(fileInputElement.files[0]);\n        document.body.removeChild(fileInputElement);\n      });\n      document.body.appendChild(fileInputElement);\n      fileInputElement.click();\n    },\n  },\n};\n</script>\n\n<style scoped>\n.panel-container {\n  padding: 15px;\n}\n\n.label-wrapper {\n  padding: 0.4rem 0;\n  font-size: 16px;\n  font-weight: 500;\n  line-height: 1.25;\n}\n\n.form-field {\n  margin-bottom: 10px;\n}\n\n.input {\n  padding: 0.5rem;\n  border: 1px solid rgb(199, 208, 217);\n  width: 200px;\n}\n.btn {\n  width: 80px;\n  height: 30px;\n}\n.configuration-list {\n  display: flex;\n  flex-direction: column;\n}\n\n.list-item {\n  cursor: pointer;\n  padding: 12px 8px;\n  background: #eee;\n  transition: 0.2s;\n  display: flex;\n  justify-content: space-between;\n}\n.list-item-button-container {\n  display: flex;\n}\n.icon {\n  margin-left: 5px;\n  /* color: grey; */\n}\n\n.list-item:nth-child(odd) {\n  background: #f9f9f9;\n}\n\n.list-item:hover {\n  background: #ddd;\n}\n</style>\n"]}, media: undefined });
+    inject("data-v-d14568b8_0", { source: "\n.panel-container[data-v-d14568b8] {\n  padding: 15px;\n}\n.label-wrapper[data-v-d14568b8] {\n  padding: 0.4rem 0;\n  font-size: 16px;\n  font-weight: 500;\n  line-height: 1.25;\n}\n.form-field[data-v-d14568b8] {\n  margin-bottom: 10px;\n}\n.input[data-v-d14568b8] {\n  padding: 0.5rem;\n  border: 1px solid rgb(199, 208, 217);\n  width: 200px;\n}\n.btn[data-v-d14568b8] {\n  padding: 0 20px;\n  height: 30px;\n}\n.configuration-list[data-v-d14568b8] {\n  display: flex;\n  flex-direction: column;\n}\n.list-item[data-v-d14568b8] {\n  cursor: pointer;\n  padding: 12px 8px;\n  background: #eee;\n  transition: 0.2s;\n  display: flex;\n  justify-content: space-between;\n}\n.list-item-button-container[data-v-d14568b8] {\n  display: flex;\n}\n.icon[data-v-d14568b8] {\n  margin-left: 5px;\n  /* color: grey; */\n}\n.list-item[data-v-d14568b8]:nth-child(odd) {\n  background: #f9f9f9;\n}\n.list-item[data-v-d14568b8]:hover {\n  background: #ddd;\n}\n", map: {"version":3,"sources":["/home/isg-user/Repos/DTCD/DTCD-WorkspacePanel/DTCD-WorkspacePanel/src/components/WorkspacePanel.vue"],"names":[],"mappings":";AA2LA;EACA,aAAA;AACA;AAEA;EACA,iBAAA;EACA,eAAA;EACA,gBAAA;EACA,iBAAA;AACA;AAEA;EACA,mBAAA;AACA;AAEA;EACA,eAAA;EACA,oCAAA;EACA,YAAA;AACA;AACA;EACA,eAAA;EACA,YAAA;AACA;AACA;EACA,aAAA;EACA,sBAAA;AACA;AAEA;EACA,eAAA;EACA,iBAAA;EACA,gBAAA;EACA,gBAAA;EACA,aAAA;EACA,8BAAA;AACA;AACA;EACA,aAAA;AACA;AACA;EACA,gBAAA;EACA,iBAAA;AACA;AAEA;EACA,mBAAA;AACA;AAEA;EACA,gBAAA;AACA","file":"WorkspacePanel.vue","sourcesContent":["<template>\n  <div class=\"panel-container\">\n    <ModalWindow v-if=\"isModalVisible\" @close=\"closeModal\" @createWorkspace=\"createWorkspace\" />\n    <div class=\"panel-header\">\n      <h2>Select workspace configuration</h2>\n    </div>\n    <div class=\"form-field\">\n      <div class=\"label-wrapper\">\n        <label>Search</label>\n      </div>\n      <input type=\"text\" class=\"input\" v-model=\"search\" />\n    </div>\n    <button class=\"btn\" @click=\"createNewWorkspace\">Create</button>\n    <button class=\"btn\" @click=\"importConfiguration\">Import</button>\n    <div class=\"configuration-list\">\n      <div\n        class=\"list-item\"\n        v-for=\"configuration in configurationsToShow\"\n        :value=\"configuration.id\"\n        :key=\"configuration.id\"\n        @click.self=\"selectWorkspace(configuration.id)\"\n      >\n        <input\n          v-if=\"editTitleID === configuration.id\"\n          @keydown.enter=\"saveTitle(configuration)\"\n          type=\"text\"\n          v-model=\"tempTitle\"\n        />\n        <div v-else @click.self=\"selectWorkspace(configuration.id)\">{{ configuration.title }}</div>\n        <div class=\"list-item-button-container\">\n          <div\n            v-show=\"editTitleID === configuration.id\"\n            class=\"icon\"\n            @click=\"saveTitle(configuration)\"\n          >\n            <i class=\"fas fa-save\" />\n          </div>\n          <div\n            v-show=\"editTitleID !== configuration.id\"\n            class=\"icon\"\n            @click=\"changeTemplateTitle(configuration)\"\n          >\n            <i class=\"fas fa-edit\" />\n          </div>\n          <div\n            v-show=\"editTitleID !== configuration.id\"\n            class=\"icon\"\n            @click=\"exportConfiguration(configuration.id)\"\n          >\n            <i class=\"fas fa-file-import\"></i>\n          </div>\n          <div\n            v-show=\"editTitleID !== configuration.id\"\n            class=\"icon\"\n            @click=\"deleteConfiguration(configuration.id)\"\n          >\n            <i class=\"fas fa-trash-alt\" />\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n</template>\n\n<script>\nimport ModalWindow from '@/components/ModalWindow';\nexport default {\n  name: 'WorkspacePanel',\n  components: { ModalWindow },\n  data() {\n    return {\n      isModalVisible: false,\n      configurationList: [],\n      search: '',\n      tempTitle: '',\n      editTitleID: -1,\n      editMode: false,\n    };\n  },\n  async mounted() {\n    await this.getConfigurationList();\n  },\n  computed: {\n    configurationsToShow() {\n      if (this.configurationList) {\n        if (this.search)\n          return this.configurationList.filter(conf =>\n            conf.title.toLowerCase().includes(this.search.toLowerCase())\n          );\n        return this.configurationList;\n      }\n      return [];\n    },\n  },\n  methods: {\n    async getConfigurationList() {\n      this.configurationList = await this.$root.workspaceSystem.getConfigurationList();\n    },\n    closeModal() {\n      this.isModalVisible = false;\n    },\n    async createWorkspace(newTitle) {\n      await this.$root.workspaceSystem.createEmptyConfiguration(newTitle);\n      await this.getConfigurationList();\n    },\n    async saveTitle(configuration) {\n      if (this.tempTitle != '') {\n        try {\n          await this.$root.workspaceSystem.changeConfigurationTitle(\n            configuration.id,\n            this.tempTitle\n          );\n          configuration.title = this.tempTitle;\n          this.tempTitle = '';\n          this.editTitleID = -1;\n        } catch (err) {\n          console.log(err);\n        } finally {\n          this.editMode = false;\n        }\n      }\n    },\n    selectWorkspace(id) {\n      if (!this.editMode) this.$root.workspaceSystem.setConfiguration(id);\n    },\n    createNewWorkspace() {\n      this.isModalVisible = true;\n    },\n    changeTemplateTitle(configuration) {\n      this.editMode = true;\n      this.tempTitle = configuration.title;\n      this.editTitleID = configuration.id;\n    },\n    async deleteConfiguration(id) {\n      await this.$root.workspaceSystem.deleteConfiguration(id);\n      this.configurationList = this.configurationList.filter(conf => conf.id != id);\n    },\n    async exportConfiguration(id) {\n      const conf = await Application.getSystem('WorkspaceSystem').downloadConfiguration(id);\n      const blobURL = URL.createObjectURL(\n        new Blob([JSON.stringify(conf)], { type: 'application/text' })\n      );\n      if (window.navigator.msSaveOrOpenBlob) {\n        window.navigator.msSaveOrOpenBlob(blobURL, `${conf.title}.json`);\n      } else {\n        const aElement = document.createElement('a');\n        aElement.setAttribute('href', blobURL);\n        aElement.setAttribute('download', `${conf.title}.json`);\n        aElement.style.display = 'none';\n        document.body.appendChild(aElement);\n        aElement.click();\n        document.body.removeChild(aElement);\n      }\n    },\n    async importConfiguration() {\n      const fileInputElement = document.createElement('input');\n      fileInputElement.setAttribute('type', 'file');\n      fileInputElement.style.display = 'none';\n      fileInputElement.addEventListener('change', () => {\n        if (!fileInputElement.files || fileInputElement.files.length <= 0) {\n          throw new Error('There is no file to open');\n        }\n        const reader = new FileReader();\n        const onLoadEndCallback = async evt => {\n          const fileReader = evt.target;\n          if (fileReader.error === null) {\n            const config = JSON.parse(fileReader.result);\n            delete config.id;\n            await Application.getSystem('WorkspaceSystem').importConfiguration(config);\n            await this.getConfigurationList();\n          } else {\n            throw Error(fileReader.error);\n          }\n        };\n        reader.fileName = fileInputElement.files[0].name;\n        reader.onloadend = onLoadEndCallback;\n        reader.readAsText(fileInputElement.files[0]);\n        document.body.removeChild(fileInputElement);\n      });\n      document.body.appendChild(fileInputElement);\n      fileInputElement.click();\n    },\n  },\n};\n</script>\n\n<style scoped>\n.panel-container {\n  padding: 15px;\n}\n\n.label-wrapper {\n  padding: 0.4rem 0;\n  font-size: 16px;\n  font-weight: 500;\n  line-height: 1.25;\n}\n\n.form-field {\n  margin-bottom: 10px;\n}\n\n.input {\n  padding: 0.5rem;\n  border: 1px solid rgb(199, 208, 217);\n  width: 200px;\n}\n.btn {\n  padding: 0 20px;\n  height: 30px;\n}\n.configuration-list {\n  display: flex;\n  flex-direction: column;\n}\n\n.list-item {\n  cursor: pointer;\n  padding: 12px 8px;\n  background: #eee;\n  transition: 0.2s;\n  display: flex;\n  justify-content: space-between;\n}\n.list-item-button-container {\n  display: flex;\n}\n.icon {\n  margin-left: 5px;\n  /* color: grey; */\n}\n\n.list-item:nth-child(odd) {\n  background: #f9f9f9;\n}\n\n.list-item:hover {\n  background: #ddd;\n}\n</style>\n"]}, media: undefined });
 
   };
   /* scoped */
-  const __vue_scope_id__$1 = "data-v-ed0df6dc";
+  const __vue_scope_id__$1 = "data-v-d14568b8";
   /* module identifier */
   const __vue_module_identifier__$1 = undefined;
   /* functional template */
@@ -757,162 +776,143 @@ class BaseAdapter {
 }
 
 class EventSystemAdapter extends BaseAdapter {
+  #guid;
+  #instance;
+
   /**
    * @constructor
+   * @param {String} guid guid of plugin, in which the adapter instance will be inited
    */
-  constructor() {
+  constructor(guid) {
     super();
-    this.instance = this.getSystem('EventSystem');
+    this.#guid = guid;
+    this.#instance = this.getSystem('EventSystem');
   }
 
   /**
-   * Adding CustomEvent object to events array
-   * @param {Object} customEvent
-   */
-  registerEvent(customEvent) {
-    this.instance.registerEvent(customEvent);
-    return true;
-  }
-  /**
-   * Creates and publishes a new event to EventSystem
-   * @param {Number} guid identifier of plugin instance
-   * @param {String} eventName event name
-   * @param {*} args additional data in event for action
-   */
-  createAndPublish(guid, eventName, args) {
-    this.instance.createAndPublish(guid, eventName, args);
-  }
-
-  /**
-   * Publishes event from CustomEvent instance
-   * @param {CustomEvent} customEvent instance of CustomEvent
-   */
-  publishEvent(customEvent) {
-    this.instance.publishEvent(customEvent);
-  }
-
-  /**
-   * Creates new instance of CustomEvent
-   * @param {Number} guid identifier of plugin instance
-   * @param {String} eventName event name
-   * @param {*} args additional data in event for action
-   * @returns {CustomEvent} created instance of CustomEvent
-   */
-  createEvent(guid, eventName, args = null) {
-    return this.instance.createEvent(guid, eventName, args);
-  }
-
-  /**
-   * Creates new instance of CustomAction
-   * @param {String} actionName action name
-   * @param {Number} guid identifier of plugin instance
-   * @param {*} args ...
-   * @returns {CustomAction} created instance of CustomAction
-   */
-  createAction(actionName, guid, args = null) {
-    return this.instance.createAction(actionName, guid, args);
-  }
-
-  /**
-   * Creates instance of CustomAction from the given callback and pushes it to action list
-   * @param {String} actionName action name
-   * @param {Number} guid identifier of plugin instance
-   * @param {Function} callback callback whitch invoked on event
-   * @param {*} args ...
-   * @returns {CustomAction} created instance of CustomAction
-   */
-  createActionByCallback(actionName, guid, callback, args = null) {
-    return this.instance.createActionByCallback(actionName, guid, callback, args);
-  }
-
-  /**
-   * Subsribes all events with the given name to action with the given actionID
-   * @param {String} eventName event name
-   * @param {String} actionID action id
+   * Configure state of EventSystem by object
+   * @method
+   * @param {*} conf Config object
    * @returns {Boolean} true, if everything is ok
    */
-  subscribeEventsByName(eventName, actionID) {
-    return this.instance.subscribeEventsByName(eventName, actionID);
+  setPluginConfig(conf) {
+    return this.#instance.setPluginConfig(conf);
   }
+
   /**
-   * Subsribes all events with the given eventName to all action with the given actionName
+   * Getting state of EventSystem
+   * @method
+   * @returns {*} State of system by object
+   */
+  getPluginConfig() {
+    return this.#instance.getPluginConfig();
+  }
+
+  // ---- getters ----
+  get events() {
+    return this.#instance.events;
+  }
+
+  get actions() {
+    return this.#instance.actions;
+  }
+
+  get subscriptions() {
+    return this.#instance.subscriptions;
+  }
+
+  /**
+   * Register methods of instance as actions in EventSystem. Register events of instance by names.
+   * @method
+   * @param {*} obj An instance of the plugin being registered
+   * @param {String[]} eventList Array of eventNames of plugin that being registered
+   * @param {String} customGUID instance guid of plugin that will register
+   * @returns {Boolean} true, if everything is ok
+   */
+  registerPluginInstance(obj, eventList, customGUID) {
+    if (typeof customGUID === 'undefined')
+      return this.#instance.registerPluginInstance(this.#guid, obj, eventList);
+    else return this.#instance.registerPluginInstance(customGUID, obj, eventList);
+  }
+
+  /**
+   * Adding event type to event list into eventSystem (register them)
+   * @method
    * @param {String} eventName event name
+   * @returns {Boolean} true, if everything is ok
+   */
+  registerEvent(eventName, args) {
+    return this.#instance.registerEvent(this.#guid, eventName, args);
+  }
+
+  /**
+   * Register new action
+   * @method
    * @param {String} actionName action name
+   * @param {Function} callback callback whitch invoked on event
+   * @returns {Boolean} true, if everything is ok
+   */
+  registerAction(actionName, callback) {
+    return this.#instance.createActionByCallback(this.#guid, actionName, callback);
+  }
+
+  /**
+   * Publishes event from instance by name
+   * @method
+   * @param {String} eventName event name
+   * @param {*} args ...
+   * @returns {Boolean} true, if everything is ok
+   */
+  publishEvent(eventName, args) {
+    return this.#instance.publishEvent(this.#guid, eventName, args);
+  }
+
+  /**
+   * Subscribing
+   * @method
+   * @param {String} eventGUID instance guid of firing plugin
+   * @param {String} eventName name of event
+   * @param {String} actionsGUID instance guid of plugin whom invoke callback
+   * @param {String} actionName name of action
+   * @returns {String} token of subscription
+   */
+  subscribe(eventGUID, eventName, actionGUID, actionName) {
+    return this.#instance.subscribe(eventGUID, eventName, actionGUID, actionName);
+  }
+
+  /**
+   * Subsribes all events with the given name to the action
+   * @method
+   * @param {String} actionsGUID instance guid of plugin who invokes callback
+   * @param {String} actionName name of action
+   * @param {String} eventName name of event
+   * @returns {Boolean} true, if everything is ok
+   */
+  subscribeActionOnEventName(actionGUID, actionName, eventName) {
+    return this.#instance.subscribeActionOnEventName(actionGUID, actionName, eventName);
+  }
+
+  /**
+   * Subsribes all events with the given name to the action
+   * @method
+   * @param {String} eventGUID instance guid of plugin who publishes the event
+   * @param {String} eventName name of action
+   * @param {String} actionName name of action
+   * @returns {Boolean} true, if everything is ok
+   */
+  subscribeEventOnActionName(eventGUID, eventName, actionName) {
+    return this.#instance.subscribeEventOnActionName(eventGUID, eventName, actionName);
+  }
+
+  /**
+   * Subsribe all actions with the given name on all events with name
+   * @method
+   * @param {String} eventName name of action
+   * @param {String} actionName name of action
    * @returns {Boolean} true, if everything is ok
    */
   subscribeByNames(eventName, actionName) {
-    return this.instance.subscribeByNames(eventName, actionName);
-  }
-
-  /**
-   * Subscribes the given instance of event to the given instace of action
-   * @param {CustomEvent} event instance of CustomEvent
-   * @param {CustomAction} action instance of CustomAction
-   * @returns {Boolean} true, if everything is ok
-   */
-  subscribe(event, action) {
-    return this.instance.subscribe(event, action);
-  }
-
-  /**
-   * Subscribes to all events with the given event name and sets the given callback
-   * @param {String} eventName
-   * @param {Function} callback
-   */
-  subscribeEventNameByCallback(eventName, callback) {
-    this.instance.subscribeEventNameByCallback(eventName, callback);
-  }
-
-  /**
-   * Returns instace of action stored in EventSystem from the given actionID
-   * @param {String} actionID actionID of the action
-   * @returns {CustomAction} instance of CustomAction stored in EventSystem
-   */
-  findActionById(actionID) {
-    return this.instance.findAction(actionID);
-  }
-
-  /**
-   * Returns instace of event stored in EventSystem from the given eventID
-   * @param {String} eventID eventID of the event
-   * @returns {CustomEvent} instance of CustomEvent stored in EventSystem
-   */
-  findEventById(eventID) {
-    return this.instance.findEventById(eventID);
-  }
-
-  /**
-   * Returns instaces of events stored in EventSystem from the given event name
-   * @param {String} eventName event name
-   * @returns {Array} instaces of events stored in EventSystem
-   */
-  findEventsByName(eventName) {
-    return this.instance.findEventsByName(eventName);
-  }
-
-  /**
-   * Returns instaces of actions stored in EventSystem from the given action name
-   * @param {String} actionName
-   * @returns {Array} instaces of actions stored in EventSystem
-   */
-  findActionsByName(actionName) {
-    return this.instance.findActionsByName(actionName);
-  }
-
-  /**
-   * Return list of available event instances stored in EventSystem
-   * @returns {Array} instaces of events stored in EventSystem
-   */
-  showAvailableEvents() {
-    return this.instance.showAvailableEvents();
-  }
-
-  /**
-   * Return list of available action instances stored in EventSystem
-   * @returns {Array} instaces of actions stored in EventSystem
-   */
-  showAvailableActions() {
-    return this.instance.showAvailableActions();
+    return this.#instance.subscribeByNames(eventName, actionName);
   }
 }
 
@@ -980,12 +980,31 @@ class WorkspaceSystemAdapter extends BaseAdapter {
   }
 
   /**
+   * Setting new workspace state from config
+   * @method
+   * @returns {Boolean} true, if everything is ok
+   */
+  setPluginConfig(conf) {
+    return this.instance.setPluginConfig(conf);
+  }
+
+  /**
+   * Getting current workspace state
+   * @method
+   * @returns {*} workspace state
+   */
+  getPluginConfig() {
+    return this.instance.getPluginConfig();
+  }
+
+  /**
    * Delete workspace configuration with the given id
    * @method
    * @param {number} id identifier of configuration
+   * @returns {Boolean} true, if everything is ok
    */
   async deleteConfiguration(id) {
-    await this.instance.deleteConfiguration(id);
+    return await this.instance.deleteConfiguration(id);
   }
 
   /**
@@ -1004,7 +1023,7 @@ class WorkspaceSystemAdapter extends BaseAdapter {
    * @param {string} newTitle new title to set
    */
   async changeConfigurationTitle(id, newTitle) {
-    await this.instance.changeConfigurationTitle(id, newTitle);
+    return await this.instance.changeConfigurationTitle(id, newTitle);
   }
 
   /**
@@ -1013,7 +1032,7 @@ class WorkspaceSystemAdapter extends BaseAdapter {
    * @param {string} configurationTitle title to set to new configuration
    */
   async createEmptyConfiguration(configurationTitle) {
-    await this.instance.createEmptyConfiguration(configurationTitle);
+    return await this.instance.createEmptyConfiguration(configurationTitle);
   }
 
   /**
@@ -1021,7 +1040,7 @@ class WorkspaceSystemAdapter extends BaseAdapter {
    * @method
    */
   async saveConfiguration() {
-    await this.instance.saveConfiguration();
+    return await this.instance.saveConfiguration();
   }
 
   /**
@@ -1030,23 +1049,7 @@ class WorkspaceSystemAdapter extends BaseAdapter {
    * @param {number} id identifier of configuration
    */
   setConfiguration(id) {
-    this.instance.setConfiguration(id);
-  }
-
-  /**
-   * Compacts panels to top left corner of screen
-   * @method
-   */
-  compactAllPanels() {
-    this.instance.compactAllPanels();
-  }
-
-  /**
-   * Changes current workspace mode
-   * @method
-   */
-  changeMode() {
-    this.instance.changeMode();
+    return this.instance.setConfiguration(id);
   }
 
   /**
@@ -1054,14 +1057,49 @@ class WorkspaceSystemAdapter extends BaseAdapter {
    * @method
    */
   setDefaultConfiguration() {
-    this.instance.setDefaultConfiguration();
+    return this.instance.setDefaultConfiguration();
   }
+
+  /**
+   * Compacts panels to top left corner of screen
+   * @method
+   */
+  compactAllPanels() {
+    return this.instance.compactAllPanels();
+  }
+
+  /**
+   * Changes current workspace mode
+   * @method
+   */
+  changeMode() {
+    return this.instance.changeMode();
+  }
+
   /**
    * Creates empty cell widget on workspace
    * @method
    */
-  createEmptyCell() {
-    this.instance.createEmptyCell();
+  createEmptyCell(...args) {
+    return this.instance.createEmptyCell(...args);
+  }
+
+  /**
+   * Settting new column count
+   * @method
+   * @param {Number} newColumn new count of column in grid
+   */
+  setColumn(newColumn) {
+    return this.instance.setColumn(newColumn);
+  }
+
+  /**
+   * Deleting cell of workspace
+   * @method
+   * @param {String} cellID id of cell in grid
+   */
+  deleteCell(cellID) {
+    return this.instance.deleteCell(cellID);
   }
 }
 
@@ -1201,6 +1239,15 @@ class AbstractPlugin {
    */
   getGUID(instance) {
     return Application.getGUID(instance);
+  }
+
+  /**
+   * Getting list of all GUID's
+   * @method
+   * @returns {String[]}
+   */
+  getGUIDList() {
+    return Application.getGUIDList();
   }
 
   getPlugin(name, type = false) {

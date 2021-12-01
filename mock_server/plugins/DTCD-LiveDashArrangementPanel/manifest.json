@@ -4,5 +4,11 @@
     "fileName": "vue.js",
     "type": "esm",
     "version": "2.6.12"
+  },
+  {
+    "name": "yFiles",
+    "fileName": "yfiles.js",
+    "type": "esm",
+    "version": "2.3.0"
   }
 ]

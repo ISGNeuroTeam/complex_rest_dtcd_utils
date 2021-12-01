@@ -48,24 +48,6 @@ function _classPrivateMethodGet(receiver, privateSet, fn) {
   return fn;
 }
 
-function _checkPrivateRedeclaration(obj, privateCollection) {
-  if (privateCollection.has(obj)) {
-    throw new TypeError("Cannot initialize the same private elements twice on an object");
-  }
-}
-
-function _classPrivateFieldInitSpec(obj, privateMap, value) {
-  _checkPrivateRedeclaration(obj, privateMap);
-
-  privateMap.set(obj, value);
-}
-
-function _classPrivateMethodInitSpec(obj, privateSet) {
-  _checkPrivateRedeclaration(obj, privateSet);
-
-  privateSet.add(obj);
-}
-
 /**
  * @typedef {Object} PluginMeta
  * @property {String} title
@@ -192,37 +174,37 @@ function sizeof(v) {
   return o[typeof v](v);
 }
 
-var _guid = /*#__PURE__*/new WeakMap();
+var _guid = new WeakMap();
 
-var _logLevels = /*#__PURE__*/new WeakMap();
+var _logLevels = new WeakMap();
 
-var _logs = /*#__PURE__*/new WeakMap();
+var _logs = new WeakMap();
 
-var _config = /*#__PURE__*/new WeakMap();
+var _config = new WeakMap();
 
-var _globalLogLevel = /*#__PURE__*/new WeakMap();
+var _globalLogLevel = new WeakMap();
 
-var _bufferSize = /*#__PURE__*/new WeakMap();
+var _bufferSize = new WeakMap();
 
-var _intervalSeconds = /*#__PURE__*/new WeakMap();
+var _intervalSeconds = new WeakMap();
 
-var _intervalID = /*#__PURE__*/new WeakMap();
+var _intervalID = new WeakMap();
 
-var _consoleOutputMode = /*#__PURE__*/new WeakMap();
+var _consoleOutputMode = new WeakMap();
 
-var _createTimeInterval = /*#__PURE__*/new WeakSet();
+var _createTimeInterval = new WeakSet();
 
-var _log = /*#__PURE__*/new WeakSet();
+var _log = new WeakSet();
 
-var _uploadLogs = /*#__PURE__*/new WeakSet();
+var _uploadLogs = new WeakSet();
 
-var _getConfig = /*#__PURE__*/new WeakSet();
+var _getConfig = new WeakSet();
 
-var _saveConfig = /*#__PURE__*/new WeakSet();
+var _saveConfig = new WeakSet();
 
-var _checkLogLevel = /*#__PURE__*/new WeakSet();
+var _checkLogLevel = new WeakSet();
 
-var _getFunctionCaller = /*#__PURE__*/new WeakSet();
+var _getFunctionCaller = new WeakSet();
 
 class LogSystem extends SystemPlugin {
   /**
@@ -232,61 +214,61 @@ class LogSystem extends SystemPlugin {
   constructor(_guid2) {
     super();
 
-    _classPrivateMethodInitSpec(this, _getFunctionCaller);
+    _getFunctionCaller.add(this);
 
-    _classPrivateMethodInitSpec(this, _checkLogLevel);
+    _checkLogLevel.add(this);
 
-    _classPrivateMethodInitSpec(this, _saveConfig);
+    _saveConfig.add(this);
 
-    _classPrivateMethodInitSpec(this, _getConfig);
+    _getConfig.add(this);
 
-    _classPrivateMethodInitSpec(this, _uploadLogs);
+    _uploadLogs.add(this);
 
-    _classPrivateMethodInitSpec(this, _log);
+    _log.add(this);
 
-    _classPrivateMethodInitSpec(this, _createTimeInterval);
+    _createTimeInterval.add(this);
 
-    _classPrivateFieldInitSpec(this, _guid, {
+    _guid.set(this, {
       writable: true,
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _logLevels, {
+    _logLevels.set(this, {
       writable: true,
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _logs, {
+    _logs.set(this, {
       writable: true,
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _config, {
+    _config.set(this, {
       writable: true,
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _globalLogLevel, {
+    _globalLogLevel.set(this, {
       writable: true,
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _bufferSize, {
+    _bufferSize.set(this, {
       writable: true,
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _intervalSeconds, {
+    _intervalSeconds.set(this, {
       writable: true,
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _intervalID, {
+    _intervalID.set(this, {
       writable: true,
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _consoleOutputMode, {
+    _consoleOutputMode.set(this, {
       writable: true,
       value: void 0
     });

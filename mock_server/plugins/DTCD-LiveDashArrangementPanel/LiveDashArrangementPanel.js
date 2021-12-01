@@ -170,185 +170,6 @@ class LogSystemAdapter extends BaseAdapter {
 
 }
 
-class EventSystemAdapter extends BaseAdapter {
-  /**
-   * @constructor
-   */
-  constructor() {
-    super();
-    this.instance = this.getSystem('EventSystem');
-  }
-  /**
-   * Adding CustomEvent object to events array
-   * @param {Object} customEvent
-   */
-
-
-  registerEvent(customEvent) {
-    this.instance.registerEvent(customEvent);
-    return true;
-  }
-  /**
-   * Creates and publishes a new event to EventSystem
-   * @param {Number} guid identifier of plugin instance
-   * @param {String} eventName event name
-   * @param {*} args additional data in event for action
-   */
-
-
-  createAndPublish(guid, eventName, args) {
-    this.instance.createAndPublish(guid, eventName, args);
-  }
-  /**
-   * Publishes event from CustomEvent instance
-   * @param {CustomEvent} customEvent instance of CustomEvent
-   */
-
-
-  publishEvent(customEvent) {
-    this.instance.publishEvent(customEvent);
-  }
-  /**
-   * Creates new instance of CustomEvent
-   * @param {Number} guid identifier of plugin instance
-   * @param {String} eventName event name
-   * @param {*} args additional data in event for action
-   * @returns {CustomEvent} created instance of CustomEvent
-   */
-
-
-  createEvent(guid, eventName, args = null) {
-    return this.instance.createEvent(guid, eventName, args);
-  }
-  /**
-   * Creates new instance of CustomAction
-   * @param {String} actionName action name
-   * @param {Number} guid identifier of plugin instance
-   * @param {*} args ...
-   * @returns {CustomAction} created instance of CustomAction
-   */
-
-
-  createAction(actionName, guid, args = null) {
-    return this.instance.createAction(actionName, guid, args);
-  }
-  /**
-   * Creates instance of CustomAction from the given callback and pushes it to action list
-   * @param {String} actionName action name
-   * @param {Number} guid identifier of plugin instance
-   * @param {Function} callback callback whitch invoked on event
-   * @param {*} args ...
-   * @returns {CustomAction} created instance of CustomAction
-   */
-
-
-  createActionByCallback(actionName, guid, callback, args = null) {
-    return this.instance.createActionByCallback(actionName, guid, callback, args);
-  }
-  /**
-   * Subsribes all events with the given name to action with the given actionID
-   * @param {String} eventName event name
-   * @param {String} actionID action id
-   * @returns {Boolean} true, if everything is ok
-   */
-
-
-  subscribeEventsByName(eventName, actionID) {
-    return this.instance.subscribeEventsByName(eventName, actionID);
-  }
-  /**
-   * Subsribes all events with the given eventName to all action with the given actionName
-   * @param {String} eventName event name
-   * @param {String} actionName action name
-   * @returns {Boolean} true, if everything is ok
-   */
-
-
-  subscribeByNames(eventName, actionName) {
-    return this.instance.subscribeByNames(eventName, actionName);
-  }
-  /**
-   * Subscribes the given instance of event to the given instace of action
-   * @param {CustomEvent} event instance of CustomEvent
-   * @param {CustomAction} action instance of CustomAction
-   * @returns {Boolean} true, if everything is ok
-   */
-
-
-  subscribe(event, action) {
-    return this.instance.subscribe(event, action);
-  }
-  /**
-   * Subscribes to all events with the given event name and sets the given callback
-   * @param {String} eventName
-   * @param {Function} callback
-   */
-
-
-  subscribeEventNameByCallback(eventName, callback) {
-    this.instance.subscribeEventNameByCallback(eventName, callback);
-  }
-  /**
-   * Returns instace of action stored in EventSystem from the given actionID
-   * @param {String} actionID actionID of the action
-   * @returns {CustomAction} instance of CustomAction stored in EventSystem
-   */
-
-
-  findActionById(actionID) {
-    return this.instance.findAction(actionID);
-  }
-  /**
-   * Returns instace of event stored in EventSystem from the given eventID
-   * @param {String} eventID eventID of the event
-   * @returns {CustomEvent} instance of CustomEvent stored in EventSystem
-   */
-
-
-  findEventById(eventID) {
-    return this.instance.findEventById(eventID);
-  }
-  /**
-   * Returns instaces of events stored in EventSystem from the given event name
-   * @param {String} eventName event name
-   * @returns {Array} instaces of events stored in EventSystem
-   */
-
-
-  findEventsByName(eventName) {
-    return this.instance.findEventsByName(eventName);
-  }
-  /**
-   * Returns instaces of actions stored in EventSystem from the given action name
-   * @param {String} actionName
-   * @returns {Array} instaces of actions stored in EventSystem
-   */
-
-
-  findActionsByName(actionName) {
-    return this.instance.findActionsByName(actionName);
-  }
-  /**
-   * Return list of available event instances stored in EventSystem
-   * @returns {Array} instaces of events stored in EventSystem
-   */
-
-
-  showAvailableEvents() {
-    return this.instance.showAvailableEvents();
-  }
-  /**
-   * Return list of available action instances stored in EventSystem
-   * @returns {Array} instaces of actions stored in EventSystem
-   */
-
-
-  showAvailableActions() {
-    return this.instance.showAvailableActions();
-  }
-
-}
-
 class CustomError extends Error {
   constructor(msg) {
     super(msg);
@@ -553,44 +374,62 @@ var pluginMeta = {
 //
 //
 //
+//
+//
+//
+//
+//
 
 var script = {
   name: 'PluginComponent',
-  data: self => ({
+  data: (self) => ({
     // root
-    guid: self.$root.guid,
     logSystem: self.$root.logSystem,
-    layoutList: self.$root.layoutList,
-    eventSystem: self.$root.eventSystem,
+    graphComponent: self.$root.graphComponent,
+    layoutsMap: {
+      'hierarchic': self.$root.yFiles.HierarchicLayout,
+      'organic': self.$root.yFiles.OrganicLayout,
+      'tree': self.$root.yFiles.TreeLayout,
+      'orthogonal': self.$root.yFiles.OrthogonalLayout,
+      'balloon': self.$root.yFiles.BalloonLayout,
+      'circular': self.$root.yFiles.CircularLayout,
+      'radial': self.$root.yFiles.RadialLayout,
+    },
     //component
     isError: false,
-    isExpanded: false,
+    isExpanded: true,
     isMorphing: false,
     errorText: '',
     selectedLayout: 'hierarchic',
   }),
   computed: {
-    sortedLayoutList() {
-      return this.layoutList.sort();
+    layoutList () {
+      return Object.keys(this.layoutsMap).sort();
     },
   },
   methods: {
-    applyArrangement() {
-      this.logSystem.debug(`Trying to apply ${this.selectedLayout} layout`);
-      this.isError = false;
-      this.isMorphing = true;
-      this.eventSystem.publishEvent('ApplyArrangement', {
-        layoutType: this.selectedLayout,
-      });
+    async morphLayout () {
+      try {
+        this.isError = false;
+        this.isMorphing = true;
+        await this.graphComponent.morphLayout({
+          layout: this.createLayout(),
+          morphDuration: '1s',
+        });
+      } catch (error) {
+        this.isError = true;
+        this.errorText = `Cannot apply ${this.selectedLayout} layout: ${error.message}`;
+      } finally {
+        this.isMorphing = false;
+      }
     },
 
-    applyFinishHandler(event) {
-      const { status, layoutType, message } = event.args;
-      if (status === 'failed') {
-        this.isError = true;
-        this.errorText = `Cannot apply ${layoutType} layout: ${message}`;
+    createLayout () {
+      const layout = new this.layoutsMap[this.selectedLayout]();
+      if (layout instanceof this.layoutsMap['organic']) {
+        layout.minimumNodeDistance = 50;
       }
-      this.isMorphing = false;
+      return layout;
     },
   },
 };
@@ -735,7 +574,7 @@ function addStyle(id, css) {
 const __vue_script__ = script;
 
 /* template */
-var __vue_render__ = function () {
+var __vue_render__ = function() {
   var _vm = this;
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
@@ -745,19 +584,19 @@ var __vue_render__ = function () {
       {
         staticClass: "expand",
         on: {
-          click: function ($event) {
+          click: function($event) {
             _vm.isExpanded = !_vm.isExpanded;
-          },
-        },
+          }
+        }
       },
       [
         _vm.isExpanded
-          ? _c("span", { key: "expanded" }, [
-              _c("i", { staticClass: "fas fa-chevron-right" }),
+          ? _c("div", { key: "expanded" }, [
+              _c("i", { staticClass: "fas fa-chevron-right" })
             ])
-          : _c("span", { key: "notExpanded" }, [
-              _c("i", { staticClass: "fas fa-chevron-left" }),
-            ]),
+          : _c("div", { key: "notExpanded" }, [
+              _c("i", { staticClass: "fas fa-chevron-left" })
+            ])
       ]
     ),
     _vm._v(" "),
@@ -771,32 +610,32 @@ var __vue_render__ = function () {
                   name: "model",
                   rawName: "v-model",
                   value: _vm.selectedLayout,
-                  expression: "selectedLayout",
-                },
+                  expression: "selectedLayout"
+                }
               ],
               on: {
-                change: function ($event) {
+                change: function($event) {
                   var $$selectedVal = Array.prototype.filter
-                    .call($event.target.options, function (o) {
+                    .call($event.target.options, function(o) {
                       return o.selected
                     })
-                    .map(function (o) {
+                    .map(function(o) {
                       var val = "_value" in o ? o._value : o.value;
                       return val
                     });
                   _vm.selectedLayout = $event.target.multiple
                     ? $$selectedVal
                     : $$selectedVal[0];
-                },
-              },
+                }
+              }
             },
-            _vm._l(_vm.sortedLayoutList, function (layout) {
+            _vm._l(_vm.layoutList, function(layout) {
               return _c("option", {
                 key: layout,
                 domProps: {
                   value: layout,
-                  textContent: _vm._s(layout.toUpperCase()),
-                },
+                  textContent: _vm._s(layout.toUpperCase())
+                }
               })
             }),
             0
@@ -814,10 +653,10 @@ var __vue_render__ = function () {
             staticClass: "apply",
             attrs: { disabled: _vm.isMorphing },
             domProps: { textContent: _vm._s("Apply") },
-            on: { click: _vm.applyArrangement },
-          }),
+            on: { click: _vm.morphLayout }
+          })
         ])
-      : _vm._e(),
+      : _vm._e()
   ])
 };
 var __vue_staticRenderFns__ = [];
@@ -826,11 +665,11 @@ __vue_render__._withStripped = true;
   /* style */
   const __vue_inject_styles__ = function (inject) {
     if (!inject) return
-    inject("data-v-22221866_0", { source: "*[data-v-22221866] {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Open Sans\", \"Helvetica Neue\", sans-serif;\n}\n.container[data-v-22221866] {\n  display: flex;\n  background-color: #fff;\n  border: thin solid rgba(0, 0, 0, 0.5);\n  padding: 10px;\n  position: absolute;\n  right: 20px;\n  bottom: 20px;\n  z-index: 1;\n  transition: 0.3s;\n}\n.container .expand[data-v-22221866] {\n  width: 30px;\n  height: 30px;\n}\n.container .content[data-v-22221866] {\n  flex: 1 0;\n  display: flex;\n  justify-content: space-between;\n  margin-left: 15px;\n}\n.container .content .error[data-v-22221866] {\n  display: flex;\n  align-items: center;\n  padding: 0 10px;\n  color: red;\n}\n.container .content .apply[data-v-22221866] {\n  padding: 4px;\n}\n\n/*# sourceMappingURL=PluginComponent.vue.map */", map: {"version":3,"sources":["PluginComponent.vue","/home/ilya/Desktop/DTCD-LiveDashArrangementPanel/DTCD-LiveDashArrangementPanel/src/PluginComponent.vue"],"names":[],"mappings":"AAAA;EACE,sBAAsB;EACtB,SAAS;EACT,UAAU;EACV,wIAAwI;AAC1I;ACkEA;EACA,aAAA;EACA,sBAAA;EACA,qCAAA;EACA,aAAA;EACA,kBAAA;EACA,WAAA;EACA,YAAA;EACA,UAAA;EACA,gBAAA;AD/DA;ACiEA;EACA,WAAA;EACA,YAAA;AD/DA;ACkEA;EACA,SAAA;EACA,aAAA;EACA,8BAAA;EACA,iBAAA;ADhEA;ACkEA;EACA,aAAA;EACA,mBAAA;EACA,eAAA;EACA,UAAA;ADhEA;ACmEA;EACA,YAAA;ADjEA;;AAEA,8CAA8C","file":"PluginComponent.vue","sourcesContent":["* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Open Sans\", \"Helvetica Neue\", sans-serif;\n}\n\n.container {\n  display: flex;\n  background-color: #fff;\n  border: thin solid rgba(0, 0, 0, 0.5);\n  padding: 10px;\n  position: absolute;\n  right: 20px;\n  bottom: 20px;\n  z-index: 1;\n  transition: 0.3s;\n}\n.container .expand {\n  width: 30px;\n  height: 30px;\n}\n.container .content {\n  flex: 1 0;\n  display: flex;\n  justify-content: space-between;\n  margin-left: 15px;\n}\n.container .content .error {\n  display: flex;\n  align-items: center;\n  padding: 0 10px;\n  color: red;\n}\n.container .content .apply {\n  padding: 4px;\n}\n\n/*# sourceMappingURL=PluginComponent.vue.map */","<template>\n  <div class=\"container\">\n    <button class=\"expand\" @click=\"isExpanded = !isExpanded\">\n      <span v-if=\"isExpanded\" :key=\"'expanded'\">\n        <i class=\"fas fa-chevron-right\" />\n      </span>\n      <span v-else :key=\"'notExpanded'\">\n        <i class=\"fas fa-chevron-left\" />\n      </span>\n    </button>\n    <div v-if=\"isExpanded\" class=\"content\">\n      <select v-model=\"selectedLayout\">\n        <option\n          v-for=\"layout in sortedLayoutList\"\n          :key=\"layout\"\n          :value=\"layout\"\n          v-text=\"layout.toUpperCase()\"\n        />\n      </select>\n      <div v-if=\"isError\" class=\"error\" :title=\"errorText\">\n        <i class=\"fas fa-exclamation-circle\" />\n      </div>\n      <button class=\"apply\" :disabled=\"isMorphing\" @click=\"applyArrangement\" v-text=\"'Apply'\" />\n    </div>\n  </div>\n</template>\n\n<script>\nexport default {\n  name: 'PluginComponent',\n  data: self => ({\n    // root\n    guid: self.$root.guid,\n    logSystem: self.$root.logSystem,\n    layoutList: self.$root.layoutList,\n    eventSystem: self.$root.eventSystem,\n    //component\n    isError: false,\n    isExpanded: false,\n    isMorphing: false,\n    errorText: '',\n    selectedLayout: 'hierarchic',\n  }),\n  computed: {\n    sortedLayoutList() {\n      return this.layoutList.sort();\n    },\n  },\n  methods: {\n    applyArrangement() {\n      this.logSystem.debug(`Trying to apply ${this.selectedLayout} layout`);\n      this.isError = false;\n      this.isMorphing = true;\n      this.eventSystem.publishEvent('ApplyArrangement', {\n        layoutType: this.selectedLayout,\n      });\n    },\n\n    applyFinishHandler(event) {\n      const { status, layoutType, message } = event.args;\n      if (status === 'failed') {\n        this.isError = true;\n        this.errorText = `Cannot apply ${layoutType} layout: ${message}`;\n      }\n      this.isMorphing = false;\n    },\n  },\n};\n</script>\n\n<style lang=\"scss\" scoped>\n.container {\n  display: flex;\n  background-color: #fff;\n  border: thin solid rgba(0, 0, 0, 0.5);\n  padding: 10px;\n  position: absolute;\n  right: 20px;\n  bottom: 20px;\n  z-index: 1;\n  transition: 0.3s;\n\n  .expand {\n    width: 30px;\n    height: 30px;\n  }\n\n  .content {\n    flex: 1 0;\n    display: flex;\n    justify-content: space-between;\n    margin-left: 15px;\n\n    .error {\n      display: flex;\n      align-items: center;\n      padding: 0 10px;\n      color: red;\n    }\n\n    .apply {\n      padding: 4px;\n    }\n  }\n}\n</style>\n"]}, media: undefined });
+    inject("data-v-ea6aa3ba_0", { source: "*[data-v-ea6aa3ba] {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Open Sans\", \"Helvetica Neue\", sans-serif;\n}\n.container[data-v-ea6aa3ba] {\n  display: flex;\n  background-color: #fff;\n  border: thin solid rgba(0, 0, 0, 0.5);\n  padding: 10px;\n  position: absolute;\n  right: 20px;\n  bottom: 20px;\n  z-index: 1;\n  transition: 0.3s;\n}\n.container .expand[data-v-ea6aa3ba] {\n  width: 30px;\n  height: 30px;\n}\n.container .content[data-v-ea6aa3ba] {\n  flex: 1 0;\n  display: flex;\n  justify-content: space-between;\n  margin-left: 15px;\n}\n.container .content .error[data-v-ea6aa3ba] {\n  display: flex;\n  align-items: center;\n  padding: 0 10px;\n  color: red;\n}\n.container .content .apply[data-v-ea6aa3ba] {\n  padding: 4px;\n}\n\n/*# sourceMappingURL=PluginComponent.vue.map */", map: {"version":3,"sources":["PluginComponent.vue","/home/isg-user/Repos/DTCD/DTCD-LiveDashArrangementPanel/DTCD-LiveDashArrangementPanel/src/PluginComponent.vue"],"names":[],"mappings":"AAAA;EACE,sBAAsB;EACtB,SAAS;EACT,UAAU;EACV,wIAAwI;AAC1I;ACoFA;EACA,aAAA;EACA,sBAAA;EACA,qCAAA;EACA,aAAA;EACA,kBAAA;EACA,WAAA;EACA,YAAA;EACA,UAAA;EACA,gBAAA;ADjFA;ACmFA;EACA,WAAA;EACA,YAAA;ADjFA;ACoFA;EACA,SAAA;EACA,aAAA;EACA,8BAAA;EACA,iBAAA;ADlFA;ACoFA;EACA,aAAA;EACA,mBAAA;EACA,eAAA;EACA,UAAA;ADlFA;ACqFA;EACA,YAAA;ADnFA;;AAEA,8CAA8C","file":"PluginComponent.vue","sourcesContent":["* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Open Sans\", \"Helvetica Neue\", sans-serif;\n}\n\n.container {\n  display: flex;\n  background-color: #fff;\n  border: thin solid rgba(0, 0, 0, 0.5);\n  padding: 10px;\n  position: absolute;\n  right: 20px;\n  bottom: 20px;\n  z-index: 1;\n  transition: 0.3s;\n}\n.container .expand {\n  width: 30px;\n  height: 30px;\n}\n.container .content {\n  flex: 1 0;\n  display: flex;\n  justify-content: space-between;\n  margin-left: 15px;\n}\n.container .content .error {\n  display: flex;\n  align-items: center;\n  padding: 0 10px;\n  color: red;\n}\n.container .content .apply {\n  padding: 4px;\n}\n\n/*# sourceMappingURL=PluginComponent.vue.map */","<template>\n  <div class=\"container\">\n    <button class=\"expand\" @click=\"isExpanded = !isExpanded\">\n      <div v-if=\"isExpanded\" :key=\"'expanded'\">\n        <i class=\"fas fa-chevron-right\"/>\n      </div>\n      <div v-else :key=\"'notExpanded'\">\n        <i class=\"fas fa-chevron-left\"/>\n      </div>\n    </button>\n    <div v-if=\"isExpanded\" class=\"content\">\n      <select v-model=\"selectedLayout\">\n        <option\n          v-for=\"layout in layoutList\"\n          :key=\"layout\"\n          :value=\"layout\"\n          v-text=\"layout.toUpperCase()\"\n        />\n      </select>\n      <div v-if=\"isError\" class=\"error\" :title=\"errorText\">\n        <i class=\"fas fa-exclamation-circle\"/>\n      </div>\n      <button\n        class=\"apply\"\n        :disabled=\"isMorphing\"\n        @click=\"morphLayout\"\n        v-text=\"'Apply'\"\n      />\n    </div>\n  </div>\n</template>\n\n<script>\nexport default {\n  name: 'PluginComponent',\n  data: (self) => ({\n    // root\n    logSystem: self.$root.logSystem,\n    graphComponent: self.$root.graphComponent,\n    layoutsMap: {\n      'hierarchic': self.$root.yFiles.HierarchicLayout,\n      'organic': self.$root.yFiles.OrganicLayout,\n      'tree': self.$root.yFiles.TreeLayout,\n      'orthogonal': self.$root.yFiles.OrthogonalLayout,\n      'balloon': self.$root.yFiles.BalloonLayout,\n      'circular': self.$root.yFiles.CircularLayout,\n      'radial': self.$root.yFiles.RadialLayout,\n    },\n    //component\n    isError: false,\n    isExpanded: true,\n    isMorphing: false,\n    errorText: '',\n    selectedLayout: 'hierarchic',\n  }),\n  computed: {\n    layoutList () {\n      return Object.keys(this.layoutsMap).sort();\n    },\n  },\n  methods: {\n    async morphLayout () {\n      try {\n        this.isError = false;\n        this.isMorphing = true;\n        await this.graphComponent.morphLayout({\n          layout: this.createLayout(),\n          morphDuration: '1s',\n        });\n      } catch (error) {\n        this.isError = true;\n        this.errorText = `Cannot apply ${this.selectedLayout} layout: ${error.message}`;\n      } finally {\n        this.isMorphing = false;\n      }\n    },\n\n    createLayout () {\n      const layout = new this.layoutsMap[this.selectedLayout]();\n      if (layout instanceof this.layoutsMap['organic']) {\n        layout.minimumNodeDistance = 50;\n      }\n      return layout;\n    },\n  },\n};\n</script>\n\n<style lang=\"scss\" scoped>\n.container {\n  display: flex;\n  background-color: #fff;\n  border: thin solid rgba(0, 0, 0, .5);\n  padding: 10px;\n  position: absolute;\n  right: 20px;\n  bottom: 20px;\n  z-index: 1;\n  transition: .3s;\n\n  .expand {\n    width: 30px;\n    height: 30px;\n  }\n\n  .content {\n    flex: 1 0;\n    display: flex;\n    justify-content: space-between;\n    margin-left: 15px;\n\n    .error {\n      display: flex;\n      align-items: center;\n      padding: 0 10px;\n      color: red;\n    }\n\n    .apply {\n      padding: 4px;\n    }\n  }\n\n}\n</style>\n"]}, media: undefined });
 
   };
   /* scoped */
-  const __vue_scope_id__ = "data-v-22221866";
+  const __vue_scope_id__ = "data-v-ea6aa3ba";
   /* module identifier */
   const __vue_module_identifier__ = undefined;
   /* functional template */
@@ -865,31 +704,24 @@ class LiveDashArrangementPanel extends ExtensionPlugin {
     };
   }
 
-  constructor(guid, selector, layoutList) {
+  constructor(guid, selector, graphComponent) {
     super();
     const logSystem = new LogSystemAdapter(guid, pluginMeta.name);
-    logSystem.debug(`Start of ${pluginMeta.name} creation`);
-    const eventSystem = new EventSystemAdapter(guid);
     const {
       default: VueJS
     } = this.getDependence('Vue');
+    const {
+      default: yFiles
+    } = this.getDependence('yFiles');
     const data = {
-      guid,
-      layoutList,
+      yFiles,
       logSystem,
-      eventSystem
+      graphComponent
     };
-    this.vue = new VueJS({
+    new VueJS({
       data: () => data,
       render: h => h(__vue_component__)
     }).$mount(selector);
-    logSystem.debug(`End of ${pluginMeta.name} creation`);
-    logSystem.info(`${pluginMeta.name} initialization complete`);
-  }
-
-  applyFinishHandler(event) {
-    const component = this.vue.$children[0];
-    return component.applyFinishHandler(event);
   }
 
 }

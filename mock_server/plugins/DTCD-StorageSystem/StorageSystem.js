@@ -238,6 +238,194 @@ class LogSystemAdapter extends BaseAdapter {
 
 }
 
+var _guid = /*#__PURE__*/new WeakMap();
+
+var _instance = /*#__PURE__*/new WeakMap();
+
+class EventSystemAdapter extends BaseAdapter {
+  /**
+   * @constructor
+   * @param {String} guid guid of plugin, in which the adapter instance will be inited
+   */
+  constructor(guid) {
+    super();
+
+    _classPrivateFieldInitSpec(this, _guid, {
+      writable: true,
+      value: void 0
+    });
+
+    _classPrivateFieldInitSpec(this, _instance, {
+      writable: true,
+      value: void 0
+    });
+
+    _classPrivateFieldSet(this, _guid, guid);
+
+    _classPrivateFieldSet(this, _instance, this.getSystem('EventSystem'));
+  }
+  /**
+   * Configure state of EventSystem by object
+   * @method
+   * @param {*} conf Config object
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  setPluginConfig(conf) {
+    return _classPrivateFieldGet(this, _instance).setPluginConfig(conf);
+  }
+  /**
+   * Getting state of EventSystem
+   * @method
+   * @returns {*} State of system by object
+   */
+
+
+  getPluginConfig() {
+    return _classPrivateFieldGet(this, _instance).getPluginConfig();
+  } // ---- getters ----
+
+
+  get events() {
+    return _classPrivateFieldGet(this, _instance).events;
+  }
+
+  get actions() {
+    return _classPrivateFieldGet(this, _instance).actions;
+  }
+
+  get subscriptions() {
+    return _classPrivateFieldGet(this, _instance).subscriptions;
+  }
+  /**
+   * Register methods of instance as actions in EventSystem. Register events of instance by names.
+   * @method
+   * @param {*} obj An instance of the plugin being registered
+   * @param {String[]} eventList Array of eventNames of plugin that being registered
+   * @param {String} customGUID instance guid of plugin that will register
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  registerPluginInstance(obj, eventList, customGUID) {
+    if (typeof customGUID === 'undefined') return _classPrivateFieldGet(this, _instance).registerPluginInstance(_classPrivateFieldGet(this, _guid), obj, eventList);else return _classPrivateFieldGet(this, _instance).registerPluginInstance(customGUID, obj, eventList);
+  }
+  /**
+   * Adding event type to event list into eventSystem (register them)
+   * @method
+   * @param {String} eventName event name
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  registerEvent(eventName, ...args) {
+    return _classPrivateFieldGet(this, _instance).registerEvent(_classPrivateFieldGet(this, _guid), eventName, ...args);
+  }
+  /**
+   * Register new action
+   * @method
+   * @param {String} actionName action name
+   * @param {Function} callback callback whitch invoked on event
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  registerAction(actionName, callback) {
+    return _classPrivateFieldGet(this, _instance).createActionByCallback(_classPrivateFieldGet(this, _guid), actionName, callback);
+  }
+  /**
+   * Publishes event from instance by name
+   * @method
+   * @param {String} eventName event name
+   * @param {*} args ...
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  publishEvent(eventName, args) {
+    return _classPrivateFieldGet(this, _instance).publishEvent(_classPrivateFieldGet(this, _guid), eventName, args);
+  }
+  /**
+   * Subscribing
+   * @method
+   * @param {String} eventGUID instance guid of firing plugin
+   * @param {String} eventName name of event
+   * @param {String} actionsGUID instance guid of plugin whom invoke callback
+   * @param {String} actionName name of action
+   * @param {Array} args arguments of event
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  subscribe(eventGUID, eventName, actionGUID, actionName, ...args) {
+    return _classPrivateFieldGet(this, _instance).subscribe(eventGUID, eventName, actionGUID, actionName, ...args);
+  }
+  /**
+   * Unsubscribing
+   * @method
+   * @param {String} eventGUID instance guid of firing plugin
+   * @param {String} eventName name of event
+   * @param {String} actionsGUID instance guid of plugin whom invoke callback
+   * @param {String} actionName name of action
+   * @param {Array} args arguments of event
+   * @returns {Boolean} true, if everything is ok
+   */
+
+
+  unsubscribe(eventGUID, eventName, actionGUID, actionName, ...args) {
+    return _classPrivateFieldGet(this, _instance).unsubscribe(eventGUID, eventName, actionGUID, actionName, ...args);
+  } // /**
+  //  * Subsribes all events with the given name to the action
+  //  * @method
+  //  * @param {String} actionsGUID instance guid of plugin who invokes callback
+  //  * @param {String} actionName name of action
+  //  * @param {String} eventName name of event
+  //  * @returns {Boolean} true, if everything is ok
+  //  */
+  // subscribeActionOnEventName(actionGUID, actionName, eventName) {
+  //   return this.#instance.subscribeActionOnEventName(actionGUID, actionName, eventName);
+  // }
+  // /**
+  //  * Subsribes all events with the given name to the action
+  //  * @method
+  //  * @param {String} eventGUID instance guid of plugin who publishes the event
+  //  * @param {String} eventName name of action
+  //  * @param {String} actionName name of action
+  //  * @returns {Boolean} true, if everything is ok
+  //  */
+  // subscribeEventOnActionName(eventGUID, eventName, actionName) {
+  //   return this.#instance.subscribeEventOnActionName(eventGUID, eventName, actionName);
+  // }
+  // /**
+  //  * Subsribe all actions with the given name on all events with name
+  //  * @method
+  //  * @param {String} eventName name of action
+  //  * @param {String} actionName name of action
+  //  * @returns {Boolean} true, if everything is ok
+  //  */
+  // subscribeByNames(eventName, actionName) {
+  //   return this.#instance.subscribeByNames(eventName, actionName);
+  // }
+
+
+}
+
+class CustomError extends Error {
+  constructor(msg) {
+    super(msg);
+    this.name = this.constructor.name;
+  }
+
+}
+
+class AbstractMethodImplementError extends CustomError {
+  constructor(methodName, className) {
+    super(`The "${methodName}" method must be implemented in the ${className} class`);
+  }
+
+}
+
 /**
  * @typedef {Object} PluginMeta
  * @property {String} title
@@ -246,6 +434,7 @@ class LogSystemAdapter extends BaseAdapter {
  * @property {String[]} events
  * @property {String[]} requirements
  */
+
 class AbstractPlugin {
   /**
    * Static method of AbstractPlugin class which need to reload!
@@ -258,7 +447,7 @@ class AbstractPlugin {
    * @return {String[]} meta.dependencies
    */
   static getRegistrationMeta() {
-    throw new Error('Implement the getRegistrationMeta static method!');
+    throw new AbstractMethodImplementError('Implement the getRegistrationMeta static method!');
   }
   /**
    * Getting module from dependencies
@@ -307,11 +496,24 @@ class AbstractPlugin {
    * Installing plugin by name
    * @method
    * @param {String} name
+   * @return {Object} Returns instance of plugin
    */
 
 
   installPlugin(name, ...args) {
     return Application.installPlugin(name, ...args);
+  }
+  /**
+   * Install extension by target and name
+   * @method
+   * @param {String} target
+   * @param {String} pluginName
+   * @return {Object} Returns instance of plugin
+   */
+
+
+  installExtension(target, pluginName, ...args) {
+    return Application.installExtension(target, pluginName, ...args);
   }
   /**
    * Uninstall plugin from Application by instance
@@ -325,7 +527,7 @@ class AbstractPlugin {
     return Application.uninstallPluginByInstance(instance);
   }
   /**
-   * Uninstall plugin from Application by unique identifier
+   * Uninstall plugin from Application by unique identifier (GUID)
    * @method
    * @param {String} guid Unique identifier of the instance to be uninstalled
    * @returns {Boolean}
@@ -336,7 +538,7 @@ class AbstractPlugin {
     return Application.uninstallPluginByGUID(guid);
   }
   /**
-   * Getting instance by guid
+   * Getting instance by GUID
    * @method
    * @param {String} guid
    * @returns {Object}
@@ -344,8 +546,32 @@ class AbstractPlugin {
 
 
   getInstance(guid) {
-    this.instance.getInstance(guid);
-    return this.instance.getInstance(guid);
+    return Application.getInstance(guid);
+  }
+  /**
+   * Getting GUID by instance of plugin
+   * @method
+   * @param {Object} instance
+   * @returns {Object}
+   */
+
+
+  getGUID(instance) {
+    return Application.getGUID(instance);
+  }
+  /**
+   * Getting list of all GUID's
+   * @method
+   * @returns {String[]}
+   */
+
+
+  getGUIDList() {
+    return Application.getGUIDList();
+  }
+
+  getPlugin(name, type = false) {
+    return Application.getPlugin(name, type);
   }
 
 }
@@ -508,13 +734,13 @@ class BaseModule {
  * @class @extends BaseModule
  */
 
-var _state = /*#__PURE__*/new WeakMap();
+var _state$1 = /*#__PURE__*/new WeakMap();
 
-var _storage = /*#__PURE__*/new WeakMap();
+var _storage$1 = /*#__PURE__*/new WeakMap();
 
-var _logSystem$1 = /*#__PURE__*/new WeakMap();
+var _logSystem$2 = /*#__PURE__*/new WeakMap();
 
-var _setRecord = /*#__PURE__*/new WeakSet();
+var _setRecord$1 = /*#__PURE__*/new WeakSet();
 
 class SessionModule extends BaseModule {
   /**
@@ -541,30 +767,30 @@ class SessionModule extends BaseModule {
   constructor(storage, logSystem) {
     super();
 
-    _classPrivateMethodInitSpec(this, _setRecord);
+    _classPrivateMethodInitSpec(this, _setRecord$1);
 
-    _classPrivateFieldInitSpec(this, _state, {
+    _classPrivateFieldInitSpec(this, _state$1, {
       writable: true,
       value: new Map()
     });
 
-    _classPrivateFieldInitSpec(this, _storage, {
+    _classPrivateFieldInitSpec(this, _storage$1, {
       writable: true,
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _logSystem$1, {
+    _classPrivateFieldInitSpec(this, _logSystem$2, {
       writable: true,
       value: void 0
     });
 
-    _classPrivateFieldSet(this, _storage, storage);
+    _classPrivateFieldSet(this, _storage$1, storage);
 
-    _classPrivateFieldSet(this, _logSystem$1, logSystem);
+    _classPrivateFieldSet(this, _logSystem$2, logSystem);
 
-    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} --> new SessionModule()`);
+    _classPrivateFieldGet(this, _logSystem$2).debug(`${_classPrivateFieldGet(this, _storage$1)} --> new SessionModule()`);
 
-    _classPrivateFieldGet(this, _logSystem$1).info(`${_classPrivateFieldGet(this, _storage)} session module: initialization complete`);
+    _classPrivateFieldGet(this, _logSystem$2).info(`${_classPrivateFieldGet(this, _storage$1)} session module: initialization complete`);
   }
   /**
    * Helper method for `addRecord()` and `putRecord()` public methods.
@@ -583,9 +809,9 @@ class SessionModule extends BaseModule {
    * @returns {SessionModule} This SessionModule instance.
    */
   addRecord(key, value) {
-    const settedKey = _classPrivateMethodGet(this, _setRecord, _setRecord2).call(this, key, value, true);
+    const settedKey = _classPrivateMethodGet(this, _setRecord$1, _setRecord2$1).call(this, key, value, true);
 
-    _classPrivateFieldGet(this, _logSystem$1).info(`${_classPrivateFieldGet(this, _storage)} session module: added "${settedKey}" record`);
+    _classPrivateFieldGet(this, _logSystem$2).info(`${_classPrivateFieldGet(this, _storage$1)} session module: added "${settedKey}" record`);
 
     return this;
   }
@@ -599,9 +825,9 @@ class SessionModule extends BaseModule {
 
 
   putRecord(key, value) {
-    const settedKey = _classPrivateMethodGet(this, _setRecord, _setRecord2).call(this, key, value);
+    const settedKey = _classPrivateMethodGet(this, _setRecord$1, _setRecord2$1).call(this, key, value);
 
-    _classPrivateFieldGet(this, _logSystem$1).info(`${_classPrivateFieldGet(this, _storage)} session module: putted "${settedKey}" record`);
+    _classPrivateFieldGet(this, _logSystem$2).info(`${_classPrivateFieldGet(this, _storage$1)} session module: putted "${settedKey}" record`);
 
     return this;
   }
@@ -614,7 +840,233 @@ class SessionModule extends BaseModule {
 
 
   getRecord(key) {
-    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} SessionModule state --> get(${key})`);
+    _classPrivateFieldGet(this, _logSystem$2).debug(`${_classPrivateFieldGet(this, _storage$1)} SessionModule state --> get(${key})`);
+
+    return _classPrivateFieldGet(this, _state$1).get(key);
+  }
+  /**
+   * Check record existence by key.
+   * @method @public @override
+   * @param {string} key Record key name.
+   * @returns {number} Record existence.
+   */
+
+
+  hasRecord(key) {
+    _classPrivateFieldGet(this, _logSystem$2).debug(`${_classPrivateFieldGet(this, _storage$1)} SessionModule state --> has(${key})`);
+
+    return _classPrivateFieldGet(this, _state$1).has(key);
+  }
+  /**
+   * Delete record by key.
+   * @method @public @override
+   * @param {string} key Record key name.
+   * @returns {boolean} Success of record deletion.
+   */
+
+
+  removeRecord(key) {
+    _classPrivateFieldGet(this, _logSystem$2).debug(`${_classPrivateFieldGet(this, _storage$1)} SessionModule state --> delete(${key})`);
+
+    return _classPrivateFieldGet(this, _state$1).delete(key);
+  }
+  /**
+   * Delete all records.
+   * @method @public @override
+   * @returns {number} Number of deleted records.
+   */
+
+
+  clearModule() {
+    _classPrivateFieldGet(this, _logSystem$2).debug(`${_classPrivateFieldGet(this, _storage$1)} SessionModule state --> clear()`);
+
+    const countBeforeClear = this.recordCount;
+
+    _classPrivateFieldGet(this, _state$1).clear();
+
+    return countBeforeClear;
+  }
+  /**
+   * Number of module records.
+   * @property @public
+   * @returns {number} Number of records.
+   */
+
+
+  get recordCount() {
+    return _classPrivateFieldGet(this, _state$1).size;
+  }
+  /**
+   * List of module records keys.
+   * @property @public
+   * @returns {string[]} Array of records keys.
+   */
+
+
+  get recordList() {
+    return Array.from(_classPrivateFieldGet(this, _state$1).keys());
+  }
+
+}
+
+function _setRecord2$1(key, value, checkUnique = false) {
+  try {
+    const addedKey = BaseModule.checkRecordKey(key);
+    const addedValue = BaseModule.checkRecordValue(value);
+
+    if (checkUnique && this.hasRecord(addedKey)) {
+      throw new RecordDuplicateError(addedKey);
+    }
+
+    _classPrivateFieldGet(this, _state$1).set(addedKey, addedValue);
+
+    _classPrivateFieldGet(this, _logSystem$2).debug(`${_classPrivateFieldGet(this, _storage$1)} SessionModule state: SET "${addedKey}" => ${addedValue}`);
+
+    return addedKey;
+  } catch (err) {
+    _classPrivateFieldGet(this, _logSystem$2).debug(`${_classPrivateFieldGet(this, _storage$1)} SessionModule: ${err.stack}`);
+
+    _classPrivateFieldGet(this, _logSystem$2).info(`${_classPrivateFieldGet(this, _storage$1)} session module ${err.message}`);
+
+    throw err;
+  }
+}
+
+/**
+ * Storage system token module class.
+ * @class @extends BaseModule
+ */
+
+var _state = /*#__PURE__*/new WeakMap();
+
+var _storage = /*#__PURE__*/new WeakMap();
+
+var _logSystem$1 = /*#__PURE__*/new WeakMap();
+
+var _eventSystem$1 = /*#__PURE__*/new WeakMap();
+
+var _setRecord = /*#__PURE__*/new WeakSet();
+
+class TokenModule extends BaseModule {
+  /**
+   * Private JavaScript Map object instance.
+   * @property @private
+   */
+
+  /**
+   * StorageSystem name.
+   * @property @private
+   */
+
+  /**
+   * Private instance of the LogSystemAdapter class.
+   * @property @private
+   */
+
+  /**
+   * Private instance of the EventSystemAdapter class.
+   * @property @private
+   */
+
+  /**
+   * Initialize TokenModule instance.
+   * @constructor
+   * @param {string} storage StorageSystem name.
+   * @param {Object} logSystem StorageSystem`s LogSystemAdapter instance.
+   * @param {Object} eventSystem StorageSystem`s EventSystemAdapter instance.
+   */
+  constructor(storage, logSystem, eventSystem) {
+    super();
+
+    _classPrivateMethodInitSpec(this, _setRecord);
+
+    _classPrivateFieldInitSpec(this, _state, {
+      writable: true,
+      value: new Map()
+    });
+
+    _classPrivateFieldInitSpec(this, _storage, {
+      writable: true,
+      value: void 0
+    });
+
+    _classPrivateFieldInitSpec(this, _logSystem$1, {
+      writable: true,
+      value: void 0
+    });
+
+    _classPrivateFieldInitSpec(this, _eventSystem$1, {
+      writable: true,
+      value: void 0
+    });
+
+    _classPrivateFieldSet(this, _storage, storage);
+
+    _classPrivateFieldSet(this, _logSystem$1, logSystem);
+
+    _classPrivateFieldSet(this, _eventSystem$1, eventSystem);
+
+    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} --> new TokenModule()`);
+
+    _classPrivateFieldGet(this, _logSystem$1).info(`${_classPrivateFieldGet(this, _storage)} token module: initialization complete`);
+  }
+  /**
+   * Helper method for `addRecord()` and `putRecord()` public methods.
+   * @method @private
+   * @param {string} key Record key name.
+   * @param {*} value Record value.
+   * @param {boolean} checkUnique Check record key uniqueness.
+   */
+
+
+  /**
+   * Create a new record.
+   * @method @public @override
+   * @param {string} key Record key name.
+   * @param {*} value Record value.
+   * @returns {TokenModule} This TokenModule instance.
+   */
+  addRecord(key, value) {
+    const settedKey = _classPrivateMethodGet(this, _setRecord, _setRecord2).call(this, key, value, true);
+
+    _classPrivateFieldGet(this, _logSystem$1).info(`${_classPrivateFieldGet(this, _storage)} token module: added "${settedKey}" record`);
+
+    _classPrivateFieldGet(this, _eventSystem$1).publishEvent('TokenUpdate', {
+      token: key
+    });
+
+    return this;
+  }
+  /**
+   * Replace record value by key or create a new record.
+   * @method @public @override
+   * @param {string} key Record key name.
+   * @param {*} value Record value.
+   * @returns {TokenModule} This TokenModule instance.
+   */
+
+
+  putRecord(key, value) {
+    const settedKey = _classPrivateMethodGet(this, _setRecord, _setRecord2).call(this, key, value);
+
+    _classPrivateFieldGet(this, _logSystem$1).info(`${_classPrivateFieldGet(this, _storage)} token module: putted "${settedKey}" record`);
+
+    _classPrivateFieldGet(this, _eventSystem$1).publishEvent('TokenUpdate', {
+      token: key
+    });
+
+    return this;
+  }
+  /**
+   * Get record value by key.
+   * @method @public @override
+   * @param {string} key Record key name.
+   * @returns {*} Record value.
+   */
+
+
+  getRecord(key) {
+    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} TokenModule state --> get(${key})`);
 
     return _classPrivateFieldGet(this, _state).get(key);
   }
@@ -627,7 +1079,7 @@ class SessionModule extends BaseModule {
 
 
   hasRecord(key) {
-    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} SessionModule state --> has(${key})`);
+    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} TokenModule state --> has(${key})`);
 
     return _classPrivateFieldGet(this, _state).has(key);
   }
@@ -640,7 +1092,7 @@ class SessionModule extends BaseModule {
 
 
   removeRecord(key) {
-    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} SessionModule state --> delete(${key})`);
+    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} TokenModule state --> delete(${key})`);
 
     return _classPrivateFieldGet(this, _state).delete(key);
   }
@@ -652,7 +1104,7 @@ class SessionModule extends BaseModule {
 
 
   clearModule() {
-    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} SessionModule state --> clear()`);
+    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} TokenModule state --> clear()`);
 
     const countBeforeClear = this.recordCount;
 
@@ -681,6 +1133,10 @@ class SessionModule extends BaseModule {
     return Array.from(_classPrivateFieldGet(this, _state).keys());
   }
 
+  get state() {
+    return Array.from(_classPrivateFieldGet(this, _state).entries());
+  }
+
 }
 
 function _setRecord2(key, value, checkUnique = false) {
@@ -694,13 +1150,13 @@ function _setRecord2(key, value, checkUnique = false) {
 
     _classPrivateFieldGet(this, _state).set(addedKey, addedValue);
 
-    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} SessionModule state: SET "${addedKey}" => ${addedValue}`);
+    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} TokenModule state: SET "${addedKey}" => ${addedValue}`);
 
     return addedKey;
   } catch (err) {
-    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} SessionModule: ${err.stack}`);
+    _classPrivateFieldGet(this, _logSystem$1).debug(`${_classPrivateFieldGet(this, _storage)} TokenModule: ${err.stack}`);
 
-    _classPrivateFieldGet(this, _logSystem$1).info(`${_classPrivateFieldGet(this, _storage)} session module ${err.message}`);
+    _classPrivateFieldGet(this, _logSystem$1).info(`${_classPrivateFieldGet(this, _storage)} token module ${err.message}`);
 
     throw err;
   }
@@ -721,7 +1177,11 @@ var pluginMeta = {
 
 var _sessionModule = /*#__PURE__*/new WeakMap();
 
+var _tokenModule = /*#__PURE__*/new WeakMap();
+
 var _logSystem = /*#__PURE__*/new WeakMap();
+
+var _eventSystem = /*#__PURE__*/new WeakMap();
 
 class StorageSystem extends SystemPlugin {
   /**
@@ -730,7 +1190,17 @@ class StorageSystem extends SystemPlugin {
    */
 
   /**
+   * Private instance of the TokenModule class.
+   * @property @private
+   */
+
+  /**
    * Private instance of the LogSystemAdapter class.
+   * @property @private
+   */
+
+  /**
+   * Private instance of the EventSystemAdapter class.
    * @property @private
    */
 
@@ -747,7 +1217,17 @@ class StorageSystem extends SystemPlugin {
       value: void 0
     });
 
+    _classPrivateFieldInitSpec(this, _tokenModule, {
+      writable: true,
+      value: void 0
+    });
+
     _classPrivateFieldInitSpec(this, _logSystem, {
+      writable: true,
+      value: void 0
+    });
+
+    _classPrivateFieldInitSpec(this, _eventSystem, {
       writable: true,
       value: void 0
     });
@@ -758,7 +1238,11 @@ class StorageSystem extends SystemPlugin {
 
     _classPrivateFieldGet(this, _logSystem).debug(`Start of ${systemName} creation`);
 
+    _classPrivateFieldSet(this, _eventSystem, new EventSystemAdapter(guid));
+
     _classPrivateFieldSet(this, _sessionModule, new SessionModule(systemName, _classPrivateFieldGet(this, _logSystem)));
+
+    _classPrivateFieldSet(this, _tokenModule, new TokenModule(systemName, _classPrivateFieldGet(this, _logSystem), _classPrivateFieldGet(this, _eventSystem)));
 
     _classPrivateFieldGet(this, _logSystem).debug(`End of ${systemName} creation`);
 
@@ -773,6 +1257,33 @@ class StorageSystem extends SystemPlugin {
 
   get session() {
     return _classPrivateFieldGet(this, _sessionModule);
+  }
+  /**
+   * Token module.
+   * @property @public
+   * @returns {TokenModule} TokenModule instance.
+   */
+
+
+  get tokenStorage() {
+    return _classPrivateFieldGet(this, _tokenModule);
+  }
+
+  setPluginConfig(config = {}) {
+    const {
+      tokens
+    } = config;
+
+    for (const [key, value] of tokens) {
+      if (!this.tokenStorage.hasRecord(key)) this.tokenStorage.addRecord(key, value);
+    }
+  }
+
+  getPluginConfig() {
+    const tokens = this.tokenStorage.state;
+    return {
+      tokens
+    };
   }
   /**
    * Returns plugin metadata object.
