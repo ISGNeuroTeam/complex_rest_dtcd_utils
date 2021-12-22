@@ -1,18 +1,18 @@
-from cache import cache_page
 from .views.log_config import LogsView
 from .views.design_objects import DesignObjects
 from .views.plugins_list import PluginsList
 from .views.graph import Graph
 from .views.workspace import Workspace
 from django.urls import re_path
-from django.conf import settings
-from django.conf.urls.static import static
 
-# Use cache_page decorator for caching view
-
-# urlpatterns = [
-#     path('example/', cache_page(60 * 15)(ExampleView.as_view())),
-# ]
+__author__ = "Ilia Sagaidak"
+__copyright__ = "Copyright 2021, ISG Neuro"
+__credits__ = []
+__license__ = ""
+__version__ = "0.1.0"
+__maintainer__ = "Ilia Sagaidak"
+__email__ = "isagaidak@isgneuro.com"
+__status__ = "Dev"
 
 urlpatterns = [
     re_path(r'^get-design-objects/?$', DesignObjects.as_view()),
