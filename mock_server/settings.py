@@ -3,6 +3,16 @@ import os
 from pathlib import Path
 from core.settings.ini_config import merge_ini_config_with_defaults
 
+__author__ = "Ilia Sagaidak"
+__copyright__ = "Copyright 2021, ISG Neuro"
+__credits__ = []
+__license__ = ""
+__version__ = "0.1.0"
+__maintainer__ = "Ilia Sagaidak"
+__email__ = "isagaidak@isgneuro.com"
+__status__ = "Dev"
+
+
 default_ini_config = {
     'logging': {
         'level': 'INFO'
