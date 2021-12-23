@@ -65,9 +65,10 @@ clean_venv:
 
 
 complex_rest:
-	git clone git@github.com:ISGNeuroTeam/complex_rest.git
-	{ cd ./complex_rest; git checkout develop; make venv; make redis; }
-	ln -s ../../../../mock_server/mock_server ./complex_rest/complex_rest/plugins/mock_server
+	@echo "Should clone complex_rest repository in future..."
+# 	git clone git@github.com:ISGNeuroTeam/complex_rest.git
+# 	{ cd ./complex_rest; git checkout develop; make venv; make redis; }
+# 	ln -s ../../../../mock_server/mock_server ./complex_rest/complex_rest/plugins/mock_server
 
 clean_complex_rest:
 ifneq (,$(wildcard ./complex_rest))
@@ -80,7 +81,7 @@ clean: clean_build clean_venv clean_pack clean_test clean_complex_rest
 
 test: venv complex_rest
 	@echo "Testing..."
-	./complex_rest/venv/bin/python ./complex_rest/complex_rest/manage.py test ./tests --settings=core.settings.test
+# 	./complex_rest/venv/bin/python ./complex_rest/complex_rest/manage.py test ./tests --settings=core.settings.test
 
 clean_test: clean_complex_rest
 	@echo "Clean tests"
