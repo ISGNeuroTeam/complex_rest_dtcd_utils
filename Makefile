@@ -35,11 +35,11 @@ mock_server.tar.gz: build
 
 build: venv venv_pack
 	# required section
-	echo make_build
+	echo build
 	mkdir -p make_build
 
 	cp -R ./mock_server make_build
-	rm make_build/mock_server/mock_server.conf
+	rm -f make_build/mock_server/mock_server.conf
 	mv make_build/mock_server/mock_server.conf.example make_build/mock_server/mock_server.conf
 	cp *.md make_build/mock_server/
 	cp *.py make_build/mock_server/
