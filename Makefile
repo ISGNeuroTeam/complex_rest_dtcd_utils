@@ -1,7 +1,6 @@
 
 #.SILENT:
 SHELL = /bin/bash
-BUILDDIR := make_build
 
 
 all:
@@ -19,7 +18,7 @@ GENERATE_BRANCH = $(shell git name-rev $$(git rev-parse HEAD) | cut -d\  -f2 | c
 SET_VERSION = $(eval VERSION=$(GENERATE_VERSION))
 SET_BRANCH = $(eval BRANCH=$(GENERATE_BRANCH))
 
-pack: build
+pack: make_build
 	$(SET_VERSION)
 	$(SET_BRANCH)
 	rm -f mock_server-*.tar.gz
@@ -33,29 +32,31 @@ clean_pack:
 mock_server.tar.gz: build
 	cd make_build; tar czf ../mock_server.tar.gz mock_server && rm -rf ../make_build
 
-build: venv venv_pack
+build: make_build
+
+make_build: venv.tar.gz
 	# required section
-	echo build
-	mkdir -p make_build
+	echo make_build
+	mkdir make_build
 
 	cp -R ./mock_server make_build
 	rm -f make_build/mock_server/mock_server.conf
 	mv make_build/mock_server/mock_server.conf.example make_build/mock_server/mock_server.conf
 	cp *.md make_build/mock_server/
 	cp *.py make_build/mock_server/
-	mkdir -p make_build/mock_server/venv
+	mkdir make_build/mock_server/venv
 	tar -xzf ./venv.tar.gz -C make_build/mock_server/venv
 
 clean_build:
 	rm -rf make_build
 
-venv: clean_venv
+venv:
 	echo Create venv
 	conda create --copy -p ./venv -y
 	conda install -p ./venv python==3.8.5 -y
 	./venv/bin/pip install --no-input  -r requirements.txt
 
-venv_pack: venv
+venv.tar.gz: venv
 	conda pack -p ./venv -o ./venv.tar.gz
 
 clean_venv:
