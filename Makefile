@@ -34,13 +34,13 @@ mock_server.tar.gz: build
 
 build: make_build
 
-make_build: venv venv_pack
+make_build: venv.tar.gz
 	# required section
 	echo make_build
 	mkdir make_build
 
 	cp -R ./mock_server make_build
-	rm make_build/mock_server/mock_server.conf
+	rm -f make_build/mock_server/mock_server.conf
 	mv make_build/mock_server/mock_server.conf.example make_build/mock_server/mock_server.conf
 	cp *.md make_build/mock_server/
 	cp *.py make_build/mock_server/
@@ -50,13 +50,13 @@ make_build: venv venv_pack
 clean_build:
 	rm -rf make_build
 
-venv: clean_venv
+venv:
 	echo Create venv
 	conda create --copy -p ./venv -y
 	conda install -p ./venv python==3.8.5 -y
 	./venv/bin/pip install --no-input  -r requirements.txt
 
-venv_pack: venv
+venv.tar.gz: venv
 	conda pack -p ./venv -o ./venv.tar.gz
 
 clean_venv:
@@ -65,9 +65,10 @@ clean_venv:
 
 
 complex_rest:
-	git clone git@github.com:ISGNeuroTeam/complex_rest.git
-	{ cd ./complex_rest; git checkout develop; make venv; make redis; }
-	ln -s ../../../../mock_server/mock_server ./complex_rest/complex_rest/plugins/mock_server
+	@echo "Should clone complex_rest repository in future..."
+# 	git clone git@github.com:ISGNeuroTeam/complex_rest.git
+# 	{ cd ./complex_rest; git checkout develop; make venv; make redis; }
+# 	ln -s ../../../../mock_server/mock_server ./complex_rest/complex_rest/plugins/mock_server
 
 clean_complex_rest:
 ifneq (,$(wildcard ./complex_rest))
@@ -80,7 +81,7 @@ clean: clean_build clean_venv clean_pack clean_test clean_complex_rest
 
 test: venv complex_rest
 	@echo "Testing..."
-	./complex_rest/venv/bin/python ./complex_rest/complex_rest/manage.py test ./tests --settings=core.settings.test
+# 	./complex_rest/venv/bin/python ./complex_rest/complex_rest/manage.py test ./tests --settings=core.settings.test
 
 clean_test: clean_complex_rest
 	@echo "Clean tests"
