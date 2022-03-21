@@ -1,34 +1,29 @@
 server {
     # порт, который будет слушать веб-сервер в ожидании запросов от пользователй
     listen      4221;
-    # доменное имя  
+    # доменное имя
     server_name     127.0.0.1; # замените на собственный домен или IP адрес
     charset     utf-8;
 
     # максимальный размер загружаемых на сервер данных
     client_max_body_size 75M;
-    
-    root /home/ilya/Desktop/complex_rest/complex_rest/plugins/mock_server/public;
+
+    root /opt/otp/complex_rest/plugins/mock_server/public;
 
     location /plugins {
-        alias /home/ilya/Desktop/complex_rest/complex_rest/plugins/mock_server/plugins;
-	autoindex on;
+        alias /opt/otp/complex_rest/plugins/mock_server/plugins;
+        autoindex on;
     }
 
-    # location /dependencies {
-    #	alias /home/ilya/Desktop/complex_rest/complex_rest/plugins/mock_server/dependencies;
-    # 	autoindex on;
-    # }
 
     location / {
         autoindex on;
         index index.html;
     }
     location ^~ /mock_server/v1/ {
-        proxy_pass http://localhost:8111; 
+        proxy_pass http://localhost:8080;
     }
     location ^~ /jobsmanager_transit/v1/ {
-        proxy_pass http://localhost:8111;
+        proxy_pass http://localhost:8080;
     }
 }
-

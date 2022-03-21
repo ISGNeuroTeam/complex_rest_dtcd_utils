@@ -3,7 +3,9 @@ from .views.design_objects import DesignObjects
 from .views.plugins_list import PluginsList
 from .views.graph import Graph
 from .views.workspace import Workspace
+from .views.page import PageView
 from django.urls import re_path
+from django.urls import path
 
 __author__ = "Ilia Sagaidak"
 __copyright__ = "Copyright 2021, ISG Neuro"
@@ -20,4 +22,5 @@ urlpatterns = [
     re_path(r'^workspace/object/?$', Workspace.as_view()),
     re_path(r'^logs/object/?$', LogsView.as_view()),
     re_path(r'^graphContent/object/?$', Graph.as_view()),
+    path('page/<str:pagename>', PageView.as_view()),
 ]

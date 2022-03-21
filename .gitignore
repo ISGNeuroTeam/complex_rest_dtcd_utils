@@ -110,5 +110,8 @@ mock_server.conf
 venv.tar.gz
 
 nginx/
+*.conf
+plugins/
+public/
 
 make_build/
