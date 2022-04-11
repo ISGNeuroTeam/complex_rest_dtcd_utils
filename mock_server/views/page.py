@@ -1,7 +1,6 @@
 from rest.views import APIView
 from rest.response import Response, status
 from rest.permissions import AllowAny
-from ..utils.permission_for_method import PermissionForMethod
 from pathlib import Path
 import json
 

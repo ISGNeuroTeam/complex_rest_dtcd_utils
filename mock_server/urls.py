@@ -3,6 +3,7 @@ from .views.design_objects import DesignObjects
 from .views.plugins_list import PluginsList
 from .views.graph import Graph
 from .views.workspace import Workspace
+from .views.page import PageView
 from .views.user import UserView
 from django.urls import re_path
 from django.urls import path
