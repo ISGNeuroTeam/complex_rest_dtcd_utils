@@ -111,7 +111,11 @@ venv.tar.gz
 
 nginx/
 *.conf
-plugins/
-public/
-
+mock_server/plugins/DTCD*
+mock_server/public/fonts
+mock_server/public/*.js
+mock_server/public/*.ico
+mock_server/public/*.html
 make_build/
+
+mock_server/pages/*.json
