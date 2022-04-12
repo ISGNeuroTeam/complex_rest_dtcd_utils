@@ -15,7 +15,6 @@ class Graph(APIView):
     graph_manager = FilesystemGraphManager(GRAPH_BASE_PATH, GRAPH_TMP_PATH, GRAPH_ID_NAME_MAP_PATH)
 
     def post(self, request):
-        logger.warning('ladybug')
         graphs = request.data
         for graph in graphs:
             try:
