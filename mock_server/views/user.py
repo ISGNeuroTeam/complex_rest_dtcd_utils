@@ -7,7 +7,7 @@ class UserView(APIView):
     permission_classes = (IsAuthenticated,)
     user_fields = {"username", "firstName", "lastName", "email", "phone", "photo"}
 
-    def get(self, request, **kwargs):
+    def get(self, request):
         """get current user info"""
         return Response(
             {
@@ -26,9 +26,9 @@ class UserView(APIView):
         """updates user info"""
         user_info = request.data
         has_changed = False
-        if not set(user_info).issubset(self.user_fields):
+        if not set(user_info).issubset(self.user_fields):  # check if only valid keys are provided
             first_error = None
-            for key in user_info.keys():
+            for key in user_info.keys():  # find first invalid key
                 if key not in self.user_fields:
                     first_error = key
                     break
@@ -65,12 +65,12 @@ class UserView(APIView):
         if has_changed:
             try:
                 request.user.save()
-            except Exception as e:
+            except Exception as e:  # unique constraint
                 return Response(
                     {
                         "message": str(e).replace('"', "'").replace('\n', ' '),
                     },
-                    status.HTTP_418_IM_A_TEAPOT
+                    status.HTTP_400_BAD_REQUEST
                 )
             return Response(
                 {
@@ -81,12 +81,12 @@ class UserView(APIView):
                     "phone": request.user.phone,
                     "photo": request.user.photo
                 },
-                status.HTTP_418_IM_A_TEAPOT
+                status.HTTP_200_OK
             )
         else:
             return Response(
                 {
                     "message": "no changes made",
                 },
-                status.HTTP_418_IM_A_TEAPOT
+                status.HTTP_304_NOT_MODIFIED
             )
