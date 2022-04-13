@@ -8,8 +8,9 @@ import unittest
 from operator import itemgetter
 from pathlib import Path
 
-from py2neo import Graph, ServiceUnavailable
+from py2neo import Graph, ServiceUnavailable, DatabaseError
 
+from mock_server import settings
 from mock_server.utils import serializers
 
 
@@ -29,15 +30,19 @@ def setUpModule():
 
     # connection to neo4j DB
     global GRAPH
-    uri = CONFIG['neo4j']['uri']
-    user = CONFIG['neo4j']['user']
-    password = CONFIG['neo4j']['password']
-    GRAPH = Graph(uri, auth=(user, password))
+    uri = settings.NEO4J['DATABASES']['test']['uri']
+    user = settings.NEO4J['DATABASES']['test']['user']
+    password = settings.NEO4J['DATABASES']['test']['password']
+    name = settings.NEO4J['DATABASES']['test']['name']
+    GRAPH = Graph(uri, name=name, auth=(user, password))
 
+    global DB_OK  # check connection to neoj
     try:
-        GRAPH.query('SHOW DEFAULT DATABASE')  # check connection
-    except ServiceUnavailable:
-        raise
+        GRAPH.query('SHOW DEFAULT DATABASE')
+        DB_OK = True
+    except (ServiceUnavailable, DatabaseError):
+        print('Issues with Neo4j database - check the connection.')
+        DB_OK = False
 
 
 def sort_payload(data: dict):
@@ -70,6 +75,7 @@ class TestSubgraphSerializer(unittest.TestCase):
 
         self.assertEqual(self.data, payload)
 
+    @unittest.skipUnless(DB_OK)
     def test_load_dump_through_database(self):
         # TODO figure out safe use of DB for tests
         GRAPH.delete_all()  # TODO wipes out all data from DB

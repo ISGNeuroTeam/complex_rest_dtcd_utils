@@ -25,7 +25,19 @@ default_ini_config = {
         'password': 'mock_server'
     },
     'graph': {},
-    'workspace': {}
+    'workspace': {},
+    'neo4j': {
+        'uri': 'neo4j://localhost:7687',
+        'user': 'neo4j',
+        'password': 'password',
+        'name': 'neo4j'
+    },
+    'neo4j_test': {
+        'uri': 'neo4j://localhost:7687',
+        'user': 'neo4j',
+        'password': 'password',
+        'name': 'test'  # must be different from main DB
+    },
 }
 
 config_parser = configparser.ConfigParser()
@@ -75,3 +87,21 @@ if not os.path.isdir(WORKSPACE_TMP_PATH):
 #         "HOST": ini_config['db_conf']['host'],
 #         "PORT": ini_config['db_conf']['port']
 # }
+
+# neo4j config
+NEO4J = {
+    'DATABASES': {
+        'default': {
+            'uri': ini_config['neo4j']['uri'],
+            'user': ini_config['neo4j']['user'],
+            'password': ini_config['neo4j']['password'],
+            'name': ini_config['neo4j']['name']
+        },
+        'test': {
+            'uri': ini_config['neo4j_test']['uri'],
+            'user': ini_config['neo4j_test']['user'],
+            'password': ini_config['neo4j_test']['password'],
+            'name': ini_config['neo4j_test']['name']
+        }
+    }
+}

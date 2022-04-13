@@ -16,3 +16,15 @@ id_name_map_path = /opt/otp/complex_rest/plugins/mock_server/id_name_map
 [workspace]
 base_path = /opt/otp/complex_rest/plugins/mock_server/workspaces
 tmp_path = /opt/otp/complex_rest/plugins/mock_server/tmp
+
+[neo4j]
+uri = neo4j://localhost:7687
+user = neo4j
+password = password
+name = neo4j  # DB name
+
+[neo4j_test]
+uri = neo4j://localhost:7687
+user = neo4j
+password = password
+name = test
