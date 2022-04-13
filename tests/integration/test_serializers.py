@@ -28,12 +28,16 @@ def setUpModule():
     CONFIG = configparser.ConfigParser()
     CONFIG.read(TEST_DIR / 'config.ini')
 
+    # whether to use DB in tests
+    global USE_DB
+    USE_DB = bool(settings.ini_config['testing']['through_neo4j'])
+
     # connection to neo4j DB
     global GRAPH
-    uri = settings.NEO4J['DATABASES']['test']['uri']
-    user = settings.NEO4J['DATABASES']['test']['user']
-    password = settings.NEO4J['DATABASES']['test']['password']
-    name = settings.NEO4J['DATABASES']['test']['name']
+    uri = settings.NEO4J['uri']
+    user = settings.NEO4J['user']
+    password = settings.NEO4J['password']
+    name = settings.NEO4J['name']
     GRAPH = Graph(uri, name=name, auth=(user, password))
 
     global DB_OK  # check connection to neoj
@@ -75,7 +79,7 @@ class TestSubgraphSerializer(unittest.TestCase):
 
         self.assertEqual(self.data, payload)
 
-    @unittest.skipUnless(DB_OK)
+    @unittest.skipUnless(USE_DB and DB_OK)
     def test_load_dump_through_database(self):
         # TODO figure out safe use of DB for tests
         GRAPH.delete_all()  # TODO wipes out all data from DB
