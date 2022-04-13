@@ -102,6 +102,11 @@ GitHub.sublime-settings
 # redis dump
 *.rdb
 
+# VS Code internals
+.vscode/
+
+# flake8 config
+.flake8
 
 start.sh
 stop.sh

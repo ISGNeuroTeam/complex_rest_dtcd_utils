@@ -1,0 +1,14 @@
+- figure flow of information
+    - check out Graph view (what is FileSystemManager?)
+- create `Neo4jGraphManager` class
+- configuration
+    - database for mock server
+    - plugins/ and public/ folders?
+    - graph configuration?
+    - config file for tests
+- view stub for interaction with graph backend
+- required settings for neo4j
+- integrate subgraph serializer here?
+- tests
+- make it follow guidelines
+- readme and stuff
