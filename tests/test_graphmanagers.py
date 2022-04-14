@@ -8,7 +8,7 @@ from . import fixtures
 
 
 # whether to use DB in tests
-USE_DB = bool(settings.ini_config['testing']['through_neo4j'])
+USE_DB = bool(settings.ini_config['testing']['use_db'])
 
 
 @unittest.skipUnless(USE_DB)
@@ -36,6 +36,10 @@ class TestNeo4jGraphManager(unittest.TestCase):
         fromdb = self.manager.read_all()
 
         self.assertEqual(fromdb, self.subgraph)
+
+    @unittest.expectedFailure
+    def test_write(self):
+        raise NotImplementedError
 
 
 if __name__ == '__main__':

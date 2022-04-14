@@ -1,7 +1,4 @@
 - create `Neo4jGraphManager` class
-    - read
-    - post
-    - delete
     - think about initialization params (check **settings stuff)
 - finish `Neo4jGraph` view
     - `get`
@@ -27,12 +24,15 @@
 - Neo4jGraphManager
     - limits on returned nodes and rels
     - run unit tests
+    - make sure graph is available
 
 - tests
+    - **IMPORTANT**: how to run tests from under complex_rest?
     - move subgraph init to fixtures in serializers
     - put graph connection check logic in one place
 
 - settings & config
+    - `use_db` setting
     - make sure config is OK for production
 
 # Docs

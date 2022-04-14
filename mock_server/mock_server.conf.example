@@ -17,4 +17,4 @@ password = password
 name = neo4j  # DB name
 
 [testing]
-through_neo4j = False
+use_db = false
