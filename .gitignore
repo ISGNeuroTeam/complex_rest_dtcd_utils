@@ -108,6 +108,9 @@ GitHub.sublime-settings
 # flake8 config
 .flake8
 
+# my stuff
+TODO.md
+
 start.sh
 stop.sh
 mock_server-*.tar.gz

@@ -17,13 +17,6 @@ default_ini_config = {
     'logging': {
         'level': 'INFO'
     },
-    'db_conf': {
-        'host': 'localhost',
-        'port': '5432',
-        'database':  'mock_server',
-        'user': 'mock_server',
-        'password': 'mock_server'
-    },
     'graph': {},
     'workspace': {},
     'neo4j': {
@@ -76,15 +69,6 @@ if not os.path.isdir(WORKSPACE_BASE_PATH):
 if not os.path.isdir(WORKSPACE_TMP_PATH):
     os.mkdir(Path(WORKSPACE_TMP_PATH))
 
-# configure your own database if you need
-# DATABASE = {
-#         "ENGINE": 'django.db.backends.postgresql',
-#         "NAME": ini_config['db_conf']['database'],
-#         "USER": ini_config['db_conf']['user'],
-#         "PASSWORD": ini_config['db_conf']['password'],
-#         "HOST": ini_config['db_conf']['host'],
-#         "PORT": ini_config['db_conf']['port']
-# }
 
 # neo4j config
 NEO4J = {

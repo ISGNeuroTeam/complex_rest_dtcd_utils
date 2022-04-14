@@ -1,13 +1,6 @@
 [logging]
 level = INFO
 
-[db_conf]
-host = localhost
-port = 5432
-database = mock_server
-user = mock_server
-password = mock_server
-
 [graph]
 base_path = /opt/otp/complex_rest/plugins/mock_server/graphs
 tmp_path = /opt/otp/complex_rest/plugins/mock_server/tmp
