@@ -17,8 +17,17 @@
 - make it follow guidelines
 - readme and stuff
 
+
+# Code
+
 - SubgraphSerializer
     - add verification for format
     - remove hard-coded values into config
 
--
+- Neo4jGraphManager
+    - limits on returned nodes and rels
+    - run unit tests
+
+- tests
+    - move subgraph init to fixtures in serializers
+    - put graph connection check logic in one place
