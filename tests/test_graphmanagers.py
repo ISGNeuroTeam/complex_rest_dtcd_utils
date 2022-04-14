@@ -6,29 +6,24 @@ from py2neo import Graph, ServiceUnavailable, DatabaseError
 from mock_server import settings
 from mock_server.utils.graphmanagers import Neo4jGraphManager
 
-from tests import fixtures
+from . import fixtures
 
 
-def setUpModule():
-    # whether to use DB in tests
-    global USE_DB
-    USE_DB = bool(settings.ini_config['testing']['through_neo4j'])
+# whether to use DB in tests
+USE_DB = bool(settings.ini_config['testing']['through_neo4j'])
+# connection to neo4j DB
+uri = settings.NEO4J['uri']
+user = settings.NEO4J['user']
+password = settings.NEO4J['password']
+name = settings.NEO4J['name']
+GRAPH = Graph(uri, name=name, auth=(user, password))
 
-    # connection to neo4j DB
-    global GRAPH
-    uri = settings.NEO4J['uri']
-    user = settings.NEO4J['user']
-    password = settings.NEO4J['password']
-    name = settings.NEO4J['name']
-    GRAPH = Graph(uri, name=name, auth=(user, password))
-
-    global DB_OK  # check connection to neoj
-    try:
-        GRAPH.query('SHOW DEFAULT DATABASE')
-        DB_OK = True
-    except (ServiceUnavailable, DatabaseError):
-        print('Issues with Neo4j database - check the connection.')
-        DB_OK = False
+try:
+    GRAPH.query('SHOW DEFAULT DATABASE')
+    DB_OK = True
+except (ServiceUnavailable, DatabaseError):
+    print('Issues with Neo4j database - check the connection.')
+    DB_OK = False
 
 
 @unittest.skipUnless(USE_DB and DB_OK)

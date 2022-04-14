@@ -41,6 +41,7 @@ config_parser = configparser.ConfigParser()
 
 config_parser.read(Path(__file__).parent / 'mock_server.conf')
 
+# FIXME option false in config gets converted to 'false' to True
 ini_config = merge_ini_config_with_defaults(config_parser, default_ini_config)
 
 if not os.path.isdir(Path(__file__).parent / "plugins"):

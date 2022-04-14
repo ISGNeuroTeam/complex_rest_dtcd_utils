@@ -8,7 +8,7 @@ import logging
 
 from mock_server import settings
 from mock_server.utils.graphmanagers import Neo4jGraphManager
-from mock_server.utils.serializers import SubgraphSerializer
+# from ... import SubgraphSerializer  # TODO replace with pip library
 
 logger = logging.getLogger('mock_server')
 

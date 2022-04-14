@@ -1,3 +1,4 @@
+- move serializer out of this plugin
 - create `Neo4jGraphManager` class
     - read
     - post
@@ -31,3 +32,7 @@
 - tests
     - move subgraph init to fixtures in serializers
     - put graph connection check logic in one place
+
+# Docs
+
+- put warning about testing with DB in README
