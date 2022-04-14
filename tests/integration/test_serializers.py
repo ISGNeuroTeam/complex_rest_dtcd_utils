@@ -1,8 +1,3 @@
-"""
-Integration tests for custom utils.py module.
-"""
-
-import configparser
 import json
 import unittest
 from operator import itemgetter
@@ -22,11 +17,6 @@ def setUpModule():
     # filepath to subgraph-sample.json file in specified format
     global SAMPLE_PATH
     SAMPLE_PATH = TEST_DIR / 'fixtures' / 'subgraph-sample.json'
-
-    # test config  TODO replace with plugins's config
-    global CONFIG
-    CONFIG = configparser.ConfigParser()
-    CONFIG.read(TEST_DIR / 'config.ini')
 
     # whether to use DB in tests
     global USE_DB

@@ -77,7 +77,11 @@ class Graph(APIView):
 class Neo4jGraph(APIView):
     permission_classes = (AllowAny,)
     http_method_names = ["get", "post"]
-    graph_manager = Neo4jGraphManager()
+    graph_manager = Neo4jGraphManager(
+        settings.NEO4J['uri'],
+        settings.NEO4J['name'],
+        auth=(settings.NEO4J['user'], settings.NEO4J['password'])
+    )
 
     def get(self, request: Request):
         """Return requested fragment representation."""
@@ -85,12 +89,12 @@ class Neo4jGraph(APIView):
         # for now, fragment handling does not work - we return full graph
 
         # TODO validate the request - must have fragment key
-        fragment = request.data.get('fragment')  # TODO key in config?
+        # TODO implement fragment handling
 
-        subgraph = self.graph_manager.read(fragment)
+        subgraph = self.graph_manager.read_all()
         serializer = SubgraphSerializer()
         data = serializer.dump(subgraph)
         # TODO validation checks?
-
         # TODO structure of response?
+
         return SuccessResponse({'graph': data})  # TODO key in config?

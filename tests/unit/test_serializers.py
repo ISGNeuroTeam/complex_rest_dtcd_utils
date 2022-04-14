@@ -1,7 +1,3 @@
-"""
-Unit tests for custom utils.py module.
-"""
-
 import json
 import unittest
 from operator import itemgetter
