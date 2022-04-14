@@ -35,7 +35,3 @@ amy_dan = EDGE(amy, dan)
 subgraph = (
     amy_city | amy_friends | friends_bob | friends_cloe
     | amy_dan | dan_city)
-friends_tree = friends_bob | friends_cloe
-amy = amy
-amy_tree = amy_city | amy_friends | friends_tree | amy_dan
-edge = amy_dan

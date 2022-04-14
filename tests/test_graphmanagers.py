@@ -1,8 +1,6 @@
 import unittest
 from copy import deepcopy
 
-from py2neo import Graph, ServiceUnavailable, DatabaseError
-
 from mock_server import settings
 from mock_server.utils.graphmanagers import Neo4jGraphManager
 
@@ -11,22 +9,9 @@ from . import fixtures
 
 # whether to use DB in tests
 USE_DB = bool(settings.ini_config['testing']['through_neo4j'])
-# connection to neo4j DB
-uri = settings.NEO4J['uri']
-user = settings.NEO4J['user']
-password = settings.NEO4J['password']
-name = settings.NEO4J['name']
-GRAPH = Graph(uri, name=name, auth=(user, password))
-
-try:
-    GRAPH.query('SHOW DEFAULT DATABASE')
-    DB_OK = True
-except (ServiceUnavailable, DatabaseError):
-    print('Issues with Neo4j database - check the connection.')
-    DB_OK = False
 
 
-@unittest.skipUnless(USE_DB and DB_OK)
+@unittest.skipUnless(USE_DB)
 class TestNeo4jGraphManager(unittest.TestCase):
 
     @classmethod
@@ -36,6 +21,11 @@ class TestNeo4jGraphManager(unittest.TestCase):
             settings.NEO4J['name'],
             auth=(settings.NEO4J['user'], settings.NEO4J['password'])
         )
+        cls.manager._graph.delete_all()  # FIXME wipes out the database
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.manager._graph.delete_all()  # FIXME wipes out the database
 
     def setUp(self):
         self.subgraph = deepcopy(fixtures.subgraph)
