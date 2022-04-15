@@ -8,38 +8,54 @@ from . import fixtures
 
 
 # whether to use DB in tests
-USE_DB = bool(settings.ini_config['testing']['use_db'])
+# FIXME fails if no testing field in config
+USE_DB = settings.ini_config['testing'].getboolean('use_db')
 
 
-@unittest.skipUnless(USE_DB)
+@ unittest.skipUnless(USE_DB)
 class TestNeo4jGraphManager(unittest.TestCase):
 
-    @classmethod
+    @ classmethod
     def setUpClass(cls) -> None:
         cls.manager = Neo4jGraphManager(
             settings.NEO4J['uri'],
             settings.NEO4J['name'],
             auth=(settings.NEO4J['user'], settings.NEO4J['password'])
         )
-        cls.manager._graph.delete_all()  # FIXME wipes out the database
 
-    @classmethod
+    @ classmethod
     def tearDownClass(cls) -> None:
         cls.manager._graph.delete_all()  # FIXME wipes out the database
 
     def setUp(self):
-        self.subgraph = deepcopy(fixtures.subgraph)
+        self.manager._graph.delete_all()  # FIXME wipes out the database
+
+    def tearDown(self) -> None:
+        self.manager._graph.delete_all()  # FIXME wipes out the database
 
     def test_read_all(self):
         # TODO use manager.write instead?
-        self.manager._graph.create(self.subgraph)  # populate the subgraph
+        subgraph = deepcopy(fixtures.subgraph)
+        self.manager._graph.create(subgraph)  # populate the subgraph
         fromdb = self.manager.read_all()
 
-        self.assertEqual(fromdb, self.subgraph)
+        # TODO make sure equality check is ok
+        self.assertEqual(fromdb, subgraph)
 
-    @unittest.expectedFailure
+    @ unittest.expectedFailure
     def test_write(self):
-        raise NotImplementedError
+        # TODO make sure sequencing is ok
+        # create initial data
+        amy_dan = deepcopy(fixtures.amy_dan)
+        self.manager._graph.create(amy_dan)
+
+        # overwrite with new data
+        dan_city = deepcopy(fixtures.dan_city)
+        self.manager.write(dan_city)
+        fromdb = self.manager.read_all()
+
+        # TODO make sure equality check is ok
+        self.assertEqual(fromdb, dan_city)
 
 
 if __name__ == '__main__':

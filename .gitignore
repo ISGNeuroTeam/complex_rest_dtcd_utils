@@ -109,7 +109,7 @@ GitHub.sublime-settings
 .flake8
 
 # my stuff
-TODO.md
+todo.md
 
 start.sh
 stop.sh
