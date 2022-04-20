@@ -1,10 +1,10 @@
 import unittest
-from copy import deepcopy
+from time import sleep
 
 from mock_server import settings
 from mock_server.utils.graphmanagers import Neo4jGraphManager
 
-from . import fixtures
+import fixtures
 
 
 # whether to use DB in tests
@@ -12,7 +12,7 @@ from . import fixtures
 USE_DB = settings.ini_config['testing'].getboolean('use_db')
 
 
-@ unittest.skipUnless(USE_DB)
+@ unittest.skipUnless(USE_DB, 'Do not use DB')
 class TestNeo4jGraphManager(unittest.TestCase):
 
     @ classmethod
@@ -23,38 +23,32 @@ class TestNeo4jGraphManager(unittest.TestCase):
             auth=(settings.NEO4J['user'], settings.NEO4J['password'])
         )
 
-    @ classmethod
-    def tearDownClass(cls) -> None:
-        cls.manager._graph.delete_all()  # FIXME wipes out the database
-
     def setUp(self):
+        self.data = fixtures.generate_data()
         self.manager._graph.delete_all()  # FIXME wipes out the database
 
     def tearDown(self) -> None:
         self.manager._graph.delete_all()  # FIXME wipes out the database
 
     def test_read_all(self):
-        # TODO use manager.write instead?
-        subgraph = deepcopy(fixtures.subgraph)
+        subgraph = self.data['subgraph']
         self.manager._graph.create(subgraph)  # populate the subgraph
         fromdb = self.manager.read_all()
 
-        # TODO make sure equality check is ok
         self.assertEqual(fromdb, subgraph)
 
-    @ unittest.expectedFailure
     def test_write(self):
-        # TODO make sure sequencing is ok
         # create initial data
-        amy_dan = deepcopy(fixtures.amy_dan)
-        self.manager._graph.create(amy_dan)
+        # IMPORTANT do not use same nodes in this and next command
+        amy_friends = self.data['amy_friends']
+        self.manager._graph.create(amy_friends)
 
         # overwrite with new data
-        dan_city = deepcopy(fixtures.dan_city)
+        from py2neo import Subgraph
+        dan_city = Subgraph(None, [self.data['dan_city']])
         self.manager.write(dan_city)
         fromdb = self.manager.read_all()
 
-        # TODO make sure equality check is ok
         self.assertEqual(fromdb, dan_city)
 
 
