@@ -1,10 +1,9 @@
 import unittest
-from time import sleep
 
 from mock_server import settings
 from mock_server.utils.graphmanagers import Neo4jGraphManager
 
-import fixtures
+import tests.fixtures as fixtures
 
 
 # whether to use DB in tests

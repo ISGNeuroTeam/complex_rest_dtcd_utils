@@ -77,3 +77,43 @@ NEO4J = {
     'password': ini_config['neo4j']['password'],
     'name': ini_config['neo4j']['name']
 }
+
+# settings for custom data design
+# TODO load from config
+RECURSIVE_SCHEMA = {
+    # service keys
+    "keys": {
+        "parent_key": "_key",  #
+        "position": "_pos",  # rel property tracks item's position in a list
+    },
+    # node labels
+    "labels": {
+        "array": "_Array",  # for top-level nodes representing array structure
+        "attribute": "_Attribute",  # for nodes representing nested attribute
+        "composite": "_Composite",  # for nodes containing nested attribute(s)
+        "item": "_Item",  # for nodes representing individual items in array struct
+    },
+    # relationship types
+    "types": {
+        "contains_item": "CONTAINS_ITEM",  # from a top-level Array node to its item
+        "has_attribute": "HAS_ATTRIBUTE",  # link from entity to an attribute
+    },
+}
+
+EXCHANGE_SCHEMA = {
+    "keys": {
+        "edges": "edges",
+        "nodes": "nodes",
+        "source_node": "sourceNode",
+        "target_node": "targetNode",
+        "yfiles_id": "primitiveID",
+    },
+    "labels": {
+        "root": "Root",  # base label for all Y-files nodes
+    },
+    "types": {
+        "edge": "EDGE",  # link between two Y-files nodes
+    },
+}
+
+SCHEMA = RECURSIVE_SCHEMA | EXCHANGE_SCHEMA

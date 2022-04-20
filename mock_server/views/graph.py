@@ -8,7 +8,7 @@ import logging
 
 from mock_server import settings
 from mock_server.utils.graphmanagers import Neo4jGraphManager
-# from ... import RecursiveSerializer  # TODO replace with pip library
+from mock_server.utils.serializers import SubgraphSerializer
 
 logger = logging.getLogger('mock_server')
 
@@ -92,7 +92,7 @@ class Neo4jGraph(APIView):
         # TODO implement fragment handling
 
         subgraph = self.graph_manager.read_all()
-        serializer = RecursiveSerializer()
+        serializer = SubgraphSerializer()  # TODO config
         payload = serializer.dump(subgraph)
         # TODO validation checks?
         # TODO structure of response?
@@ -106,7 +106,7 @@ class Neo4jGraph(APIView):
 
         # TODO validate the request - graph data, fragment key
         payload = request.data['graph']  # TODO key in config
-        serializer = RecursiveSerializer()
+        serializer = SubgraphSerializer()   # TODO config
         subgraph = serializer.load(payload)
         # TODO implement fragment merge here or in put
         self.graph_manager.write(subgraph)  # TODO error handling
