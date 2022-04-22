@@ -1,7 +1,7 @@
 import unittest
 
 from mock_server import settings
-from mock_server.utils.graphmanagers import Neo4jGraphManager
+from mock_server.utils.neo4j_graphmanager import Neo4jGraphManager
 
 from .. import fixtures
 
