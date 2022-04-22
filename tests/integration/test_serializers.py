@@ -3,38 +3,52 @@ import unittest
 from operator import itemgetter
 from pathlib import Path
 
-from mock_server.settings import SCHEMA
 from mock_server.utils.serializers import SubgraphSerializer
 
 
 # path to tests/ dir
 TEST_DIR = Path(__file__).resolve().parent.parent
-# filepath to subgraph-sample.json file in specified format
-SAMPLE_PATH = TEST_DIR / "fixtures" / "subgraph-sample.json"
+# filepath to graph-sample.json file in specified format
+FIXTURES_DIR = TEST_DIR / "fixtures"
+
+
+def sort_payload(data: dict):
+    """Sort payload dict according to spec in-place."""
+
+    nodes = data["nodes"]
+
+    for node in nodes:
+        node["initPorts"] = sorted(node["initPorts"], key=itemgetter("primitiveID"))
+
+    data["nodes"] = sorted(nodes, key=itemgetter("primitiveID"))
+    data["edges"] = sorted(data["edges"], key=itemgetter(
+        "sourceNode", "sourcePort", "targetNode", "targetPort"))
 
 
 class TestSubgraphSerializer(unittest.TestCase):
 
-    def test_load_dump(self):
-        with open(SAMPLE_PATH) as f:
+    def test_load_dump_small(self):
+        # simple subgraph
+        with open(FIXTURES_DIR / "graph-sample-small.json") as f:
             data = json.load(f)  # original data
+        sort_payload(data)
 
         serializer = SubgraphSerializer()
-        # TODO replace with manually constructed Subgraph
         subgraph = serializer.load(data)
         exported = serializer.dump(subgraph)
-        # TODO replace with sort_payload()
-        # fix order of arrays
-        exported[SCHEMA["keys"]["nodes"]] = sorted(
-            exported[SCHEMA["keys"]["nodes"]], key=itemgetter("primitiveID")
-        )
-        exported[SCHEMA["keys"]["edges"]] = sorted(
-            exported[SCHEMA["keys"]["edges"]],
-            key=itemgetter(
-                SCHEMA["keys"]["source_node"], SCHEMA["keys"]["target_node"]
-            ),
-        )
+        sort_payload(exported)
+        self.assertEqual(data, exported)
 
+    def test_load_dump_large(self):
+        # large subgraph
+        with open(FIXTURES_DIR / "graph-sample-large.json") as f:
+            data = json.load(f)  # original data
+        sort_payload(data)
+
+        serializer = SubgraphSerializer()
+        subgraph = serializer.load(data)
+        exported = serializer.dump(subgraph)
+        sort_payload(exported)
         self.assertEqual(data, exported)
 
 

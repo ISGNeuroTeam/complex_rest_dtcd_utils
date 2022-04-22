@@ -3,7 +3,7 @@ import unittest
 from mock_server import settings
 from mock_server.utils.graphmanagers import Neo4jGraphManager
 
-import tests.fixtures as fixtures
+from .. import fixtures
 
 
 # whether to use DB in tests
@@ -11,7 +11,7 @@ import tests.fixtures as fixtures
 USE_DB = settings.ini_config['testing'].getboolean('use_db')
 
 
-@ unittest.skipUnless(USE_DB, 'Do not use DB')
+@ unittest.skipUnless(USE_DB, 'testing.use_db set to False in config')
 class TestNeo4jGraphManager(unittest.TestCase):
 
     @ classmethod

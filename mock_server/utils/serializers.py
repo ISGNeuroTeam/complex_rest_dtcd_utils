@@ -1,22 +1,10 @@
+from copy import deepcopy
 from typing import Mapping
 
-# from neotools.serializers import RecursiveSerializer  # TODO
+from neotools.serializers import RecursiveSerializer
 from py2neo import Relationship, Subgraph
 
 from mock_server.settings import SCHEMA
-
-
-# FIXME replace with RecursiveSerializer
-class RecursiveSerializerStub:
-    def __init__(self, subgraph=None, config=None) -> None:
-        self._c = config
-        raise NotImplementedError
-
-    def load():
-        raise NotImplementedError
-
-    def dump():
-        raise NotImplementedError
 
 
 class SubgraphSerializer:
@@ -37,7 +25,7 @@ class SubgraphSerializer:
         nodes = []
         relationships = []
         id2root = {}
-        serializer = RecursiveSerializerStub(config=self._c)
+        serializer = RecursiveSerializer(config=self._c)
 
         # create nodes, deal with corresp. attributes
         for node_dict in data[self._c["keys"]["nodes"]]:
@@ -56,7 +44,7 @@ class SubgraphSerializer:
 
         # create relationships using instantiated unbound nodes
         for rel_dict in data[self._c["keys"]["edges"]]:
-            properties: dict = rel_dict
+            properties: dict = deepcopy(rel_dict)
 
             # TODO what happens if src / tgt node ids are not in nodes?
             src_node = id2root[properties.pop(self._c["keys"]["source_node"])]
@@ -79,7 +67,7 @@ class SubgraphSerializer:
         roots = list(
             node for node in subgraph.nodes if node.has_label(self._c["labels"]["root"])
         )
-        serializer = RecursiveSerializerStub(subgraph=subgraph, config=self._c)
+        serializer = RecursiveSerializer(subgraph=subgraph, config=self._c)
         nodes = [serializer.dump(root) for root in roots]
 
         rels = set(

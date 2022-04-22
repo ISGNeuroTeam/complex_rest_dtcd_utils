@@ -19,7 +19,7 @@
                     "value": 9754
                 }
             },
-            "ports": [
+            "initPorts": [
                 {
                     "primitiveID": "p1",
                     "primitiveName": "personal_email",
@@ -47,7 +47,7 @@
             "extensionName": "p",
             "nodeTitle": "Bob Ham",
             "properties": {},
-            "ports": [
+            "initPorts": [
                 {
                     "primitiveID": "p3",
                     "primitiveName": "corporate_email",

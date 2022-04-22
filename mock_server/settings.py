@@ -1,7 +1,7 @@
 import configparser
 import os
 from pathlib import Path
-from core.settings.ini_config import merge_ini_config_with_defaults
+from core.settings.ini_config import merge_ini_config_with_defaults, merge_dicts
 
 __author__ = "Ilia Sagaidak"
 __copyright__ = "Copyright 2021, ISG Neuro"
@@ -116,4 +116,4 @@ EXCHANGE_SCHEMA = {
     },
 }
 
-SCHEMA = RECURSIVE_SCHEMA | EXCHANGE_SCHEMA
+SCHEMA = merge_dicts(RECURSIVE_SCHEMA, EXCHANGE_SCHEMA)
