@@ -24,9 +24,6 @@ class PageView(APIView):
                 status.HTTP_404_NOT_FOUND
             )
         return Response(
-            {
-                'name': page_name,
-                'content': content
-            },
+            content,
             status.HTTP_200_OK
         )
