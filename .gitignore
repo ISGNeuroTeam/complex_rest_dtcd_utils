@@ -115,6 +115,8 @@ start.sh
 stop.sh
 mock_server-*.tar.gz
 mock_server.conf
+serialization.conf
+exchange.conf
 venv.tar.gz
 
 nginx/

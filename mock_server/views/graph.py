@@ -6,9 +6,9 @@ from ..utils.filesystem_graphmanager import FilesystemGraphManager
 from ..settings import GRAPH_BASE_PATH, GRAPH_TMP_PATH, GRAPH_ID_NAME_MAP_PATH
 import logging
 
-from mock_server import settings
-from mock_server.utils.neo4j_graphmanager import Neo4jGraphManager
-from mock_server.utils.serializers import SubgraphSerializer
+from .. import settings
+from ..utils.neo4j_graphmanager import Neo4jGraphManager
+from ..utils.serializers import SubgraphSerializer
 
 logger = logging.getLogger('mock_server')
 

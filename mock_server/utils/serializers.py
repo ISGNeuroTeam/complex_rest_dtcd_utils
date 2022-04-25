@@ -4,7 +4,7 @@ from typing import Mapping
 from neotools.serializers import RecursiveSerializer
 from py2neo import Relationship, Subgraph
 
-from mock_server.settings import SCHEMA
+from ..settings import SCHEMA
 
 
 class SubgraphSerializer:
