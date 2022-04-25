@@ -1,5 +1,5 @@
 from rest.views import APIView
-from rest.response import Response, status, SuccessResponse
+from rest.response import Response, status, SuccessResponse, ErrorResponse
 from rest.permissions import AllowAny
 from rest_framework.request import Request
 from ..utils.filesystem_graphmanager import FilesystemGraphManager
@@ -105,11 +105,15 @@ class Neo4jGraph(APIView):
         # for now, re-write the whole DB
 
         # TODO validate the request - graph data, fragment key
-        payload = request.data['graph']  # TODO key in config
-        serializer = SubgraphSerializer()   # TODO config
-        subgraph = serializer.load(payload)
-        # TODO implement fragment merge here or in put
-        self.graph_manager.write(subgraph)  # TODO error handling
-        # TODO structure of response?
+        payload = request.data.get('graph')  # TODO key in config
 
-        return SuccessResponse(http_status=status.HTTP_201_CREATED)
+        if payload is not None:
+            serializer = SubgraphSerializer()   # TODO config
+            subgraph = serializer.load(payload)
+            # TODO implement fragment merge here or in put
+            self.graph_manager.write(subgraph)  # TODO error handling
+            # TODO structure of response?
+
+            return SuccessResponse(http_status=status.HTTP_201_CREATED)
+        else:
+            return ErrorResponse(error_message="graph key is missing")
