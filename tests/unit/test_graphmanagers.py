@@ -37,6 +37,8 @@ class TestNeo4jGraphManager(unittest.TestCase):
 
         self.assertEqual(fromdb, subgraph)
 
+    # TODO read_all on empty subgraph
+
     def test_write(self):
         # create initial data
         # IMPORTANT do not use same nodes in this and next command

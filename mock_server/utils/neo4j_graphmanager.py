@@ -25,7 +25,13 @@ class Neo4jGraphManager(AbstractGraphManager):
         rels_subgraph = rels_cursor.to_subgraph()
         self._graph.commit(tx)
 
-        return nodes_subgraph | rels_subgraph
+        result = Subgraph()
+        if nodes_subgraph is not None:
+            result |= nodes_subgraph
+        if rels_subgraph is not None:
+            result |= rels_subgraph
+
+        return result
 
     def remove(self, id):
         raise NotImplementedError  # TODO
