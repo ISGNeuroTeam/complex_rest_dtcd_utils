@@ -8,7 +8,6 @@ from mock_server.utils.serializers import SubgraphSerializer
 
 # path to tests/ dir
 TEST_DIR = Path(__file__).resolve().parent.parent
-# filepath to graph-sample.json file in specified format
 FIXTURES_DIR = TEST_DIR / "fixtures"
 
 
@@ -28,11 +27,9 @@ def sort_payload(data: dict):
 class TestSubgraphSerializer(unittest.TestCase):
 
     def test_load_dump_small(self):
-        # simple subgraph
         with open(FIXTURES_DIR / "graph-sample-small.json") as f:
-            data = json.load(f)  # original data
+            data = json.load(f)
         sort_payload(data)
-
         serializer = SubgraphSerializer()
         subgraph = serializer.load(data)
         exported = serializer.dump(subgraph)
@@ -40,11 +37,9 @@ class TestSubgraphSerializer(unittest.TestCase):
         self.assertEqual(data, exported)
 
     def test_load_dump_large(self):
-        # large subgraph
         with open(FIXTURES_DIR / "graph-sample-large.json") as f:
-            data = json.load(f)  # original data
+            data = json.load(f)
         sort_payload(data)
-
         serializer = SubgraphSerializer()
         subgraph = serializer.load(data)
         exported = serializer.dump(subgraph)

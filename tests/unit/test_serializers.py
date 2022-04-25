@@ -1,53 +1,53 @@
 import json
 import unittest
+from operator import itemgetter
 from pathlib import Path
 
 from mock_server.utils.serializers import SubgraphSerializer
 
+from .. import fixtures
 
-# path to tests/ dir
+
 TEST_DIR = Path(__file__).resolve().parent.parent
-# filepath to graph-sample.json file in specified format
 FIXTURES_DIR = TEST_DIR / "fixtures"
 
 
 class TestSubgraphSerializer(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls) -> None:
-        # test data dictionary in exchange format
-        with open(FIXTURES_DIR / "graph-sample-small.json") as f:
-            cls.data = json.load(f)
-
     def test_load(self):
-        # TODO more tests?
+        data = fixtures.generate_data()['data']
         serializer = SubgraphSerializer()
-        subgraph = serializer.load(self.data)
+        subgraph = serializer.load(data)
+        self.assertEqual(len(subgraph.nodes), 7)
+        self.assertEqual(len(subgraph.relationships), 6)
 
+    def test_load_from_json(self):
+        with open(FIXTURES_DIR / "graph-sample-small.json") as f:
+            data = json.load(f)
+
+        serializer = SubgraphSerializer()
+        subgraph = serializer.load(data)
         self.assertEqual(len(subgraph.nodes), 15)
         self.assertEqual(len(subgraph.relationships), 14)
 
-    # def test_dump(self):
-    #     with open(SAMPLE_PATH) as f:
-    #         data = json.load(f)  # original data
+    def test_dump(self):
+        d = fixtures.generate_data()
+        data = d['data']
+        subgraph = d['subgraph']
+        serializer = SubgraphSerializer()
+        exported = serializer.dump(subgraph)
 
-    #     serializer = SubgraphSerializer()
-    #     # TODO replace with manually constructed Subgraph
-    #     subgraph = serializer.load(data)
-    #     exported = serializer.dump(subgraph)
-    #     # TODO replace with sort_payload()
-    #     # fix order of arrays
-    #     exported[DEFAULTS["keys"]["nodes"]] = sorted(
-    #         exported[DEFAULTS["keys"]["nodes"]], key=itemgetter("primitiveID")
-    #     )
-    #     exported[DEFAULTS["keys"]["edges"]] = sorted(
-    #         exported[DEFAULTS["keys"]["edges"]],
-    #         key=itemgetter(
-    #             DEFAULTS["keys"]["source_node"], DEFAULTS["keys"]["target_node"]
-    #         ),
-    #     )
+        # fix order of arrays
+        exported['nodes'] = sorted(
+            exported['nodes'], key=itemgetter("primitiveID")
+        )
+        exported["edges"] = sorted(
+            exported["edges"],
+            key=itemgetter(
+                "sourceNode", "sourcePort", "targetNode", "targetPort"),
+        )
 
-    #     self.assertEqual(data, exported)
+        self.assertEqual(data, exported)
 
 
 if __name__ == '__main__':

@@ -1,12 +1,13 @@
 import unittest
 
+from py2neo import Subgraph
+
 from mock_server import settings
 from mock_server.utils.neo4j_graphmanager import Neo4jGraphManager
 
 from .. import fixtures
 
 
-# whether to use DB in tests
 # FIXME fails if no testing field in config
 USE_DB = settings.ini_config['testing'].getboolean('use_db')
 
@@ -23,7 +24,7 @@ class TestNeo4jGraphManager(unittest.TestCase):
         )
 
     def setUp(self):
-        self.data = fixtures.generate_data()
+        self.data = fixtures.generate_dummy()
         self.manager._graph.delete_all()  # FIXME wipes out the database
 
     def tearDown(self) -> None:
@@ -43,7 +44,6 @@ class TestNeo4jGraphManager(unittest.TestCase):
         self.manager._graph.create(amy_friends)
 
         # overwrite with new data
-        from py2neo import Subgraph
         dan_city = Subgraph(None, [self.data['dan_city']])
         self.manager.write(dan_city)
         fromdb = self.manager.read_all()
