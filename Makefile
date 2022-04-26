@@ -1,4 +1,3 @@
-
 #.SILENT:
 SHELL = /bin/bash
 
@@ -8,7 +7,7 @@ all:
  build - build project into build directory, with configuration file and environment\n\
  clean - clean all addition file, build directory and output archive file\n\
  test - run all tests\n\
- pack - make output archive, file name format \"mock_server_vX.Y.Z_BRANCHNAME.tar.gz\"\n\
+ pack - make output archive, file name format \"dtcd_server_vX.Y.Z_BRANCHNAME.tar.gz\"\n\
 Addition section:\n\
  venv\n\
 "
@@ -21,16 +20,16 @@ SET_BRANCH = $(eval BRANCH=$(GENERATE_BRANCH))
 pack: make_build
 	$(SET_VERSION)
 	$(SET_BRANCH)
-	rm -f mock_server-*.tar.gz
-	echo Create archive \"mock_server-$(VERSION)-$(BRANCH).tar.gz\"
-	cd make_build; tar czf ../mock_server-$(VERSION)-$(BRANCH).tar.gz mock_server
+	rm -f dtcd_server-*.tar.gz
+	echo Create archive \"dtcd_server-$(VERSION)-$(BRANCH).tar.gz\"
+	cd make_build; tar czf ../dtcd_server-$(VERSION)-$(BRANCH).tar.gz dtcd_server
 
 clean_pack:
-	rm -f mock_server-*.tar.gz
+	rm -f dtcd_server-*.tar.gz
 
 
-mock_server.tar.gz: build
-	cd make_build; tar czf ../mock_server.tar.gz mock_server && rm -rf ../make_build
+dtcd_server.tar.gz: build
+	cd make_build; tar czf ../dtcd_server.tar.gz dtcd_server && rm -rf ../make_build
 
 build: make_build
 
@@ -39,13 +38,14 @@ make_build: venv.tar.gz
 	echo make_build
 	mkdir make_build
 
-	cp -R ./mock_server make_build
-	rm -f make_build/mock_server/mock_server.conf
-	mv make_build/mock_server/mock_server.conf.example make_build/mock_server/mock_server.conf
-	cp *.md make_build/mock_server/
-	cp *.py make_build/mock_server/
-	mkdir make_build/mock_server/venv
-	tar -xzf ./venv.tar.gz -C make_build/mock_server/venv
+	cp -R ./dtcd_server make_build
+	rm -f make_build/dtcd_server/dtcd_server.conf
+	mv make_build/dtcd_server/dtcd_server.conf.example make_build/dtcd_server/dtcd_server.conf
+	cp *.md make_build/dtcd_server/
+	cp *.py make_build/dtcd_server/
+	cp ./docs/scripts/*.sh make_build/dtcd_server/
+	mkdir make_build/dtcd_server/venv
+	tar -xzf ./venv.tar.gz -C make_build/dtcd_server/venv
 
 clean_build:
 	rm -rf make_build
@@ -68,12 +68,12 @@ complex_rest:
 	@echo "Should clone complex_rest repository in future..."
 # 	git clone git@github.com:ISGNeuroTeam/complex_rest.git
 # 	{ cd ./complex_rest; git checkout develop; make venv; make redis; }
-# 	ln -s ../../../../mock_server/mock_server ./complex_rest/complex_rest/plugins/mock_server
+# 	ln -s ../../../../dtcd_server/dtcd_server ./complex_rest/complex_rest/plugins/dtcd_server
 
 clean_complex_rest:
 ifneq (,$(wildcard ./complex_rest))
 	{ cd ./complex_rest; make clean;}
-	rm -f ./complex_rest/plugins/mock_server
+	rm -f ./complex_rest/plugins/dtcd_server
 	rm -rf ./complex_rest
 endif
 
@@ -85,9 +85,3 @@ test: venv complex_rest
 
 clean_test: clean_complex_rest
 	@echo "Clean tests"
-
-
-
-
-
-

@@ -1,0 +1,5 @@
+[program: neo4j]
+command = systemctl start neo4j
+startsecs = 5
+autorestart = True
+autostart = True
