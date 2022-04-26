@@ -1,4 +1,5 @@
 import configparser
+import json
 import os
 from pathlib import Path
 from neotools.serializers import DEFAULTS
@@ -74,19 +75,12 @@ if not os.path.isdir(WORKSPACE_TMP_PATH):
 NEO4J = ini_config['neo4j']
 
 # settings for custom data design
-# TODO configs for serialization and exchange schemas
-serialization_conf = configparser.ConfigParser()
-serialization_conf.read(PROJECT_DIR / 'serialization.conf')
-serialization_conf = {
-    section: dict(serialization_conf.items(section))
-    for section in serialization_conf.sections()}
-SERIALIZATION_SCHEMA = merge_dicts(
-    serialization_conf, DEFAULTS)
+with open(PROJECT_DIR / 'serialization.json') as f:
+    serialization_conf = json.load(f)
+SERIALIZATION_SCHEMA = merge_dicts(serialization_conf, DEFAULTS)
 
-exchange_conf = configparser.ConfigParser()
-exchange_conf.read(PROJECT_DIR / 'exchange.conf')
-EXCHANGE_SCHEMA = {
-    section: dict(exchange_conf.items(section))
-    for section in exchange_conf.sections()}
+with open(PROJECT_DIR / 'exchange.json') as f:
+    exchange_conf = json.load(f)
+EXCHANGE_SCHEMA = exchange_conf
 
 SCHEMA = merge_dicts(SERIALIZATION_SCHEMA, EXCHANGE_SCHEMA)
