@@ -106,14 +106,19 @@ class Neo4jGraph(APIView):
 
         # TODO validate the request - graph data, fragment key
         payload = request.data.get('graph')  # TODO key in config
+        if payload is None:
+            return ErrorResponse(error_message="graph key is missing")
 
-        if payload is not None:
-            serializer = SubgraphSerializer()   # TODO config
-            subgraph = serializer.load(payload)
+        serializer = SubgraphSerializer()   # TODO config
+
+        try:  # TODO smarter error handling
+            subgraph = serializer.load(payload)  # FIXME bad design
+        except Exception:
+            return ErrorResponse(
+                http_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                error_message='graph loading error')
+        else:
             # TODO implement fragment merge here or in put
             self.graph_manager.write(subgraph)  # TODO error handling
             # TODO structure of response?
-
             return SuccessResponse(http_status=status.HTTP_201_CREATED)
-        else:
-            return ErrorResponse(error_message="graph key is missing")
