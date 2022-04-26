@@ -2,8 +2,8 @@ import unittest
 
 from py2neo import Subgraph
 
-from mock_server import settings
-from mock_server.utils.neo4j_graphmanager import Neo4jGraphManager
+from dtcd_server import settings
+from dtcd_server.utils.neo4j_graphmanager import Neo4jGraphManager
 
 from .. import fixtures
 

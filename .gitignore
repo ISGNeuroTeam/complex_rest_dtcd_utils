@@ -113,19 +113,19 @@ todo.md
 
 start.sh
 stop.sh
-mock_server-*.tar.gz
-mock_server.conf
+dtcd_server-*.tar.gz
+dtcd_server.conf
 serialization.json
 exchange.json
 venv.tar.gz
 
 nginx/
 *.conf
-mock_server/plugins/DTCD*
-mock_server/public/fonts
-mock_server/public/*.js
-mock_server/public/*.ico
-mock_server/public/*.html
+dtcd_server/plugins/DTCD*
+dtcd_server/public/fonts
+dtcd_server/public/*.js
+dtcd_server/public/*.ico
+dtcd_server/public/*.html
 make_build/
 
-mock_server/pages/*.json
+dtcd_server/pages/*.json

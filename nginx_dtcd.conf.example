@@ -8,10 +8,10 @@ server {
     # максимальный размер загружаемых на сервер данных
     client_max_body_size 75M;
 
-    root /opt/otp/complex_rest/plugins/mock_server/public;
+    root /opt/otp/complex_rest/plugins/dtcd_server/public;
 
     location /plugins {
-        alias /opt/otp/complex_rest/plugins/mock_server/plugins;
+        alias /opt/otp/complex_rest/plugins/dtcd_server/plugins;
         autoindex on;
     }
 
@@ -20,7 +20,7 @@ server {
         autoindex on;
         index index.html;
     }
-    location ^~ /mock_server/v1/ {
+    location ^~ /dtcd_server/v1/ {
         proxy_pass http://localhost:8080;
     }
     location ^~ /jobsmanager_transit/v1/ {

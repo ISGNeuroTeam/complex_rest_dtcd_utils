@@ -3,7 +3,7 @@ import unittest
 from operator import itemgetter
 from pathlib import Path
 
-from mock_server.utils.serializers import SubgraphSerializer
+from dtcd_server.utils.serializers import SubgraphSerializer
 
 from .. import fixtures
 

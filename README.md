@@ -1,4 +1,4 @@
-# mock_server
+# dtcd_server
 
 Plugin for [complex rest](https://github.com/ISGNeuroTeam/complex_rest/tree/develop)
 
@@ -12,13 +12,13 @@ Deploy [complex rest](https://github.com/ISGNeuroTeam/complex_rest/tree/develop)
 
 ### Installing
 
-* Make symlink for ./mock_server/mock_server in plugins directory
+* Make symlink for ./dtcd_server/dtcd_server in plugins directory
 * Run complex rest server
 
 ## Running the tests
 Run all tests:
 ```bash
-python ./complex_rest/manage.py test ./plugin_dev/mock_server/tests --settings=core.settings.test
+python ./complex_rest/manage.py test ./plugin_dev/dtcd_server/tests --settings=core.settings.test
 ```
 
 ## Deployment
