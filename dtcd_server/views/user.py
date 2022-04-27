@@ -19,7 +19,7 @@ class UserView(APIView):
                 "phone": request.user.phone,
                 "photo": request.user.photo
             },
-            status.HTTP_418_IM_A_TEAPOT
+            status.HTTP_200_OK
         )
 
     def put(self, request):
@@ -36,7 +36,7 @@ class UserView(APIView):
                 {
                     "message": f"invalid parameter {first_error}",
                 },
-                status.HTTP_418_IM_A_TEAPOT
+                status.HTTP_400_BAD_REQUEST
             )
         if "username" in user_info:
             if not has_changed:
