@@ -1,6 +1,12 @@
 #.SILENT:
 SHELL = /bin/bash
 
+plugin_name := dtcd_server
+build_dir := make_build
+plugin_dir := $(build_dir)/$(plugin_name)
+url_neo4j := https://neo4j.com/artifact.php?name=neo4j-community-4.4.6-unix.tar.gz
+# url_drive_neo4j := https://drive.google.com/uc?export=download&id=1YipGGkmYhEveSSJ4ZsPC0pIjxivBKxYu
+
 
 all:
 	echo -e "Required section:\n\
@@ -41,20 +47,26 @@ make_build: venv.tar.gz
 	cp -R ./dtcd_server make_build
 	rm -f make_build/dtcd_server/dtcd_server.conf
 	mv make_build/dtcd_server/dtcd_server.conf.example make_build/dtcd_server/dtcd_server.conf
+	cp docs/serialization.json.example $(plugin_dir)/serialization.json
+	cp docs/exchange.json.example $(plugin_dir)/exchange.json
+	cp docs/proc.conf.example $(plugin_dir)/proc.conf
 	cp *.md make_build/dtcd_server/
 	cp *.py make_build/dtcd_server/
-	cp ./docs/scripts/*.sh make_build/dtcd_server/
 	mkdir make_build/dtcd_server/venv
 	tar -xzf ./venv.tar.gz -C make_build/dtcd_server/venv
 
 clean_build:
 	rm -rf make_build
 
-venv:
+venv: neo4j.tar.gz
 	echo Create venv
 	conda create --copy -p ./venv -y
 	conda install -p ./venv python==3.9.7 -y
 	./venv/bin/pip install --no-input  -r requirements.txt
+
+	# neo4j
+	mkdir ./venv/apps
+	tar -xf ../../neo4j-community-4.4.6-unix.tar.gz -C ./venv/apps/
 
 venv.tar.gz: venv
 	conda pack -p ./venv -o ./venv.tar.gz
@@ -85,3 +97,6 @@ test: venv complex_rest
 
 clean_test: clean_complex_rest
 	@echo "Clean tests"
+
+neo4j.tar.gz:
+	wget $(url_neo4j)
