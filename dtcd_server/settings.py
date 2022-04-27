@@ -36,7 +36,7 @@ default_ini_config = {
 
 # main config
 config_parser = configparser.ConfigParser()
-config_parser.read(PROJECT_DIR / 'mock_server.conf')
+config_parser.read(PROJECT_DIR / 'dtcd_server.conf')
 # FIXME option false in config gets converted from 'false' to True
 ini_config = merge_ini_config_with_defaults(config_parser, default_ini_config)
 
@@ -46,20 +46,6 @@ if not os.path.isdir(PROJECT_DIR / "plugins"):
 
 if not os.path.isdir(PROJECT_DIR / "public"):
     os.mkdir(PROJECT_DIR / "public")
-
-# graphs configuration
-GRAPH_BASE_PATH = ini_config['graph']['base_path']
-GRAPH_TMP_PATH = ini_config['graph']['tmp_path']
-GRAPH_ID_NAME_MAP_PATH = ini_config['graph']['id_name_map_path']
-
-if not os.path.isdir(GRAPH_BASE_PATH):
-    os.mkdir(Path(GRAPH_BASE_PATH))
-
-if not os.path.isdir(GRAPH_TMP_PATH):
-    os.mkdir(Path(GRAPH_TMP_PATH))
-
-if not os.path.isdir(GRAPH_ID_NAME_MAP_PATH):
-    os.mkdir(Path(GRAPH_ID_NAME_MAP_PATH))
 
 # workspace configuration
 WORKSPACE_BASE_PATH = ini_config['workspace']['base_path']

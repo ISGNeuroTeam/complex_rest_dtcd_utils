@@ -1,11 +1,6 @@
 [logging]
 level = INFO
 
-[graph]
-base_path = /opt/otp/complex_rest/plugins/mock_server/graphs
-tmp_path = /opt/otp/complex_rest/plugins/mock_server/tmp
-id_name_map_path = /opt/otp/complex_rest/plugins/mock_server/id_name_map
-
 [workspace]
 base_path = /opt/otp/complex_rest/plugins/mock_server/workspaces
 tmp_path = /opt/otp/complex_rest/plugins/mock_server/tmp
