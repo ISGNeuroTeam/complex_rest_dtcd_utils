@@ -13,7 +13,7 @@ all:
  build - build project into build directory, with configuration file and environment\n\
  clean - clean all addition file, build directory and output archive file\n\
  test - run all tests\n\
- pack - make output archive, file name format \"dtcd_server_vX.Y.Z_BRANCHNAME.tar.gz\"\n\
+ pack - make output archive, file name format \"$(plugin_name)_vX.Y.Z_BRANCHNAME.tar.gz\"\n\
 Addition section:\n\
  venv\n\
 "
@@ -26,47 +26,42 @@ SET_BRANCH = $(eval BRANCH=$(GENERATE_BRANCH))
 pack: make_build
 	$(SET_VERSION)
 	$(SET_BRANCH)
-	rm -f dtcd_server-*.tar.gz
-	echo Create archive \"dtcd_server-$(VERSION)-$(BRANCH).tar.gz\"
-	cd make_build; tar czf ../dtcd_server-$(VERSION)-$(BRANCH).tar.gz dtcd_server
+	rm -f $(plugin_name)-*.tar.gz
+	cd $(build_dir); tar czf ../$(plugin_name)-$(VERSION)-$(BRANCH).tar.gz $(plugin_name)
 
-clean_pack:
-	rm -f dtcd_server-*.tar.gz
-
+clean_pack: clean_build
+	rm -f $(plugin_name)-*.tar.gz
 
 dtcd_server.tar.gz: build
-	cd make_build; tar czf ../dtcd_server.tar.gz dtcd_server && rm -rf ../make_build
+	cd $(build_dir); tar czf ../$(plugin_name).tar.gz $(plugin_name) && rm -rf ../$(build_dir)
 
 build: make_build
 
 make_build: venv.tar.gz
-	# required section
-	echo make_build
-	mkdir make_build
+	mkdir $(build_dir)
+	cp -r $(plugin_name) $(build_dir)
 
-	cp -R ./dtcd_server make_build
-	rm -f make_build/dtcd_server/dtcd_server.conf
-	mv make_build/dtcd_server/dtcd_server.conf.example make_build/dtcd_server/dtcd_server.conf
+	# copy configuration files
+	rm $(plugin_dir)/{serialization,exchange}.json $(plugin_dir)/*.conf
+	cp docs/dtcd_server.conf.example $(plugin_dir)/dtcd_server.conf
 	cp docs/serialization.json.example $(plugin_dir)/serialization.json
 	cp docs/exchange.json.example $(plugin_dir)/exchange.json
-	cp docs/proc.conf.example $(plugin_dir)/proc.conf
-	cp *.md make_build/dtcd_server/
-	cp *.py make_build/dtcd_server/
-	mkdir make_build/dtcd_server/venv
-	tar -xzf ./venv.tar.gz -C make_build/dtcd_server/venv
+#	cp docs/proc.conf.example $(plugin_dir)/proc.conf  # TODO deployment
 
-clean_build:
-	rm -rf make_build
+	cp *.md $(plugin_dir)
+	cp *.py $(plugin_dir)
 
-venv: neo4j.tar.gz
-	echo Create venv
+	# virtual environment
+	mkdir $(plugin_dir)/venv
+	tar -xzf ./venv.tar.gz -C $(plugin_dir)/venv
+
+clean_build: clean_venv
+	rm -rf $(build_dir)
+
+venv:
 	conda create --copy -p ./venv -y
 	conda install -p ./venv python==3.9.7 -y
 	./venv/bin/pip install --no-input  -r requirements.txt
-
-	# neo4j
-	mkdir ./venv/apps
-	tar -xf ../../neo4j-community-4.4.6-unix.tar.gz -C ./venv/apps/
 
 venv.tar.gz: venv
 	conda pack -p ./venv -o ./venv.tar.gz
@@ -74,7 +69,6 @@ venv.tar.gz: venv
 clean_venv:
 	rm -rf venv
 	rm -f ./venv.tar.gz
-
 
 complex_rest:
 	@echo "Should clone complex_rest repository in future..."
@@ -97,6 +91,3 @@ test: venv complex_rest
 
 clean_test: clean_complex_rest
 	@echo "Clean tests"
-
-neo4j.tar.gz:
-	wget $(url_neo4j)

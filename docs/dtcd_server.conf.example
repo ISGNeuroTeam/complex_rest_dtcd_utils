@@ -1,0 +1,15 @@
+[logging]
+level = INFO
+
+[workspace]
+base_path = ./workspaces
+tmp_path = ./tmp
+
+[neo4j]
+uri = bolt://localhost:7687
+user = neo4j
+password = neo4j
+name = neo4j
+
+[testing]
+use_db = false

@@ -56,6 +56,12 @@ class Neo4jGraph(APIView):
                 error_message='graph loading error')
         else:
             # TODO implement fragment merge here or in put
-            self.graph_manager.write(subgraph)  # TODO error handling
-            # TODO structure of response?
-            return SuccessResponse(http_status=status.HTTP_201_CREATED)
+            try:
+                self.graph_manager.write(subgraph)  # TODO error handling
+            except Exception:
+                return ErrorResponse(
+                    http_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    error_message='graph writing error')
+            else:
+                # TODO structure of response?
+                return SuccessResponse(http_status=status.HTTP_201_CREATED)

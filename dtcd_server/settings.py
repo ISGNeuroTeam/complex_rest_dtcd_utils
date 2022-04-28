@@ -5,15 +5,6 @@ from pathlib import Path
 from neotools.serializers import DEFAULTS
 from core.settings.ini_config import merge_ini_config_with_defaults, merge_dicts
 
-__author__ = "Ilia Sagaidak"
-__copyright__ = "Copyright 2021, ISG Neuro"
-__credits__ = []
-__license__ = ""
-__version__ = "0.1.0"
-__maintainer__ = "Ilia Sagaidak"
-__email__ = "isagaidak@isgneuro.com"
-__status__ = "Dev"
-
 
 PROJECT_DIR = Path(__file__).parent
 
@@ -24,9 +15,9 @@ default_ini_config = {
     'graph': {},
     'workspace': {},
     'neo4j': {
-        'uri': 'neo4j://localhost:7687',
+        'uri': 'bolt://localhost:7687',
         'user': 'neo4j',
-        'password': 'password',
+        'password': 'neo4j',
         'name': 'neo4j'
     },
     'testing': {

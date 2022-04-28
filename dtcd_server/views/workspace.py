@@ -9,7 +9,7 @@ import os
 import logging
 import uuid
 
-logger = logging.getLogger('mock_server')
+logger = logging.getLogger('dtcd_server')
 
 
 class Workspace(APIView):

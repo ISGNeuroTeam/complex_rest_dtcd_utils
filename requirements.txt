@@ -10,4 +10,4 @@ py2neo
 # neo-tools
 
 # TODO local directories
-../../../repos/neo-tools 
+/home/tcysin/Documents/work/repos/neo-tools 
