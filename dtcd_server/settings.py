@@ -17,7 +17,7 @@ default_ini_config = {
     'neo4j': {
         'uri': 'bolt://localhost:7687',
         'user': 'neo4j',
-        'password': 'neo4j',
+        'password': 'password',
         'name': 'neo4j'
     },
     'testing': {

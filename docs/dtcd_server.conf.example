@@ -6,9 +6,9 @@ base_path = ./workspaces
 tmp_path = ./tmp
 
 [neo4j]
-uri = bolt://localhost:7687
+uri = neo4j://localhost:7687
 user = neo4j
-password = neo4j
+password = password
 name = neo4j
 
 [testing]
