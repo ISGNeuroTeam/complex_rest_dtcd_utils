@@ -1,4 +1,20 @@
+from operator import itemgetter
+
 from py2neo import Node, Relationship
+
+
+def sort_payload(data: dict) -> None:
+    """Sort payload dict according to spec in-place."""
+
+    nodes = data["nodes"]
+
+    for node in nodes:
+        if 'initPorts' in node:
+            node["initPorts"] = sorted(node["initPorts"], key=itemgetter("primitiveID"))
+
+    data["nodes"] = sorted(nodes, key=itemgetter("primitiveID"))
+    data["edges"] = sorted(data["edges"], key=itemgetter(
+        "sourceNode", "sourcePort", "targetNode", "targetPort"))
 
 
 def generate_dummy():

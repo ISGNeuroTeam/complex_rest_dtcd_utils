@@ -21,9 +21,10 @@ class Neo4jGraphManager(AbstractGraphManager):
         # TODO replace with single statement?
         nodes_cursor = tx.run('MATCH (n) RETURN n')
         rels_cursor = tx.run('MATCH ()-[r]->() RETURN r')
+        self._graph.commit(tx)
+
         nodes_subgraph = nodes_cursor.to_subgraph()
         rels_subgraph = rels_cursor.to_subgraph()
-        self._graph.commit(tx)
 
         result = Subgraph()
         if nodes_subgraph is not None:

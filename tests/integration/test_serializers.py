@@ -1,27 +1,16 @@
 import json
 import unittest
-from operator import itemgetter
+
 from pathlib import Path
 
 from dtcd_server.utils.serializers import SubgraphSerializer
+
+from ..fixtures import sort_payload
 
 
 # path to tests/ dir
 TEST_DIR = Path(__file__).resolve().parent.parent
 FIXTURES_DIR = TEST_DIR / "fixtures"
-
-
-def sort_payload(data: dict):
-    """Sort payload dict according to spec in-place."""
-
-    nodes = data["nodes"]
-
-    for node in nodes:
-        node["initPorts"] = sorted(node["initPorts"], key=itemgetter("primitiveID"))
-
-    data["nodes"] = sorted(nodes, key=itemgetter("primitiveID"))
-    data["edges"] = sorted(data["edges"], key=itemgetter(
-        "sourceNode", "sourcePort", "targetNode", "targetPort"))
 
 
 class TestSubgraphSerializer(unittest.TestCase):
@@ -46,6 +35,7 @@ class TestSubgraphSerializer(unittest.TestCase):
         for _ in range(100):
             serializer = SubgraphSerializer()
             subgraph = serializer.load(data)
+            serializer = SubgraphSerializer()
             exported = serializer.dump(subgraph)
             sort_payload(exported)
             if data != exported:

@@ -17,12 +17,13 @@ __maintainer__ = "Ilia Sagaidak"
 __email__ = "isagaidak@isgneuro.com"
 __status__ = "Dev"
 
+app_name = 'dtcd_server'
 urlpatterns = [
     re_path(r'^get-design-objects/?$', DesignObjects.as_view()),
     re_path(r'^plugins/plugins.json/?$', PluginsList.as_view()),
     re_path(r'^workspace/object/?$', Workspace.as_view()),
     re_path(r'^logs/object/?$', LogsView.as_view()),
-    re_path(r'^graphContent/object/?$', Neo4jGraph.as_view()),
+    re_path(r'^graphContent/object/?$', Neo4jGraph.as_view(), name='graph'),
     path('page/<str:pagename>', PageView.as_view()),
     re_path(r'^user/?$', UserView.as_view()),
 ]
