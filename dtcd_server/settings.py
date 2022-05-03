@@ -20,9 +20,6 @@ default_ini_config = {
         'password': 'password',
         'name': 'neo4j'
     },
-    'testing': {
-        'use_db': False
-    }
 }
 
 # main config

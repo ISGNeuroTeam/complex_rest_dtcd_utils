@@ -1,3 +1,4 @@
+import configparser
 import json
 import unittest
 from pathlib import Path
@@ -10,7 +11,10 @@ from ..fixtures import sort_payload
 # path to tests/ dir
 TEST_DIR = Path(__file__).resolve().parent.parent
 FIXTURES_DIR = TEST_DIR / "fixtures"
-N = 50
+# testing config
+config = configparser.ConfigParser()
+config.read(TEST_DIR / 'config.ini')
+N = config['general'].getint('num_iter')
 
 
 class TestSubgraphSerializer(unittest.TestCase):
@@ -33,7 +37,7 @@ class TestSubgraphSerializer(unittest.TestCase):
         ok = True
 
         # TODO settings for number of iterations
-        for _ in range(100):
+        for _ in range(N):
             serializer = SubgraphSerializer()
             subgraph = serializer.load(data)
             serializer = SubgraphSerializer()

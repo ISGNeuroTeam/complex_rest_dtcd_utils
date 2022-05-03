@@ -1,4 +1,6 @@
+import configparser
 import unittest
+from pathlib import Path
 
 from py2neo import Subgraph
 
@@ -8,8 +10,11 @@ from dtcd_server.utils.neo4j_graphmanager import Neo4jGraphManager
 from .. import fixtures
 
 
-# FIXME fails if no testing field in config
-USE_DB = settings.ini_config['testing'].getboolean('use_db')
+TEST_DIR = Path(__file__).resolve().parent.parent
+# testing config
+config = configparser.ConfigParser()
+config.read(TEST_DIR / 'config.ini')
+USE_DB = config['general'].getboolean('use_db')
 
 
 @ unittest.skipUnless(USE_DB, 'use_db=False')

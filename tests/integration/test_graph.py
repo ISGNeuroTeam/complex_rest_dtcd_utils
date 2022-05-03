@@ -1,3 +1,4 @@
+import configparser
 import json
 import unittest
 from pathlib import Path
@@ -7,15 +8,16 @@ from django.test import tag
 from rest_framework import status
 from rest_framework.test import APISimpleTestCase
 
-from dtcd_server import settings
-
 from .. import fixtures
 
 
 TEST_DIR = Path(__file__).resolve().parent.parent
 FIXTURES_DIR = TEST_DIR / "fixtures"
-USE_DB = settings.ini_config['testing'].getboolean('use_db')
-N = 50
+# testing config
+config = configparser.ConfigParser()
+config.read(TEST_DIR / 'config.ini')
+USE_DB = config['general'].getboolean('use_db')
+N = config['general'].getint('num_iter')
 
 
 @unittest.skipUnless(USE_DB, 'use_db=False')
@@ -113,7 +115,7 @@ class TestNeo4jGraphView(APISimpleTestCase):
         with open(FIXTURES_DIR / "graph-sample-large.json") as f:
             data = json.load(f)
 
-        for i in range(15):
+        for i in range(N):
             self.maxDiff = None  # to see full difference
 
             # post
