@@ -1,6 +1,5 @@
 import json
 import unittest
-
 from pathlib import Path
 
 from dtcd_server.utils.serializers import SubgraphSerializer
@@ -11,6 +10,7 @@ from ..fixtures import sort_payload
 # path to tests/ dir
 TEST_DIR = Path(__file__).resolve().parent.parent
 FIXTURES_DIR = TEST_DIR / "fixtures"
+N = 50
 
 
 class TestSubgraphSerializer(unittest.TestCase):
@@ -32,6 +32,7 @@ class TestSubgraphSerializer(unittest.TestCase):
 
         ok = True
 
+        # TODO settings for number of iterations
         for _ in range(100):
             serializer = SubgraphSerializer()
             subgraph = serializer.load(data)
@@ -53,6 +54,20 @@ class TestSubgraphSerializer(unittest.TestCase):
         exported = serializer.dump(subgraph)
         sort_payload(exported)
         self.assertEqual(data, exported)
+
+    def test_load_dump_large_many_times(self):
+        with open(FIXTURES_DIR / "graph-sample-large.json") as f:
+            data = json.load(f)
+        sort_payload(data)
+
+        for i in range(N):
+            serializer = SubgraphSerializer()
+            subgraph = serializer.load(data)
+            exported = serializer.dump(subgraph)
+            sort_payload(exported)
+            self.assertEqual(data, exported, msg=f'Lap {i}')
+
+    # TODO add tests through DB: duplicated edges
 
 
 if __name__ == '__main__':

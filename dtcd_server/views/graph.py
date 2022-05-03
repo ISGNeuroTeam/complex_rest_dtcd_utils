@@ -8,13 +8,7 @@ from .. import settings
 from ..utils.neo4j_graphmanager import Neo4jGraphManager
 from ..utils.serializers import SubgraphSerializer
 
-# set up logging
-logging.disable(logging.NOTSET)
 logger = logging.getLogger('dtcd_server')
-logger.setLevel(logging.DEBUG)
-# fh = logging.FileHandler('log.txt')
-# fh.setLevel(logging.DEBUG)
-# logger.addHandler(fh)
 
 
 class Neo4jGraph(APIView):
@@ -33,18 +27,9 @@ class Neo4jGraph(APIView):
 
         # TODO validate the request - must have fragment key
         # TODO implement fragment handling
-
         subgraph = self.graph_manager.read_all()
-
-        # log queried subgraph
-        num_nodes, num_rels = len(subgraph.nodes), len(subgraph.relationships)
-        logger.debug(f'GET - read {num_nodes} nodes, {num_rels} relationships')
-
         serializer = SubgraphSerializer()  # TODO config
         payload = serializer.dump(subgraph)
-
-        # TODO log payload
-
         # TODO validation checks?
         # TODO structure of response?
 
@@ -71,11 +56,6 @@ class Neo4jGraph(APIView):
         else:
             # TODO implement fragment merge here or in put
             # TODO log number of nodes and relationships
-
-            # log created subgraph
-            num_nodes, num_rels = len(subgraph.nodes), len(subgraph.relationships)
-            logger.debug(f'POST - created {num_nodes} nodes, {num_rels} relationships')
-
             try:
                 self.graph_manager.write(subgraph)  # TODO error handling
             except Exception:

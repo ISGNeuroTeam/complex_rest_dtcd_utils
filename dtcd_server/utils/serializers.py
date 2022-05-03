@@ -47,6 +47,7 @@ class SubgraphSerializer:
             properties: dict = deepcopy(rel_dict)
 
             # TODO what happens if src / tgt node ids are not in nodes?
+            # FIXME if src & tgt are same, then rels are identical even if ports differ
             src_node = id2root[properties.pop(self._c["keys"]["source_node"])]
             tgt_node = id2root[properties.pop(self._c["keys"]["target_node"])]
 

@@ -1,13 +1,10 @@
-# add isgneuro archive
-# see https://pip.pypa.io/en/latest/reference/requirements-file-format/#global-options
-# --extra-index-url http://s.dev.isgneuro.com/repository/ot.platform/simple
-# --trusted-host s.dev.isgneuro.com
-
 # PyPI
 py2neo
 
-# isgneuro archive
-# neo-tools
+# add isgneuro archive
+# see https://pip.pypa.io/en/latest/reference/requirements-file-format/#global-options
+--extra-index-url http://s.dev.isgneuro.com/repository/ot.platform/simple
+--trusted-host s.dev.isgneuro.com
 
-# TODO local directories
-/home/tcysin/Documents/work/repos/neo-tools 
+# isgneuro archive
+neo-tools

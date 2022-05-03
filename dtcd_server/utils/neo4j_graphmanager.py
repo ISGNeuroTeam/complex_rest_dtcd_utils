@@ -23,6 +23,7 @@ class Neo4jGraphManager(AbstractGraphManager):
         rels_cursor = tx.run('MATCH ()-[r]->() RETURN r')
         self._graph.commit(tx)
 
+        # FIXME py2neo bug in Nodes.__hash__ logic
         nodes_subgraph = nodes_cursor.to_subgraph()
         rels_subgraph = rels_cursor.to_subgraph()
 

@@ -12,7 +12,7 @@ from .. import fixtures
 USE_DB = settings.ini_config['testing'].getboolean('use_db')
 
 
-@ unittest.skipUnless(USE_DB, 'testing.use_db set to False in config')
+@ unittest.skipUnless(USE_DB, 'use_db=False')
 class TestNeo4jGraphManager(unittest.TestCase):
 
     @ classmethod
