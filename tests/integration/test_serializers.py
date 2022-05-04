@@ -3,6 +3,8 @@ import json
 import unittest
 from pathlib import Path
 
+from django.test import SimpleTestCase, tag
+
 from dtcd_server.utils.serializers import SubgraphSerializer
 
 from ..fixtures import sort_payload
@@ -17,7 +19,7 @@ config.read(TEST_DIR / 'config.ini')
 N = config['general'].getint('num_iter')
 
 
-class TestSubgraphSerializer(unittest.TestCase):
+class TestSubgraphSerializer(SimpleTestCase):
 
     def test_load_dump_small(self):
         with open(FIXTURES_DIR / "graph-sample-small.json") as f:
@@ -29,6 +31,7 @@ class TestSubgraphSerializer(unittest.TestCase):
         sort_payload(exported)
         self.assertEqual(data, exported)
 
+    @tag('slow')
     def test_load_dump_many_times(self):
         with open(FIXTURES_DIR / "graph-sample-small.json") as f:
             data = json.load(f)
@@ -59,6 +62,7 @@ class TestSubgraphSerializer(unittest.TestCase):
         sort_payload(exported)
         self.assertEqual(data, exported)
 
+    @tag('slow')
     def test_load_dump_large_many_times(self):
         with open(FIXTURES_DIR / "graph-sample-large.json") as f:
             data = json.load(f)
