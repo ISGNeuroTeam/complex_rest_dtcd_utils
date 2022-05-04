@@ -18,8 +18,8 @@ class TestSubgraphSerializer(unittest.TestCase):
         data = fixtures.generate_data()['data']
         serializer = SubgraphSerializer()
         subgraph = serializer.load(data)
-        self.assertEqual(len(subgraph.nodes), 7)
-        self.assertEqual(len(subgraph.relationships), 6)
+        self.assertEqual(len(subgraph.nodes), 10)
+        self.assertEqual(len(subgraph.relationships), 3)
 
     def test_load_from_json(self):
         with open(FIXTURES_DIR / "graph-sample-small.json") as f:
@@ -27,8 +27,8 @@ class TestSubgraphSerializer(unittest.TestCase):
 
         serializer = SubgraphSerializer()
         subgraph = serializer.load(data)
-        self.assertEqual(len(subgraph.nodes), 15)
-        self.assertEqual(len(subgraph.relationships), 14)
+        self.assertEqual(len(subgraph.nodes), 16)
+        self.assertEqual(len(subgraph.relationships), 13)
 
     def test_dump(self):
         d = fixtures.generate_data()

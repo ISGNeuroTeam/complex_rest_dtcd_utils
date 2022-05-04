@@ -1,8 +1,7 @@
-from copy import deepcopy
 from typing import Mapping
 
 from neotools.serializers import RecursiveSerializer
-from py2neo import Relationship, Subgraph
+from py2neo import Subgraph
 
 from ..settings import SCHEMA
 
@@ -22,40 +21,24 @@ class SubgraphSerializer:
         See https://py2neo.org/2021.1/data/index.html#py2neo.data.Node.
         """
 
-        nodes = []
-        relationships = []
-        id2root = {}
+        subgraph = Subgraph()
         serializer = RecursiveSerializer(config=self._c)
 
-        # create nodes, deal with corresp. attributes
+        # yfiles nodes
         for node_dict in data[self._c["keys"]["nodes"]]:
             # (recursively) construct root node and its (nested) properties
             tree = serializer.load(node_dict)
-
+            tree.root.add_label(self._c["labels"]["node"])
             # save nodes & rels created
-            nodes.extend(tree.subgraph.nodes)
-            relationships.extend(tree.subgraph.relationships)
+            subgraph |= tree.subgraph
 
-            root = tree.root
-            root.add_label(self._c["labels"]["root"])
-
-            node_id = root[self._c["keys"]["yfiles_id"]]
-            id2root[node_id] = root
-
-        # create relationships using instantiated unbound nodes
+        # yfiles edges
         for rel_dict in data[self._c["keys"]["edges"]]:
-            properties: dict = deepcopy(rel_dict)
+            tree = serializer.load(rel_dict)
+            tree.root.add_label(self._c["labels"]["edge"])
+            subgraph |= tree.subgraph
 
-            # TODO what happens if src / tgt node ids are not in nodes?
-            # FIXME if src & tgt are same, then rels are identical even if ports differ
-            src_node = id2root[properties.pop(self._c["keys"]["source_node"])]
-            tgt_node = id2root[properties.pop(self._c["keys"]["target_node"])]
-
-            relationships.append(
-                Relationship(src_node, self._c["types"]["edge"], tgt_node, **properties)
-            )
-
-        return Subgraph(nodes, relationships)
+        return subgraph
 
     def dump(self, subgraph: Subgraph) -> dict:
         """Dump the subgraph to a dictionary.
@@ -64,36 +47,19 @@ class SubgraphSerializer:
         """
 
         # TODO subgraphs of incorrect format (missing VERTEX nodes / EDGE rels)
+        nodes, edges = [], []
 
-        roots = list(
-            node for node in subgraph.nodes if node.has_label(self._c["labels"]["root"])
-        )
+        for n in subgraph.nodes:
+            if n.has_label(self._c["labels"]["node"]):
+                nodes.append(n)
+            elif n.has_label(self._c["labels"]["edge"]):
+                edges.append(n)
+
         serializer = RecursiveSerializer(subgraph=subgraph, config=self._c)
-        nodes = [serializer.dump(root) for root in roots]
-
-        rels = set(
-            r
-            for r in subgraph.relationships
-            if type(r).__name__ == self._c["types"]["edge"]
-        )
-        edges = list(map(self._dump_relationship, rels))
 
         result = {
-            self._c["keys"]["nodes"]: nodes,
-            self._c["keys"]["edges"]: edges,
+            self._c["keys"]["nodes"]: [serializer.dump(n) for n in nodes],
+            self._c["keys"]["edges"]: [serializer.dump(e) for e in edges],
         }
-
-        return result
-
-    def _dump_relationship(self, relationship: Relationship) -> dict:
-        result = dict(relationship)
-
-        # save src & tgt node IDs
-        result[self._c["keys"]["source_node"]] = relationship.start_node[
-            self._c["keys"]["yfiles_id"]
-        ]
-        result[self._c["keys"]["target_node"]] = relationship.end_node[
-            self._c["keys"]["yfiles_id"]
-        ]
 
         return result

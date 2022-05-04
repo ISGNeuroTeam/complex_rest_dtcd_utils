@@ -29,6 +29,7 @@ class TestNeo4jGraphView(APISimpleTestCase):
         define instructions that will be executed before each test method
         """
 
+        # TODO add graph clear
         self.url = reverse('dtcd_server:graph')
         self.data = fixtures.generate_data()['data']
         fixtures.sort_payload(self.data)
@@ -45,7 +46,6 @@ class TestNeo4jGraphView(APISimpleTestCase):
         fixtures.sort_payload(freshdata)
         self.assertEqual(self.data, freshdata)
 
-    @unittest.expectedFailure
     def test_post_get_duplicated_edge(self):
         data = {
             "nodes": [{"primitiveID": "france"}, {"primitiveID": "spain"}],
@@ -53,17 +53,18 @@ class TestNeo4jGraphView(APISimpleTestCase):
                 {
                     "sourceNode": "france",
                     "targetNode": "spain",
-                    "sourcePort": "paris",
-                    "targetPort": "madrid"},
+                    "sourcePort": "lyon",
+                    "targetPort": "barcelona"},
                 {
                     "sourceNode": "france",
                     "targetNode": "spain",
-                    "sourcePort": "lyon",
-                    "targetPort": "barcelona"}]
+                    "sourcePort": "paris",
+                    "targetPort": "madrid"},
+            ]
         }
+        fixtures.sort_payload(data)
         # post
         response = self.client.post(self.url, data={'graph': data}, format='json')
-        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # get
@@ -73,7 +74,6 @@ class TestNeo4jGraphView(APISimpleTestCase):
         fixtures.sort_payload(freshdata)
         self.assertEqual(data, freshdata)
 
-    @unittest.expectedFailure
     @tag('slow')
     def test_post_get_large(self):
         with open(FIXTURES_DIR / "graph-sample-large.json") as f:

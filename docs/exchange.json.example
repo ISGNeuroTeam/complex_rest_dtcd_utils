@@ -1,15 +1,10 @@
 {
     "keys": {
         "edges": "edges",
-        "nodes": "nodes",
-        "source_node": "sourceNode",
-        "target_node": "targetNode",
-        "yfiles_id": "primitiveID"
+        "nodes": "nodes"
     },
     "labels": {
-        "root": "Root"
-    },
-    "types": {
-        "edge": "EDGE"
+        "edge": "Edge",
+        "node": "Node"
     }
 }
