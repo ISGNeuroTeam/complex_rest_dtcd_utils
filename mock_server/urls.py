@@ -5,6 +5,7 @@ from .views.graph import Graph
 from .views.workspace import Workspace
 from .views.page import PageView
 from .views.user import UserView
+from .views.change_password import ChPassView
 from django.urls import re_path
 from django.urls import path
 
@@ -25,4 +26,5 @@ urlpatterns = [
     re_path(r'^graphContent/object/?$', Graph.as_view()),
     path('page/<str:pagename>', PageView.as_view()),
     re_path(r'^user/?$', UserView.as_view()),
+    re_path(r'^user/change-password?$', ChPassView.as_view()),
 ]
