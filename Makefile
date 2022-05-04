@@ -4,6 +4,7 @@ SHELL = /bin/bash
 plugin_name := dtcd_server
 build_dir := make_build
 plugin_dir := $(build_dir)/$(plugin_name)
+requirements_file := requirements.txt
 url_neo4j := https://neo4j.com/artifact.php?name=neo4j-community-4.4.6-unix.tar.gz
 # url_drive_neo4j := https://drive.google.com/uc?export=download&id=1YipGGkmYhEveSSJ4ZsPC0pIjxivBKxYu
 
@@ -44,6 +45,7 @@ make_build: venv.tar.gz
 	# copy configuration files
 	rm $(plugin_dir)/{serialization,exchange}.json $(plugin_dir)/*.conf
 	cp docs/dtcd_server.conf.example $(plugin_dir)/dtcd_server.conf
+	cp docs/log_configuration.json.example $(plugin_dir)/log_configuration.json
 	cp docs/serialization.json.example $(plugin_dir)/serialization.json
 	cp docs/exchange.json.example $(plugin_dir)/exchange.json
 #	cp docs/proc.conf.example $(plugin_dir)/proc.conf  # TODO deployment
@@ -61,7 +63,7 @@ clean_build: clean_venv
 venv:
 	conda create --copy -p ./venv -y
 	conda install -p ./venv python==3.9.7 -y
-	./venv/bin/pip install --no-input  -r requirements.txt
+	./venv/bin/pip install --no-input -r $(requirements_file)
 
 venv.tar.gz: venv
 	conda pack -p ./venv -o ./venv.tar.gz
