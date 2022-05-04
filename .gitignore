@@ -110,6 +110,8 @@ GitHub.sublime-settings
 
 # my stuff
 todo.md
+MakefileLocal
+requirements_local.txt
 
 start.sh
 stop.sh
