@@ -111,10 +111,9 @@ class UserView(APIView):
                 },
                 status.HTTP_200_OK
             )
-        else:
-            return Response(
-                {
-                    "message": "no changes made",
-                },
-                status.HTTP_304_NOT_MODIFIED
-            )
+        return Response(
+            {
+                "message": "no changes made",
+            },
+            status.HTTP_400_BAD_REQUEST
+        )
