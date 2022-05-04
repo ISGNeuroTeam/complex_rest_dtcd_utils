@@ -116,9 +116,9 @@ requirements_local.txt
 start.sh
 stop.sh
 dtcd_server-*.tar.gz
-dtcd_server.conf
-serialization.json
-exchange.json
+# symlinks to config files in plugin directory
+dtcd_server/*.conf
+dtcd_server/*.json
 venv.tar.gz
 
 nginx/
