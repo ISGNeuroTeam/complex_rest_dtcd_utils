@@ -3,22 +3,43 @@ from rest.response import Response, status
 from rest.permissions import IsAuthenticated
 
 
+def pick_attribute(user, k) -> str:
+    if k == 'id':
+        return user.id
+    if k == 'username':
+        return user.username
+    if k == 'firstName':
+        return user.first_name
+    if k == 'lastName':
+        return user.last_name
+    if k == 'email':
+        return user.email
+    if k == 'phone':
+        return user.phone
+    return user.photo
+
+
 class UserView(APIView):
     permission_classes = (IsAuthenticated,)
     user_fields = {"username", "firstName", "lastName", "email", "phone", "photo"}
 
     def get(self, request):
         """get current user info"""
+        if not request.query_params:
+            return Response(
+                {
+                    "id": request.user.id,
+                    "username": request.user.username,
+                    "firstName": request.user.first_name,
+                    "lastName": request.user.last_name,
+                    "email": request.user.email,
+                    "phone": request.user.phone,
+                    "photo": request.user.photo
+                },
+                status.HTTP_200_OK
+            )
         return Response(
-            {
-                "id": request.user.id,
-                "username": request.user.username,
-                "firstName": request.user.first_name,
-                "lastName": request.user.last_name,
-                "email": request.user.email,
-                "phone": request.user.phone,
-                "photo": request.user.photo
-            },
+            {k: pick_attribute(request.user, k) for k in request.query_params if k in self.user_fields or k == "id"},
             status.HTTP_200_OK
         )
 
@@ -39,6 +60,13 @@ class UserView(APIView):
                 status.HTTP_400_BAD_REQUEST
             )
         if "username" in user_info:
+            if not user_info["username"]:  # maybe it's better to change model
+                return Response(
+                    {
+                        "message": f"Username cannot be an empty string. No changes applied!",
+                    },
+                    status.HTTP_400_BAD_REQUEST
+                )
             if not has_changed:
                 has_changed = not request.user.username == user_info["username"]
             request.user.username = user_info["username"]
@@ -83,10 +111,9 @@ class UserView(APIView):
                 },
                 status.HTTP_200_OK
             )
-        else:
-            return Response(
-                {
-                    "message": "no changes made",
-                },
-                status.HTTP_304_NOT_MODIFIED
-            )
+        return Response(
+            {
+                "message": "no changes made",
+            },
+            status.HTTP_400_BAD_REQUEST
+        )
