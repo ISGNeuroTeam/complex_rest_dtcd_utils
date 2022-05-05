@@ -1,7 +1,7 @@
 from typing import Mapping
 
 from neotools.serializers import RecursiveSerializer
-from py2neo import Subgraph
+from py2neo_fixed import Subgraph
 
 from ..settings import SCHEMA
 

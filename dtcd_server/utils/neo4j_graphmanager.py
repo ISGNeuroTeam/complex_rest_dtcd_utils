@@ -1,4 +1,4 @@
-from py2neo import Graph, Subgraph
+from py2neo_fixed import Graph, Subgraph
 
 from .abc_graphmanager import AbstractGraphManager
 
