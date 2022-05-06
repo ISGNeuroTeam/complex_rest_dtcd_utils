@@ -38,6 +38,11 @@ class Neo4jGraphManager(AbstractGraphManager):
     def remove(self, id):
         raise NotImplementedError  # TODO
 
+    def remove_all(self):
+        """Remove all nodes and relationships from this graph."""
+
+        self._graph.delete_all()
+
     def update(self, graph):
         raise NotImplementedError  # TODO
 

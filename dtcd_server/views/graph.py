@@ -13,7 +13,7 @@ logger = logging.getLogger('dtcd_server')
 
 class Neo4jGraph(APIView):
     permission_classes = (AllowAny,)
-    http_method_names = ["get", "post"]
+    http_method_names = ["get", "post", "delete"]
     graph_manager = Neo4jGraphManager(
         settings.NEO4J['uri'],
         settings.NEO4J['name'],
@@ -65,3 +65,10 @@ class Neo4jGraph(APIView):
             else:
                 # TODO structure of response?
                 return SuccessResponse(http_status=status.HTTP_201_CREATED)
+
+    def delete(self, request: Request):
+        """Delete a fragment."""
+
+        self.graph_manager.remove_all()
+
+        return SuccessResponse(http_status=status.HTTP_200_OK)
