@@ -94,17 +94,23 @@ def generate_data():
     n2_has_ports = Relationship(n2, 'HAS_ATTRIBUTE', ports, _key='initPorts')
     n3 = Node('Node', primitiveID="n3")
     n4 = Node('Node', primitiveID="n4")
-    n1_n2 = Node('Edge', sourceNode='n1', targetNode='n2', sourcePort="p1", targetPort="p3")
-    n1_n3 = Node('Edge', sourceNode='n1', targetNode='n3', sourcePort="p2", targetPort="p4")
-    n3_n4 = Node('Edge', sourceNode='n3', targetNode='n4',  sourcePort="p5", targetPort="p6")
+    e1 = Node('Edge', sourceNode='n1', targetNode='n2', sourcePort="p1", targetPort="p3")
+    n1_e1 = Relationship(n1, 'OUT', e1)
+    e1_n2 = Relationship(e1, 'IN', n2)
+    e2 = Node('Edge', sourceNode='n1', targetNode='n3', sourcePort="p2", targetPort="p4")
+    n1_e2 = Relationship(n1, 'OUT', e2)
+    e2_n3 = Relationship(e2, 'IN', n3)
+    e3 = Node('Edge', sourceNode='n3', targetNode='n4',  sourcePort="p5", targetPort="p6")
+    n3_e3 = Relationship(n3, 'OUT', e3)
+    e3_n4 = Relationship(e3, 'IN', n4)
     subgraph = (
         n1_has_attr
         | ports_contains_item0
         | n2_has_ports
         | n3
         | n4
-        | n1_n2
-        | n1_n3
-        | n3_n4)
+        | n1_e1 | e1_n2
+        | n1_e2 | e2_n3
+        | n3_e3 | e3_n4)
 
     return {'data': data, 'subgraph': subgraph}

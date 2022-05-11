@@ -1,7 +1,7 @@
 from typing import Mapping
 
 from neotools.serializers import RecursiveSerializer
-from py2neo import Subgraph
+from py2neo import Relationship, Subgraph
 
 from ..settings import SCHEMA
 
@@ -23,6 +23,7 @@ class SubgraphSerializer:
 
         subgraph = Subgraph()
         serializer = RecursiveSerializer(config=self._c)
+        id2node = {}
 
         # yfiles nodes
         for node_dict in data[self._c["keys"]["nodes"]]:
@@ -31,12 +32,23 @@ class SubgraphSerializer:
             tree.root.add_label(self._c["labels"]["node"])
             # save nodes & rels created
             subgraph |= tree.subgraph
+            # remember the root to link with edges later
+            node_id = tree.root[self._c["keys"]["yfiles_id"]]
+            id2node[node_id] = tree.root
 
         # yfiles edges
         for rel_dict in data[self._c["keys"]["edges"]]:
             tree = serializer.load(rel_dict)
             tree.root.add_label(self._c["labels"]["edge"])
             subgraph |= tree.subgraph
+            # link the edge with src and tgt nodes
+            # TODO what happens if src / tgt node ids are not in nodes?
+            e = tree.root
+            src = id2node[e[self._c["keys"]["source_node"]]]
+            tgt = id2node[e[self._c["keys"]["target_node"]]]
+            r1 = Relationship(src, self._c["types"]["out"], e)
+            r2 = Relationship(e, self._c["types"]["in"], tgt)
+            subgraph |= r1 | r2
 
         return subgraph
 
