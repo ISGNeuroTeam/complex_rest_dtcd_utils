@@ -1,4 +1,4 @@
-from py2neo import Graph, Subgraph
+from py2neo import Graph, Relationship, Subgraph
 
 from .abc_graphmanager import AbstractGraphManager
 
@@ -18,22 +18,28 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         # TODO set artificial limit on number of nodes and rels returned
         tx = self._graph.begin(readonly=True)
-        # TODO replace with single statement?
         nodes_cursor = tx.run('MATCH (n) RETURN n')
-        rels_cursor = tx.run('MATCH ()-[r]->() RETURN r')
+        rels_cursor = tx.run(
+            "MATCH () -[r]-> () "
+            "RETURN id(startNode(r)) AS start_id, id(endNode(r)) AS end_id, "
+            "type(r) AS `type`, properties(r) AS `properties`")
         self._graph.commit(tx)
 
         # FIXME py2neo bug in Nodes.__hash__ logic
-        nodes_subgraph = nodes_cursor.to_subgraph()
-        rels_subgraph = rels_cursor.to_subgraph()
+        id2node = {
+            record['n'].identity: record['n']
+            for record in nodes_cursor
+        }
 
-        result = Subgraph()
-        if nodes_subgraph is not None:
-            result |= nodes_subgraph
-        if rels_subgraph is not None:
-            result |= rels_subgraph
+        relationships = []
+        for record in rels_cursor:
+            start_node = id2node[record['start_id']]
+            end_node = id2node[record['end_id']]
+            t = record['type']
+            properties = record.get('properties', {})
+            relationships.append(Relationship(start_node, t, end_node, **properties))
 
-        return result
+        return Subgraph(id2node.values(), relationships)
 
     def remove(self, id):
         raise NotImplementedError  # TODO

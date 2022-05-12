@@ -114,6 +114,7 @@ class TestNeo4jGraphView(APISimpleTestCase):
     def test_post_get_many_times_large_graph(self):
         with open(FIXTURES_DIR / "graph-sample-large.json") as f:
             data = json.load(f)
+        fixtures.sort_payload(data)
 
         for i in range(N):
             self.maxDiff = None  # to see full difference
