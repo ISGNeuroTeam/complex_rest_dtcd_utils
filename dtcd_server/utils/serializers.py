@@ -21,7 +21,7 @@ class SubgraphSerializer:
         See https://py2neo.org/2021.1/data/index.html#py2neo.data.Node.
         """
 
-        subgraph = Subgraph()
+        nodes, rels = [], []
         serializer = RecursiveSerializer(config=self._c)
         id2node = {}
 
@@ -31,7 +31,8 @@ class SubgraphSerializer:
             tree = serializer.load(node_dict)
             tree.root.add_label(self._c["labels"]["node"])
             # save nodes & rels created
-            subgraph |= tree.subgraph
+            nodes.extend(tree.subgraph.nodes)
+            rels.extend(tree.subgraph.relationships)
             # remember the root to link with edges later
             node_id = tree.root[self._c["keys"]["yfiles_id"]]
             id2node[node_id] = tree.root
@@ -40,7 +41,8 @@ class SubgraphSerializer:
         for rel_dict in data[self._c["keys"]["edges"]]:
             tree = serializer.load(rel_dict)
             tree.root.add_label(self._c["labels"]["edge"])
-            subgraph |= tree.subgraph
+            nodes.extend(tree.subgraph.nodes)
+            rels.extend(tree.subgraph.relationships)
             # link the edge with src and tgt nodes
             # TODO what happens if src / tgt node ids are not in nodes?
             e = tree.root
@@ -48,9 +50,9 @@ class SubgraphSerializer:
             tgt = id2node[e[self._c["keys"]["target_node"]]]
             r1 = Relationship(src, self._c["types"]["out"], e)
             r2 = Relationship(e, self._c["types"]["in"], tgt)
-            subgraph |= r1 | r2
+            rels.extend((r1, r2))
 
-        return subgraph
+        return Subgraph(nodes, rels)
 
     def dump(self, subgraph: Subgraph) -> dict:
         """Dump the subgraph to a dictionary.
