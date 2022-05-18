@@ -39,10 +39,9 @@ Example of a valid node object
 
 ## Edges
 
-`edges` is an array of objects which represent edges. 
+`edges` is an array of objects which represent edges.
 
-- Each object is a *flat mapping*: it can contain a variable amount of keys, but the values must be **non-nested**.
-- Every edge object **must** have `sourceNode` and `targetNode` keys corresponding to valid node object IDs.
+Every edge object **must** have `sourceNode` and `targetNode` keys corresponding to valid node object IDs.
 
 Example of a valid edge object
 
