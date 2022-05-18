@@ -33,12 +33,6 @@ These instructions will get you a copy of the project up and running on your loc
 * Make symlink for `./dtcd_server/dtcd_server` in plugins directory.
 * Run complex rest server.
 
-## Running the tests
-Run all tests:
-```bash
-python ./complex_rest/manage.py test ./plugin_dev/dtcd_server/tests --settings=core.settings.test
-```
-
 ## Deployment
 
 * Make plugin archive:
