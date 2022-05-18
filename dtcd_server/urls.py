@@ -9,14 +9,6 @@ from .views.change_password import ChPassView
 from django.urls import re_path
 from django.urls import path
 
-__author__ = "Ilia Sagaidak"
-__copyright__ = "Copyright 2021, ISG Neuro"
-__credits__ = []
-__license__ = ""
-__version__ = "0.1.0"
-__maintainer__ = "Ilia Sagaidak"
-__email__ = "isagaidak@isgneuro.com"
-__status__ = "Dev"
 
 app_name = 'dtcd_server'
 urlpatterns = [
