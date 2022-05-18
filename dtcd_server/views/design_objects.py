@@ -5,15 +5,15 @@ from pathlib import Path
 import json
 import logging
 
-logger = logging.getLogger('mock_server')
+logger = logging.getLogger('dtcd_server')
 
 
-class DependenceList(APIView):
+class DesignObjects(APIView):
     permission_classes = (AllowAny,)
     http_method_names = ['get']
 
     def get(self, request):
-        with open(Path(__file__).parent / "../dependencies/manifest.json", "r") as file:
+        with open(Path(__file__).parent / "../Design_objects.json", "r") as file:
             data = json.load(file)
         return Response(
             data,

@@ -5,7 +5,7 @@ from rest.permissions import AllowAny
 from pathlib import Path
 import logging
 
-logger = logging.getLogger('mock_server')
+logger = logging.getLogger('dtcd_server')
 
 
 class ReadHTML(APIView):

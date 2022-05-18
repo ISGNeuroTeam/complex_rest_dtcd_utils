@@ -6,7 +6,7 @@ from pathlib import Path
 import json
 import logging
 
-logger = logging.getLogger('mock_server')
+logger = logging.getLogger('dtcd_server')
 
 
 class LogsView(APIView):

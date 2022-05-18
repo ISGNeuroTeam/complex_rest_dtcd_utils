@@ -2,4 +2,4 @@
         "GlobalLogLevel": "fatal",
         "BufferSize": 10000,
         "SendInterval": 150
- }
+}

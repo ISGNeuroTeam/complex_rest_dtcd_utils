@@ -1,6 +1,12 @@
-
 #.SILENT:
 SHELL = /bin/bash
+
+plugin_name := dtcd_server
+build_dir := make_build
+plugin_dir := $(build_dir)/$(plugin_name)
+requirements_file := requirements.txt
+url_neo4j := https://neo4j.com/artifact.php?name=neo4j-community-4.4.6-unix.tar.gz
+# url_drive_neo4j := https://drive.google.com/uc?export=download&id=1YipGGkmYhEveSSJ4ZsPC0pIjxivBKxYu
 
 
 all:
@@ -8,7 +14,7 @@ all:
  build - build project into build directory, with configuration file and environment\n\
  clean - clean all addition file, build directory and output archive file\n\
  test - run all tests\n\
- pack - make output archive, file name format \"mock_server_vX.Y.Z_BRANCHNAME.tar.gz\"\n\
+ pack - make output archive, file name format \"$(plugin_name)_vX.Y.Z_BRANCHNAME.tar.gz\"\n\
 Addition section:\n\
  venv\n\
 "
@@ -21,40 +27,43 @@ SET_BRANCH = $(eval BRANCH=$(GENERATE_BRANCH))
 pack: make_build
 	$(SET_VERSION)
 	$(SET_BRANCH)
-	rm -f mock_server-*.tar.gz
-	echo Create archive \"mock_server-$(VERSION)-$(BRANCH).tar.gz\"
-	cd make_build; tar czf ../mock_server-$(VERSION)-$(BRANCH).tar.gz mock_server
+	rm -f $(plugin_name)-*.tar.gz
+	cd $(build_dir); tar czf ../$(plugin_name)-$(VERSION)-$(BRANCH).tar.gz $(plugin_name)
 
-clean_pack:
-	rm -f mock_server-*.tar.gz
+clean_pack: clean_build
+	rm -f $(plugin_name)-*.tar.gz
 
-
-mock_server.tar.gz: build
-	cd make_build; tar czf ../mock_server.tar.gz mock_server && rm -rf ../make_build
+dtcd_server.tar.gz: build
+	cd $(build_dir); tar czf ../$(plugin_name).tar.gz $(plugin_name) && rm -rf ../$(build_dir)
 
 build: make_build
 
 make_build: venv.tar.gz
-	# required section
-	echo make_build
-	mkdir make_build
+	mkdir $(build_dir)
+	cp -r $(plugin_name) $(build_dir)
 
-	cp -R ./mock_server make_build
-	rm -f make_build/mock_server/mock_server.conf
-	mv make_build/mock_server/mock_server.conf.example make_build/mock_server/mock_server.conf
-	cp *.md make_build/mock_server/
-	cp *.py make_build/mock_server/
-	mkdir make_build/mock_server/venv
-	tar -xzf ./venv.tar.gz -C make_build/mock_server/venv
+	# copy configuration files
+	rm $(plugin_dir)/{serialization,exchange}.json $(plugin_dir)/*.conf
+	cp docs/dtcd_server.conf.example $(plugin_dir)/dtcd_server.conf
+	cp docs/log_configuration.json.example $(plugin_dir)/log_configuration.json
+	cp docs/serialization.json.example $(plugin_dir)/serialization.json
+	cp docs/exchange.json.example $(plugin_dir)/exchange.json
+#	cp docs/proc.conf.example $(plugin_dir)/proc.conf  # TODO deployment
 
-clean_build:
-	rm -rf make_build
+	cp *.md $(plugin_dir)
+	cp *.py $(plugin_dir)
+
+	# virtual environment
+	mkdir $(plugin_dir)/venv
+	tar -xzf ./venv.tar.gz -C $(plugin_dir)/venv
+
+clean_build: clean_venv
+	rm -rf $(build_dir)
 
 venv:
-	echo Create venv
 	conda create --copy -p ./venv -y
 	conda install -p ./venv python==3.9.7 -y
-	./venv/bin/pip install --no-input  -r requirements.txt
+	./venv/bin/pip install --no-input -r $(requirements_file)
 
 venv.tar.gz: venv
 	conda pack -p ./venv -o ./venv.tar.gz
@@ -63,17 +72,16 @@ clean_venv:
 	rm -rf venv
 	rm -f ./venv.tar.gz
 
-
 complex_rest:
 	@echo "Should clone complex_rest repository in future..."
 # 	git clone git@github.com:ISGNeuroTeam/complex_rest.git
 # 	{ cd ./complex_rest; git checkout develop; make venv; make redis; }
-# 	ln -s ../../../../mock_server/mock_server ./complex_rest/complex_rest/plugins/mock_server
+# 	ln -s ../../../../dtcd_server/dtcd_server ./complex_rest/complex_rest/plugins/dtcd_server
 
 clean_complex_rest:
 ifneq (,$(wildcard ./complex_rest))
 	{ cd ./complex_rest; make clean;}
-	rm -f ./complex_rest/plugins/mock_server
+	rm -f ./complex_rest/plugins/dtcd_server
 	rm -rf ./complex_rest
 endif
 
@@ -85,9 +93,3 @@ test: venv complex_rest
 
 clean_test: clean_complex_rest
 	@echo "Clean tests"
-
-
-
-
-
-
