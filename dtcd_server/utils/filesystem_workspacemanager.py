@@ -16,7 +16,8 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
 
     def _get_workspace_list(self):
         list_dir_workspaces = os.listdir(self.final_path)
-        list_dir_workspaces.remove(".gitkeep")
+        if ".gitkeep" in list_dir_workspaces:
+            list_dir_workspaces.remove(".gitkeep")
         if ".DS_Store" in list_dir_workspaces:
             list_dir_workspaces.remove(".DS_Store")
 
