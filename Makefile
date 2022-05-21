@@ -51,6 +51,12 @@ make_build: venv.tar.gz
 	cp docs/exchange.json.example $(plugin_dir)/exchange.json
 #	cp docs/proc.conf.example $(plugin_dir)/proc.conf  # TODO deployment
 
+    mkdir $(plugin_dir)/tmp
+    mkdir $(plugin_dir)/pages
+    mkdir $(plugin_dir)/plugins
+    mkdir $(plugin_dir)/public
+    mkdir $(plugin_dir)/workspaces
+
 	cp *.md $(plugin_dir)
 	cp *.py $(plugin_dir)
 
