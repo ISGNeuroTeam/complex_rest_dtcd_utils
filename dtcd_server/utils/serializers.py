@@ -5,6 +5,9 @@ from py2neo import Node, Relationship, Subgraph
 
 from ..settings import SCHEMA
 
+# TODO replace after neotools refactor
+Tree = RecursiveSerializer.Tree
+
 
 class SubgraphSerializer:
     """ADT for data serialization to/from specified exchange formats."""
@@ -13,7 +16,7 @@ class SubgraphSerializer:
         self._c = config
         self._loader = RecursiveSerializer(config=config)
 
-    def _load_data(self, data: dict) -> RecursiveSerializer.Tree:
+    def _load_data(self, data: dict) -> Tree:
         """Recursively construct a tree from data."""
 
         tree = self._loader.load(data)
@@ -21,7 +24,7 @@ class SubgraphSerializer:
 
         return tree
 
-    def _load_entity(self, data: dict) -> RecursiveSerializer.Tree:
+    def _load_entity(self, data: dict) -> Tree:
         """Recursively construct entity tree."""
 
         # create root Entity node
@@ -34,7 +37,19 @@ class SubgraphSerializer:
         type_ = self._c["types"]["has_data"]
         r = Relationship(root, type_, data_tree.root)
 
-        return RecursiveSerializer.Tree(root, data_tree.subgraph | r)
+        return Tree(root, data_tree.subgraph | r)
+
+    def _load_vertex(self, vertex_dict: dict) -> Tree:
+        """Recursively construct vertex tree."""
+
+        tree = self._load_entity(vertex_dict)
+        # remember vertex id on root Entity node
+        id_key = self._c["keys"]["yfiles_id"]
+        tree.root[id_key] = vertex_dict[id_key]
+        # add Vertex label
+        tree.root.add_label(self._c["labels"]["node"])
+
+        return tree
 
     def load(self, data: dict) -> Subgraph:
         """Create a subgraph from data.
@@ -52,13 +67,12 @@ class SubgraphSerializer:
         # yfiles nodes
         for node_dict in data[self._c["keys"]["nodes"]]:
             # (recursively) construct root node and its (nested) properties
-            tree = serializer.load(node_dict)
-            tree.root.add_label(self._c["labels"]["node"])
+            tree = self._load_vertex(node_dict)
             # save nodes & rels created
             nodes.extend(tree.subgraph.nodes)
             rels.extend(tree.subgraph.relationships)
             # remember the root to link with edges later
-            node_id = tree.root[self._c["keys"]["yfiles_id"]]
+            node_id = node_dict[self._c["keys"]["yfiles_id"]]
             id2node[node_id] = tree.root
 
         # yfiles edges
