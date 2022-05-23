@@ -1,7 +1,7 @@
 from typing import Mapping
 
 from neotools.serializers import RecursiveSerializer
-from py2neo import Relationship, Subgraph
+from py2neo import Node, Relationship, Subgraph
 
 from ..settings import SCHEMA
 
@@ -20,6 +20,21 @@ class SubgraphSerializer:
         tree.root.add_label(self._c["labels"]["data"])
 
         return tree
+
+    def _load_entity(self, data: dict) -> RecursiveSerializer.Tree:
+        """Recursively construct entity tree."""
+
+        # create root Entity node
+        root = Node(self._c["labels"]["entity"])
+
+        # load data for this entity
+        data_tree = self._load_data(data)
+
+        # link data to root node
+        type_ = self._c["types"]["has_data"]
+        r = Relationship(root, type_, data_tree.root)
+
+        return RecursiveSerializer.Tree(root, data_tree.subgraph | r)
 
     def load(self, data: dict) -> Subgraph:
         """Create a subgraph from data.

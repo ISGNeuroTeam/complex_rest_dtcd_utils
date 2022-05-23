@@ -84,6 +84,7 @@ def generate_data():
         ]
     }
 
+    # TODO replace with values from config
     n1 = Node('Node', '_Composite', primitiveID="n1")
     attr = Node('_Attribute', x=0, y=0)
     n1_has_attr = Relationship(n1, 'HAS_ATTRIBUTE', attr, _key='layout')
