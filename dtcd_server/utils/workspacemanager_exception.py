@@ -9,6 +9,8 @@ SLASHES_IN_DIR_NAME = 7
 PATH_WITH_DOTS = 8
 EMPTY_DIR_NAME = 9
 DIR_WITH_DOTS = 10
+NO_DIR_NAME = 11
+NEW_PATH_EQ_OLD_PATH = 12
 
 
 class WorkspaceManagerException(Exception):
@@ -34,4 +36,8 @@ class WorkspaceManagerException(Exception):
             msg = f"paths with '/../' and '//' are not allowed. The path was: {args[0]}"
         elif problem == EMPTY_DIR_NAME:
             msg = 'Empty dir name provided'
+        elif problem == NO_DIR_NAME:
+            msg = 'Dir name not provided'
+        elif problem == NEW_PATH_EQ_OLD_PATH:
+            msg = f'new path and old path are the same. The path was: {args[0]}'
         super().__init__(msg)

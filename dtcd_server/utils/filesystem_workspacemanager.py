@@ -67,7 +67,7 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
         return directories
 
     def read(self, id, *args, **kwargs):
-        workspaces = self._get_workspace_list(kwargs['workspace_path'])
+        workspaces = self._get_workspace_list(kwargs.get('workspace_path', ''))
         try:
             workspace = next(conf for conf in workspaces if conf["id"] == id)
         except StopIteration:
@@ -76,7 +76,7 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
 
     def read_dir(self, dir, *args, **kwargs):
         self._validate_dir_name(dir)
-        directories = self._get_directories_list(kwargs['workspace_path'])
+        directories = self._get_directories_list(kwargs.get('workspace_path', ''))
         try:
             directory = next(conf for conf in directories if conf["name"] == dir)
         except StopIteration:
@@ -84,7 +84,7 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
         return directory
 
     def read_all(self, *args, **kwargs):
-        workspaces = self._get_workspace_list(kwargs['workspace_path'])
+        workspaces = self._get_workspace_list(kwargs.get('workspace_path', ''))
         return list(map(lambda conf: {
             'id': conf['id'],
             'title': conf['title'],
@@ -93,10 +93,10 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
         }, workspaces))
 
     def read_all_dir(self, *args, **kwargs):
-        return self._get_directories_list(kwargs['workspace_path'])
+        return self._get_directories_list(kwargs.get('workspace_path', ''))
 
     def write(self, conf, *args, **kwargs):
-        full_path = self._get_full_path(kwargs['workspace_path'])
+        full_path = self._get_full_path(kwargs.get('workspace_path', ''))
         unique_id = str(uuid.uuid4())
         conf["id"] = unique_id
         with open(self.tmp_path, "w") as file:
@@ -104,12 +104,14 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
         os.rename(self.tmp_path, full_path / f"{unique_id}.json")  # atomic operation
 
     def write_dir(self, conf, *args, **kwargs):
+        if 'name' not in conf:
+            raise WorkspaceManagerException(workspacemanager_exception.NO_DIR_NAME)
         self._validate_dir_name(conf['name'])
-        full_path = self._get_full_path(kwargs['workspace_path'])
+        full_path = self._get_full_path(kwargs.get('workspace_path', ''))
         os.mkdir(full_path / conf['name'])  # atomic operation
 
     def update(self, conf, *args, **kwargs):
-        full_path = self._get_full_path(kwargs['workspace_path'])
+        full_path = self._get_full_path(kwargs.get('workspace_path', ''))
         if 'id' not in conf:
             raise WorkspaceManagerException(workspacemanager_exception.NO_ID)
         file_list = os.listdir(full_path)
@@ -132,16 +134,18 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
         raise WorkspaceManagerException(workspacemanager_exception.NO_WORKSPACE, file_name)
 
     def update_dir(self, conf, *args, **kwargs):
-        full_path = self._get_full_path(kwargs['workspace_path'])
-        if 'old_name' not in conf:
+        full_path = self._get_full_path(kwargs.get('workspace_path', ''))
+        if 'old_name' not in conf or not conf['old_name']:
             raise WorkspaceManagerException(workspacemanager_exception.NO_OLD_DIR_NAME)
-        if 'new_name' not in conf and 'new_path' not in conf:
+        if ('new_name' not in conf or not conf['new_name']) and 'new_path' not in conf:
             raise WorkspaceManagerException(workspacemanager_exception.NO_NEW_DIR_NAME)
         if 'new_path' not in conf:
             self._validate_dir_name(conf['new_name'])
             os.rename(full_path / conf['old_name'], full_path / conf['new_name'])
             return str(full_path / conf['new_name'])
         else:
+            if conf['new_path'] == kwargs.get('workspace_path', ''):
+                raise WorkspaceManagerException(workspacemanager_exception.NEW_PATH_EQ_OLD_PATH, conf['new_path'])
             new_path = Path(self.final_path) / conf['new_path']
             if not new_path.exists():
                 raise WorkspaceManagerException(workspacemanager_exception.INVALID_PATH, new_path)
@@ -149,7 +153,7 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
             return str(new_path / conf['old_name'])
 
     def remove(self, id, *args, **kwargs):
-        full_path = self._get_full_path(kwargs['workspace_path'])
+        full_path = self._get_full_path(kwargs.get('workspace_path', ''))
         file_list = os.listdir(full_path)
         file_name = f"{id}.json"
         if file_name in file_list:
@@ -159,7 +163,7 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
 
     def remove_dir(self, dir, *args, **kwargs):
         self._validate_dir_name(dir)
-        full_path = self._get_full_path(kwargs['workspace_path'])
+        full_path = self._get_full_path(kwargs.get('workspace_path', ''))
         file_list = os.listdir(full_path)
         if dir in file_list:
             rmtree(full_path / dir)
