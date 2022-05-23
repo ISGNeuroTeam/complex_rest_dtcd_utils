@@ -7,6 +7,8 @@ NO_OLD_DIR_NAME = 5
 NO_NEW_DIR_NAME = 6
 SLASHES_IN_DIR_NAME = 7
 PATH_WITH_DOTS = 8
+EMPTY_DIR_NAME = 9
+DIR_WITH_DOTS = 10
 
 
 class WorkspaceManagerException(Exception):
@@ -30,4 +32,6 @@ class WorkspaceManagerException(Exception):
             msg = f'slashes in dir name are not allowed. The name was: {args[0]}'
         elif problem == PATH_WITH_DOTS:
             msg = f"paths with '/../' and '//' are not allowed. The path was: {args[0]}"
+        elif problem == EMPTY_DIR_NAME:
+            msg = 'Empty dir name provided'
         super().__init__(msg)

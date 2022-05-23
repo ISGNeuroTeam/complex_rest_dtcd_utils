@@ -1,4 +1,9 @@
 ## [unreleased]
+
+### Added
+- Workspaces can now be organized in directories. 
+- Creation and modification time are added to workspaces and directories for sorting reasons
+
 ### Fixed
 - .gitkeep absence now doesn't error out when listing plugins and workspaces
 
