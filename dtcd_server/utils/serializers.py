@@ -11,6 +11,15 @@ class SubgraphSerializer:
 
     def __init__(self, config: Mapping[str, Mapping[str, str]] = SCHEMA) -> None:
         self._c = config
+        self._loader = RecursiveSerializer(config=config)
+
+    def _load_data(self, data: dict) -> RecursiveSerializer.Tree:
+        """Recursively construct a tree from data."""
+
+        tree = self._loader.load(data)
+        tree.root.add_label(self._c["labels"]["data"])
+
+        return tree
 
     def load(self, data: dict) -> Subgraph:
         """Create a subgraph from data.

@@ -14,6 +14,23 @@ FIXTURES_DIR = TEST_DIR / "fixtures"
 
 class TestSubgraphSerializer(unittest.TestCase):
 
+    def test_load_data(self):
+        data = {
+            "name": "amy",
+            "online": True,
+            "address": ["bob", "dan"],
+            "layout": {
+                "x": 0,
+                "y": 0
+            }
+        }
+
+        serializer = SubgraphSerializer()
+        tree = serializer._load_data(data)
+        self.assertEqual(len(tree.subgraph.nodes), 2)
+        self.assertEqual(len(tree.subgraph.relationships), 1)
+        self.assertTrue(tree.root.has_label("_Data"))
+
     def test_load(self):
         data = fixtures.generate_data()['data']
         serializer = SubgraphSerializer()
