@@ -149,6 +149,8 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
             new_path = Path(self.final_path) / conf['new_path']
             if not new_path.exists():
                 raise WorkspaceManagerException(workspacemanager_exception.INVALID_PATH, new_path)
+            if full_path / conf['old_name'] in new_path.parents:
+                raise WorkspaceManagerException(workspacemanager_exception.MOVING_DIR_INSIDE_ITSELF, full_path, new_path)
             os.rename(full_path / conf['old_name'], new_path / conf['old_name'])
             return str(new_path / conf['old_name'])
 

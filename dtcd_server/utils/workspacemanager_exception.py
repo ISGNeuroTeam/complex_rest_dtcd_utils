@@ -11,6 +11,7 @@ EMPTY_DIR_NAME = 9
 DIR_WITH_DOTS = 10
 NO_DIR_NAME = 11
 NEW_PATH_EQ_OLD_PATH = 12
+MOVING_DIR_INSIDE_ITSELF = 13
 
 
 class WorkspaceManagerException(Exception):
@@ -40,4 +41,6 @@ class WorkspaceManagerException(Exception):
             msg = 'Dir name not provided'
         elif problem == NEW_PATH_EQ_OLD_PATH:
             msg = f'new path and old path are the same. The path was: {args[0]}'
+        elif problem == MOVING_DIR_INSIDE_ITSELF:
+            msg = f'Trying to move dir inside itself: {args[0]} -> {args[1]}'
         super().__init__(msg)

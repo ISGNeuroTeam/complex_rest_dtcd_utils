@@ -389,7 +389,7 @@ class TestWorkspaceDir(TransactionTestCase):
     def test_move_inside_itself(self):
         try:
             self.fsw_manager.update_dir({'old_name': 'parent1', 'new_path': 'parent1/child1'}, workspace_path='')
-        except:
+        except WorkspaceManagerException as e:
             self.assertTrue(True)
             return
         self.assertTrue(False)
