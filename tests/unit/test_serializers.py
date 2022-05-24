@@ -46,7 +46,7 @@ class TestSubgraphSerializer(unittest.TestCase):
         self.assertEqual(len(tree.subgraph.nodes), 3)
         self.assertEqual(len(tree.subgraph.relationships), 2)
         self.assertTrue(tree.root.has_label("_Entity"))
-        self.assertIn("HAS_DATA", {type(r).__name__ for r in tree.subgraph.relationships})
+        self.assertIn("HAS_DATA", tree.subgraph.types())
 
     def test_load_vertex(self):
         data = {
@@ -104,7 +104,6 @@ class TestSubgraphSerializer(unittest.TestCase):
         self.assertEqual(len(subgraph.nodes), 19)
         self.assertEqual(len(subgraph.relationships), 18)
 
-    @unittest.skip("not ready")
     def test_dump(self):
         d = fixtures.generate_data()
         data = d['data']

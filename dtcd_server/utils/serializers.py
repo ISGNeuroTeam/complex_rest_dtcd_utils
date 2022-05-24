@@ -119,18 +119,35 @@ class SubgraphSerializer:
         """
 
         # TODO subgraphs of incorrect format (missing VERTEX nodes / EDGE rels)
-        nodes, edges = [], []
+        vertices, edges = [], []
 
-        for n in subgraph.nodes:
-            if n.has_label(self._c["labels"]["node"]):
-                nodes.append(n)
-            elif n.has_label(self._c["labels"]["edge"]):
-                edges.append(n)
+        # TODO better way to recursively re-construct initial dict from data?
 
+        # look for rels between entity roots and data nodes
+        # O(r), where r is rel count
+        for r in subgraph.relationships:
+            start = r.start_node  # entity tree root
+            end = r.end_node  # data tree root
+
+            # make sure this is a rel between entity root and its data tree
+            if not (
+                start.has_label(self._c["labels"]["entity"])
+                and end.has_label(self._c["labels"]["data"])
+            ):
+                continue
+
+            # put data tree root into corresp. (vertex / edge) list
+            if start.has_label(self._c["labels"]["node"]):
+                vertices.append(end)
+            elif start.has_label(self._c["labels"]["edge"]):
+                edges.append(end)
+
+        # O(n) + O(r), where n is node count and r is rel count
         serializer = RecursiveSerializer(subgraph=subgraph, config=self._c)
 
+        # around O(n)
         result = {
-            self._c["keys"]["nodes"]: [serializer.dump(n) for n in nodes],
+            self._c["keys"]["nodes"]: [serializer.dump(n) for n in vertices],
             self._c["keys"]["edges"]: [serializer.dump(e) for e in edges],
         }
 

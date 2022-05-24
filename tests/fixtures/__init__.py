@@ -85,33 +85,69 @@ def generate_data():
     }
 
     # TODO replace with values from config
-    n1 = Node('Node', '_Composite', primitiveID="n1")
+    n1 = Node('Node', '_Entity', primitiveID="n1")  # root
+    # data tree
+    n1d = Node('_Data', '_Composite', primitiveID="n1")
     attr = Node('_Attribute', x=0, y=0)
-    n1_has_attr = Relationship(n1, 'HAS_ATTRIBUTE', attr, _key='layout')
-    n2 = Node('Node', '_Composite', primitiveID="n2")
+    n1d_has_attr = Relationship(n1d, 'HAS_ATTRIBUTE', attr, _key='layout')
+    ###
+    n1_n1d = Relationship(n1, 'HAS_DATA', n1d)
+
+    n2 = Node('Node', '_Entity', primitiveID="n2")
+    # data tree
+    n2d = Node('_Data', '_Composite', primitiveID="n2")
     ports = Node('_Array', '_Attribute')
     item0 = Node('_Item', primitiveID='p3')
     ports_contains_item0 = Relationship(ports, 'CONTAINS_ITEM', item0, _pos=0)
-    n2_has_ports = Relationship(n2, 'HAS_ATTRIBUTE', ports, _key='initPorts')
-    n3 = Node('Node', primitiveID="n3")
-    n4 = Node('Node', primitiveID="n4")
-    e1 = Node('Edge', sourceNode='n1', targetNode='n2', sourcePort="p1", targetPort="p3")
+    n2d_has_ports = Relationship(n2d, 'HAS_ATTRIBUTE', ports, _key='initPorts')
+    ###
+    n2_n2d = Relationship(n2, 'HAS_DATA', n2d)
+
+    n3 = Node('Node', '_Entity', primitiveID="n3")
+    n3d = Node('_Data', primitiveID="n3")  # data tree
+    n3_n3d = Relationship(n3, 'HAS_DATA', n3d)
+
+    n4 = Node('Node', '_Entity', primitiveID="n4")
+    n4d = Node('_Data', primitiveID="n4")  # data tree
+    n4_n4d = Relationship(n4, 'HAS_DATA', n4d)
+
+    e1 = Node(
+        'Edge', '_Entity', sourceNode='n1', targetNode='n2', sourcePort="p1", targetPort="p3")
+    # data tree
+    e1d = Node('_Data', sourceNode='n1', targetNode='n2', sourcePort="p1", targetPort="p3")
+    ###
+    e1_e1d = Relationship(e1, 'HAS_DATA', e1d)
+    # link vertex to edge
     n1_e1 = Relationship(n1, 'OUT', e1)
     e1_n2 = Relationship(e1, 'IN', n2)
-    e2 = Node('Edge', sourceNode='n1', targetNode='n3', sourcePort="p2", targetPort="p4")
+
+    e2 = Node(
+        'Edge', '_Entity', sourceNode='n1', targetNode='n3', sourcePort="p2", targetPort="p4")
+    # data tree
+    e2d = Node('_Data', sourceNode='n1', targetNode='n3', sourcePort="p2", targetPort="p4")
+    ###
+    e2_e2d = Relationship(e2, 'HAS_DATA', e2d)
+    # link vertex to edge
     n1_e2 = Relationship(n1, 'OUT', e2)
     e2_n3 = Relationship(e2, 'IN', n3)
-    e3 = Node('Edge', sourceNode='n3', targetNode='n4',  sourcePort="p5", targetPort="p6")
+
+    e3 = Node(
+        'Edge', '_Entity', sourceNode='n3', targetNode='n4',  sourcePort="p5", targetPort="p6")
+    # data tree
+    e3d = Node('_Data', sourceNode='n3', targetNode='n4',  sourcePort="p5", targetPort="p6")
+    ###
+    e3_e3d = Relationship(e3, 'HAS_DATA', e3d)
+    # link vertex to edge
     n3_e3 = Relationship(n3, 'OUT', e3)
     e3_n4 = Relationship(e3, 'IN', n4)
+
     subgraph = (
-        n1_has_attr
-        | ports_contains_item0
-        | n2_has_ports
-        | n3
-        | n4
-        | n1_e1 | e1_n2
-        | n1_e2 | e2_n3
-        | n3_e3 | e3_n4)
+        n1_n1d | n1d_has_attr
+        | n2_n2d | ports_contains_item0 | n2d_has_ports
+        | n3_n3d
+        | n4_n4d
+        | e1_e1d | n1_e1 | e1_n2
+        | e2_e2d | n1_e2 | e2_n3
+        | e3_e3d | n3_e3 | e3_n4)
 
     return {'data': data, 'subgraph': subgraph}
