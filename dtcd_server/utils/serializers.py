@@ -51,6 +51,28 @@ class SubgraphSerializer:
 
         return tree
 
+    def _load_edge(self, edge_dict: dict) -> Tree:
+        """Recursively construct edge tree."""
+
+        tree = self._load_entity(edge_dict)
+        root = tree.root
+        # TODO add surrogate ID based on [src|tgt][port|node]
+        root.add_label(self._c["labels"]["edge"])
+
+        src_node = self._c["keys"]["source_node"]
+        root[src_node] = edge_dict[src_node]
+
+        src_port = self._c["keys"]["source_port"]
+        root[src_port] = edge_dict[src_port]
+
+        tgt_node = self._c["keys"]["target_node"]
+        root[tgt_node] = edge_dict[tgt_node]
+
+        tgt_port = self._c["keys"]["target_port"]
+        root[tgt_port] = edge_dict[tgt_port]
+
+        return tree
+
     def load(self, data: dict) -> Subgraph:
         """Create a subgraph from data.
 
@@ -61,7 +83,6 @@ class SubgraphSerializer:
         """
 
         nodes, rels = [], []
-        serializer = RecursiveSerializer(config=self._c)
         id2node = {}
 
         # yfiles nodes
@@ -77,8 +98,7 @@ class SubgraphSerializer:
 
         # yfiles edges
         for rel_dict in data[self._c["keys"]["edges"]]:
-            tree = serializer.load(rel_dict)
-            tree.root.add_label(self._c["labels"]["edge"])
+            tree = self._load_edge(rel_dict)
             nodes.extend(tree.subgraph.nodes)
             rels.extend(tree.subgraph.relationships)
             # link the edge with src and tgt nodes
