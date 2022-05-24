@@ -12,6 +12,9 @@ DIR_WITH_DOTS = 10
 NO_DIR_NAME = 11
 NEW_PATH_EQ_OLD_PATH = 12
 MOVING_DIR_INSIDE_ITSELF = 13
+DIR_NAME_RESERVED_FOR_META = 14
+NEW_NAME_EQ_OLD_NAME = 15
+UPD_NOT_EXISTING_DIR = 16
 
 
 class WorkspaceManagerException(Exception):
@@ -40,7 +43,13 @@ class WorkspaceManagerException(Exception):
         elif problem == NO_DIR_NAME:
             msg = 'Dir name not provided'
         elif problem == NEW_PATH_EQ_OLD_PATH:
-            msg = f'new path and old path are the same. The path was: {args[0]}'
+            msg = f'New path and old path are the same. The path was: {args[0]}'
         elif problem == MOVING_DIR_INSIDE_ITSELF:
             msg = f'Trying to move dir inside itself: {args[0]} -> {args[1]}'
+        elif problem == DIR_NAME_RESERVED_FOR_META:
+            msg = f'This name is reserved for dir info meta file: {args[0]}'
+        elif problem == NEW_NAME_EQ_OLD_NAME:
+            msg = f'New name and old name are the same. The name was: {args[0]}'
+        elif problem == UPD_NOT_EXISTING_DIR:
+            msg = f'Trying to update not existing dir {args[0]}'
         super().__init__(msg)

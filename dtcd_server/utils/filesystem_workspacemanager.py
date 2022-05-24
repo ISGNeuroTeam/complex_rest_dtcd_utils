@@ -15,13 +15,15 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
     def __init__(self, path, tmp_path):
         self.final_path = path
         self.tmp_path = tmp_path + '/tmp.json'
+        self.dir_metafile_name = '.DIR_INFO.json'
 
-    @staticmethod
-    def _validate_dir_name(name):
+    def _validate_dir_name(self, name):
         if '/' in name:
             raise WorkspaceManagerException(workspacemanager_exception.SLASHES_IN_DIR_NAME, name)
         if not name:
             raise WorkspaceManagerException(workspacemanager_exception.EMPTY_DIR_NAME)
+        if name == self.dir_metafile_name:
+            raise WorkspaceManagerException(workspacemanager_exception.DIR_NAME_RESERVED_FOR_META, name)
 
     def _get_full_path(self, workspace_path: str) -> Path:
         tokens = workspace_path.split(os.sep)
@@ -42,11 +44,10 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
         workspaces = []
         for file_name in list_dir_workspaces:
             current_path = full_path / file_name
-            if current_path.is_dir():
+            if current_path.is_dir() or file_name == self.dir_metafile_name:
                 continue
             with open(current_path, "r") as file:
                 configuration = json.load(file)
-                configuration['creation_time'] = os.path.getctime(current_path)
                 configuration['modification_time'] = os.path.getmtime(current_path)
                 workspaces.append(configuration)
         return workspaces
@@ -59,9 +60,14 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
         for dir_name in list_dir_workspaces:
             current_path = full_path / dir_name
             if current_path.is_dir():
+                creation_time = None
+                meta_path = current_path / self.dir_metafile_name
+                if meta_path.exists():
+                    with open(meta_path) as meta_file:
+                        creation_time = json.load(meta_file).get("creation_time", None)
                 directories.append({
                     'name': dir_name,
-                    'creation_time': os.path.getctime(current_path),
+                    'creation_time': creation_time,
                     'modification_time': os.path.getmtime(current_path)
                 })
         return directories
@@ -88,7 +94,7 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
         return list(map(lambda conf: {
             'id': conf['id'],
             'title': conf['title'],
-            'creation_time': conf['creation_time'],
+            'creation_time': conf.get('creation_time', None),
             'modification_time': conf['modification_time']
         }, workspaces))
 
@@ -100,6 +106,7 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
         unique_id = str(uuid.uuid4())
         conf["id"] = unique_id
         with open(self.tmp_path, "w") as file:
+            conf["creation_time"] = os.path.getmtime(self.tmp_path)
             file.write(json.dumps(conf))
         os.rename(self.tmp_path, full_path / f"{unique_id}.json")  # atomic operation
 
@@ -109,6 +116,9 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
         self._validate_dir_name(conf['name'])
         full_path = self._get_full_path(kwargs.get('workspace_path', ''))
         os.mkdir(full_path / conf['name'])  # atomic operation
+        meta_path = full_path / conf['name'] / self.dir_metafile_name
+        with open(meta_path, 'w') as meta_file:
+            json.dump({'creation_time': os.path.getmtime(meta_path)}, meta_file)
 
     def update(self, conf, *args, **kwargs):
         full_path = self._get_full_path(kwargs.get('workspace_path', ''))
@@ -137,13 +147,17 @@ class FilesystemWorkspaceManager(AbstractWorkspaceManager):
         full_path = self._get_full_path(kwargs.get('workspace_path', ''))
         if 'old_name' not in conf or not conf['old_name']:
             raise WorkspaceManagerException(workspacemanager_exception.NO_OLD_DIR_NAME)
+        if not (full_path / conf['old_name']).exists():
+            raise WorkspaceManagerException(workspacemanager_exception.UPD_NOT_EXISTING_DIR, conf['old_name'])
         if ('new_name' not in conf or not conf['new_name']) and 'new_path' not in conf:
             raise WorkspaceManagerException(workspacemanager_exception.NO_NEW_DIR_NAME)
-        if 'new_path' not in conf:
+        if 'new_path' not in conf:  # rename
             self._validate_dir_name(conf['new_name'])
+            if conf['old_name'] == conf['new_name']:
+                raise WorkspaceManagerException(workspacemanager_exception.NEW_NAME_EQ_OLD_NAME, conf['old_name'])
             os.rename(full_path / conf['old_name'], full_path / conf['new_name'])
             return str(full_path / conf['new_name'])
-        else:
+        else:  # move
             if conf['new_path'] == kwargs.get('workspace_path', ''):
                 raise WorkspaceManagerException(workspacemanager_exception.NEW_PATH_EQ_OLD_PATH, conf['new_path'])
             new_path = Path(self.final_path) / conf['new_path']
