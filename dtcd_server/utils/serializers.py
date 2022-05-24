@@ -83,29 +83,29 @@ class SubgraphSerializer:
         """
 
         nodes, rels = [], []
-        id2node = {}
+        id2root = {}
 
         # yfiles nodes
-        for node_dict in data[self._c["keys"]["nodes"]]:
+        for vertex_dict in data[self._c["keys"]["nodes"]]:
             # (recursively) construct root node and its (nested) properties
-            tree = self._load_vertex(node_dict)
+            vertex_tree = self._load_vertex(vertex_dict)
             # save nodes & rels created
-            nodes.extend(tree.subgraph.nodes)
-            rels.extend(tree.subgraph.relationships)
+            nodes.extend(vertex_tree.subgraph.nodes)
+            rels.extend(vertex_tree.subgraph.relationships)
             # remember the root to link with edges later
-            node_id = node_dict[self._c["keys"]["yfiles_id"]]
-            id2node[node_id] = tree.root
+            id_ = vertex_dict[self._c["keys"]["yfiles_id"]]
+            id2root[id_] = vertex_tree.root
 
         # yfiles edges
-        for rel_dict in data[self._c["keys"]["edges"]]:
-            tree = self._load_edge(rel_dict)
-            nodes.extend(tree.subgraph.nodes)
-            rels.extend(tree.subgraph.relationships)
+        for edge_dict in data[self._c["keys"]["edges"]]:
+            edge_tree = self._load_edge(edge_dict)
+            nodes.extend(edge_tree.subgraph.nodes)
+            rels.extend(edge_tree.subgraph.relationships)
             # link the edge with src and tgt nodes
             # TODO what happens if src / tgt node ids are not in nodes?
-            e = tree.root
-            src = id2node[e[self._c["keys"]["source_node"]]]
-            tgt = id2node[e[self._c["keys"]["target_node"]]]
+            e = edge_tree.root
+            src = id2root[e[self._c["keys"]["source_node"]]]
+            tgt = id2root[e[self._c["keys"]["target_node"]]]
             r1 = Relationship(src, self._c["types"]["out"], e)
             r2 = Relationship(e, self._c["types"]["in"], tgt)
             rels.extend((r1, r2))

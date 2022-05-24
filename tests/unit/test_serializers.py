@@ -88,23 +88,21 @@ class TestSubgraphSerializer(unittest.TestCase):
         self.assertEqual(tree.root["targetNode"], "bob")
         self.assertEqual(tree.root["targetPort"], "i1")
 
-    @unittest.skip("not ready")
     def test_load(self):
         data = fixtures.generate_data()['data']
         serializer = SubgraphSerializer()
         subgraph = serializer.load(data)
-        self.assertEqual(len(subgraph.nodes), 10)
-        self.assertEqual(len(subgraph.relationships), 9)
+        self.assertEqual(len(subgraph.nodes), 17)
+        self.assertEqual(len(subgraph.relationships), 16)
 
-    @unittest.skip("not ready")
     def test_load_from_json(self):
         with open(FIXTURES_DIR / "graph-sample-small.json") as f:
             data = json.load(f)
 
         serializer = SubgraphSerializer()
         subgraph = serializer.load(data)
-        self.assertEqual(len(subgraph.nodes), 16)
-        self.assertEqual(len(subgraph.relationships), 15)
+        self.assertEqual(len(subgraph.nodes), 19)
+        self.assertEqual(len(subgraph.relationships), 18)
 
     @unittest.skip("not ready")
     def test_dump(self):
