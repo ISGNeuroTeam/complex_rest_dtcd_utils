@@ -91,6 +91,7 @@ class TestNeo4jGraphView(APISimpleTestCase):
         fixtures.sort_payload(freshdata)
         self.assertEqual(data, freshdata)
 
+    @unittest.skip("")
     @tag('slow')
     def test_post_get_many_times(self):
         for i in range(N):
