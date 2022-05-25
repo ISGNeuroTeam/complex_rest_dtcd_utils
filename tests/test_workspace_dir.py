@@ -1,4 +1,5 @@
 import json
+import time
 from pathlib import Path
 import os
 from shutil import rmtree, copytree
@@ -410,8 +411,44 @@ class TestWorkspaceDir(TransactionTestCase):
         self.assertTrue('child1' in dir_names)
         self.assertTrue('child2' in dir_names)
 
-    # TODO check creation time
-    # TODO check modification time
+    def test_reserved_meta_file_name(self):
+        try:
+            self.fsw_manager.write_dir({"name": self.fsw_manager.dir_metafile_name}, workspace_path='')
+        except WorkspaceManagerException as e:
+            self.assertTrue(True)
+            return
+        self.assertTrue(False)
+
+    def new_dirname_eq_old_dirname(self):
+        try:
+            self.fsw_manager.update_dir({'old_name': 'parent1', 'new_name': 'parent1'}, workspace_path='')
+        except WorkspaceManagerException as e:
+            self.assertTrue(True)
+            return
+        self.assertTrue(False)
+
+    def test_dir_exists(self):
+        try:
+            self.fsw_manager.write_dir({"name": 'parent2'}, workspace_path='')
+        except FileExistsError as e:
+            self.assertTrue(True)
+            return
+        self.assertTrue(False)
+
+    def test_ctime(self):
+        self.fsw_manager.write_dir({"name": 'parent3'}, workspace_path='')
+        d = self.fsw_manager.read_dir('parent3')
+        self.assertEqual(d["creation_time"], d["modification_time"])
+
+    def test_mtime(self):
+        self.fsw_manager.write_dir({"name": 'parent3'}, workspace_path='')
+        time.sleep(1)
+        self.fsw_manager.update_dir({'old_name': 'parent3', 'new_name': 'parent4'}, workspace_path='')
+        d = self.fsw_manager.read_dir('parent4')
+        self.assertEqual(d["creation_time"], d["modification_time"])
+        self.fsw_manager.write({"title":"test", "content": "/parent4/"}, workspace_path='parent4')
+        d = self.fsw_manager.read_dir('parent4')
+        self.assertNotEqual(d["creation_time"], d["modification_time"])
 
     def tearDown(self) -> None:
         pass
