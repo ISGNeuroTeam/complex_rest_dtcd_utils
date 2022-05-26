@@ -18,45 +18,59 @@ def sort_payload(data: dict) -> None:
 
 
 def generate_dummy():
-    # TODO replace hard-coded values with those from DEFAULT config
-    HAS_ATTR = Relationship.type('HAS_ATTRIBUTE')
-    CONTAINS_ITEM = Relationship.type('CONTAINS_ITEM')
-    EDGE = Relationship.type('EDGE')
+    TheMatrix = Node(
+        "Movie", title='The Matrix', released=1999, tagline='Welcome to the Real World')
+    Keanu = Node("Person", name='Keanu Reeves', born=1964)
+    Carrie = Node("Person", name='Carrie-Anne Moss', born=1967)
+    Laurence = Node("Person", name='Laurence Fishburne', born=1961)
+    Hugo = Node("Person", name='Hugo Weaving', born=1960)
+    LillyW = Node("Person", name='Lilly Wachowski', born=1967)
+    LanaW = Node("Person", name='Lana Wachowski', born=1965)
+    JoelS = Node("Person", name='Joel Silver', born=1952)
+    Emil = Node("Person", name="Emil Eifrem", born=1978)
 
-    amy = Node('Root', 'Composite', name='amy')
-    amy['primitiveID'] = 'n1'
+    # Relationships
+    LillyWTheMatrix = Relationship(LillyW, "DIRECTED", TheMatrix)
+    LanaWTheMatrix = Relationship(LanaW, "DIRECTED", TheMatrix)
+    JoelSTheMatrix = Relationship(JoelS, "PRODUCED", TheMatrix)
+    KeanuTheMatrix = Relationship(Keanu, "ACTED_IN", TheMatrix)
+    KeanuTheMatrix['roles'] = ['Neo']
+    CarrieTheMatrix = Relationship(Carrie, "ACTED_IN", TheMatrix)
+    CarrieTheMatrix['roles'] = ['Trinity']
+    LaurenceTheMatrix = Relationship(Laurence, "ACTED_IN", TheMatrix)
+    LaurenceTheMatrix['roles'] = ['Morpheus']
+    HugoTheMatrix = Relationship(Hugo, "ACTED_IN", TheMatrix)
+    HugoTheMatrix['roles'] = ['Agent Smith']
+    EmilTheMatrix = Relationship(Emil, "ACTED_IN", TheMatrix)
+    EmilTheMatrix['roles'] = ['Emil']
 
-    city1 = Node('Attribute', city='Lyon')
-    amy_city = HAS_ATTR(amy, city1)
-    amy_city['key'] = 'address'
-
-    friends = Node('Attribute', 'Array')
-    bob = Node('Item', name='bob')
-    cloe = Node('Item', name='cloe')
-    friends_bob = CONTAINS_ITEM(friends, bob)
-    friends_bob['pos'] = 0
-    friends_cloe = CONTAINS_ITEM(friends, cloe)
-    friends_cloe['pos'] = 1
-    amy_friends = HAS_ATTR(amy, friends)
-    amy_friends['key'] = 'friends'
-
-    dan = Node('Root', 'Composite', name='dan')
-    dan['primitiveID'] = 'n2'
-    city2 = Node('Attribute', city='London')
-    dan_city = HAS_ATTR(dan, city2)
-    dan_city['key'] = 'address'
-
-    amy_dan = EDGE(amy, dan)
-
+    # Subgraph
     subgraph = (
-        amy_city | amy_friends | friends_bob | friends_cloe
-        | amy_dan | dan_city)
+        TheMatrix
+        | Keanu
+        | Carrie
+        | Laurence
+        | Hugo
+        | LillyW
+        | LanaW
+        | JoelS
+        | Emil
+        | LillyWTheMatrix
+        | LanaWTheMatrix
+        | JoelSTheMatrix
+        | KeanuTheMatrix
+        | KeanuTheMatrix
+        | CarrieTheMatrix
+        | CarrieTheMatrix
+        | LaurenceTheMatrix
+        | LaurenceTheMatrix
+        | HugoTheMatrix
+        | HugoTheMatrix
+        | EmilTheMatrix
+        | EmilTheMatrix
+    )
 
-    return {
-        'subgraph': subgraph,
-        'amy_friends': amy_friends,
-        'dan_city': dan_city,
-    }
+    return subgraph
 
 
 def generate_data():

@@ -1,7 +1,9 @@
 from typing import Union
 
-from py2neo import Graph, Node, NodeMatch, Relationship, Subgraph
+from py2neo import Graph, Node, NodeMatch, Relationship, Subgraph, Transaction
+from py2neo.cypher import Cursor, cypher_join
 
+from . import clauses
 from .abc_graphmanager import AbstractGraphManager
 from .exceptions import FragmentDoesNotExist, FragmentExists
 
@@ -12,9 +14,6 @@ class Neo4jGraphManager(AbstractGraphManager):
     def __init__(self, profile: str, name: str = None, **settings):
         self._graph = Graph(profile, name, **settings)
         # TODO make sure graph is available
-
-    def read(self, id):
-        raise NotImplementedError  # TODO
 
     def read_all(self) -> Subgraph:
         """Return a subgraph of all nodes and relationships."""
@@ -56,15 +55,7 @@ class Neo4jGraphManager(AbstractGraphManager):
         raise NotImplementedError  # TODO
 
     def write(self, subgraph: Subgraph):
-        """Save a subgraph.
-
-        Overwrites existing data with new subgraph.
-        """
-
-        tx = self._graph.begin()
-        tx.update('MATCH (n) DETACH DELETE n')  # del all nodes & rels
-        tx.create(subgraph)
-        self._graph.commit(tx)
+        raise NotImplementedError
 
     def _match_fragment(self, name: str) -> NodeMatch:
         """Match a fragment with given name and return the match."""
@@ -74,10 +65,12 @@ class Neo4jGraphManager(AbstractGraphManager):
 
     def has_fragment(self, name: str) -> bool:
         """Return True if a fragment with the given name exists, False otherwise."""
+
         return self._match_fragment(name).exists()
 
     def get_fragment(self, name: str) -> Union[Node, None]:
         """Return bound fragment node with name if it exists, None otherwise."""
+
         return self._match_fragment(name).first()
 
     def create_fragment(self, name: str) -> Node:
@@ -125,3 +118,91 @@ class Neo4jGraphManager(AbstractGraphManager):
             self._graph.delete(n)
         else:
             raise FragmentDoesNotExist(f"fragment [{name}] does not exist")
+
+    def _match_fragment_content_nodes(self, name: str, tx: Transaction) -> Cursor:
+        """
+        Match all descendant nodes belonging to a given fragment within a transaction.
+
+        Returned records contain nodes under `n` key.
+        """
+
+        q, params = cypher_join(
+            clauses.MATCH_FRAGMENT_DATA,
+            'UNWIND nodes(p) as n',  # TODO explain where p comes from
+            'RETURN DISTINCT n',
+            name=name,  # TODO explain why we need this
+        )
+        cursor = tx.run(q, params)
+
+        return cursor
+
+    def _match_fragment_content_relationships(self, name: str, tx: Transaction) -> Cursor:
+        """
+        Match all descendant relationships belonging to a given fragment
+        within a transaction.
+
+        Each returned record contains several values under the following keys:
+        - `start_id` / `end_id` are internal IDs of start/end nodes
+        - `type` is a relationship type
+        - `properties` is a dictionary of relationship properties
+        """
+
+        # TODO relationships between entities are not matched yet
+        q, params = cypher_join(
+            clauses.MATCH_FRAGMENT_DATA,
+            'UNWIND relationships(p) as r',
+            'RETURN',
+            ", ".join(
+                ['id(startNode(r)) AS start_id',
+                 'id(endNode(r)) AS end_id',
+                 'type(r) AS `type`',
+                 'properties(r) AS `properties`', ]
+            ),
+            name=name,
+        )
+        cursor = tx.run(q, params)
+
+        return cursor
+
+    def _fragment_content(self, name: str, tx: Transaction) -> Subgraph:
+        """Return bound subgraph belonging to given fragment.
+
+        All operations run within a given transaction.
+        """
+
+        # TODO rels between entities are missing
+        # nodes
+        nodes_cursor = self._match_fragment_content_nodes(name, tx)
+        id2node = {
+            record[0].identity: record[0]
+            for record in nodes_cursor
+        }
+
+        # relationships
+        rels_cursor = self._match_fragment_content_relationships(name, tx)
+
+        # workaround: py2neo sucks at efficient convertsion of rels to Subgraph
+        # manually construct Relationships
+        relationships = []
+        for record in rels_cursor:
+            start_node = id2node[record['start_id']]
+            end_node = id2node[record['end_id']]
+            t = record['type']
+            properties = record.get('properties', {})
+            relationships.append(Relationship(start_node, t, end_node, **properties))
+
+        return Subgraph(id2node.values(), relationships)
+
+    def read(self, fragment: str) -> Subgraph:
+        """Return subgraph belonging to given fragment.
+
+        Raises FragmentDoesNotExist if the fragment is missing.
+        """
+
+        if self.has_fragment(fragment):  # TODO separate tx
+            tx = self._graph.begin(readonly=True)
+            subgraph = self._fragment_content(fragment, tx)
+            self._graph.commit(tx)
+            return subgraph
+        else:
+            raise FragmentDoesNotExist(f"fragment [{fragment}] does not exist")

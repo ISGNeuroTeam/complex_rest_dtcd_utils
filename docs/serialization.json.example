@@ -13,6 +13,7 @@
     },
     "types": {
         "contains_item": "CONTAINS_ITEM",
+        "contains_entity": "CONTAINS_ENTITY",
         "has_attribute": "HAS_ATTRIBUTE",
         "has_data": "HAS_DATA"
     }
