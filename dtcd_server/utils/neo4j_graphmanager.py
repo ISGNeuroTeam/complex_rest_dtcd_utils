@@ -273,3 +273,18 @@ class Neo4jGraphManager(AbstractGraphManager):
             self._graph.commit(tx)
         else:
             raise FragmentDoesNotExist(f"fragment [{fragment}] does not exist")
+
+    def empty(self, fragment: str) -> bool:
+        """Return True if fragment's content is empty, False otherwise.
+
+        Raises FragmentDoesNotExist if the fragment is missing.
+        """
+
+        f = self.get_fragment(fragment)  # TODO separate tx
+
+        if f is not None:
+            # empty if no links to entities
+            link = self._graph.match_one((f, ), r_type=SCHEMA['types']['contains_entity'])
+            return link is None
+        else:
+            raise FragmentDoesNotExist(f"fragment [{fragment}] does not exist")

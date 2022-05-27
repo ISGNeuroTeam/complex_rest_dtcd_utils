@@ -218,6 +218,17 @@ class TestNeo4jGraphManager(unittest.TestCase):
         content = self.manager.read("hr")
         self.assertFalse(bool(content))
 
+    def test_empty(self):
+        self.manager.create_fragment("hr")
+        # empty
+        self.assertTrue(self.manager.empty("hr"))
+        # write some data
+        self.manager.write(self.tree1, "hr")
+        self.assertFalse(self.manager.empty("hr"))
+        # error
+        with self.assertRaises(FragmentDoesNotExist):
+            self.manager.empty("sales")
+
 
 if __name__ == '__main__':
     unittest.main()
