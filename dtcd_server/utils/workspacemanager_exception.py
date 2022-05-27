@@ -15,6 +15,7 @@ MOVING_DIR_INSIDE_ITSELF = 13
 DIR_NAME_RESERVED_FOR_META = 14
 NEW_NAME_EQ_OLD_NAME = 15
 UPD_NOT_EXISTING_DIR = 16
+DIR_EXISTS = 17
 
 
 class WorkspaceManagerException(Exception):
@@ -52,4 +53,6 @@ class WorkspaceManagerException(Exception):
             msg = f'New name and old name are the same. The name was: {args[0]}'
         elif problem == UPD_NOT_EXISTING_DIR:
             msg = f'Trying to update not existing dir {args[0]}'
+        elif problem == DIR_EXISTS:
+            msg = f'Dir already exists {args[0]}/{args[1]}'
         super().__init__(msg)
