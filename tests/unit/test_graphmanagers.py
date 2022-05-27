@@ -160,9 +160,15 @@ class TestNeo4jGraphManager(unittest.TestCase):
         with self.assertRaises(FragmentDoesNotExist):
             content = self.manager.read("sales")
 
+    def test_read_empty(self):
+        self.manager.create_fragment("hr")
+
+        content = self.manager.read("hr")
+        self.assertFalse(bool(content))  # make sure empty subgraph
+
     def test_write(self):
         f = self.manager.create_fragment("hr")
-        self.manager.write(self.content, "hr")  # content bound
+        self.manager.write(self.tree1, "hr")  # content bound
 
         # check link from fragment to entity
         # TODO replace hard-coded stuff
@@ -174,7 +180,7 @@ class TestNeo4jGraphManager(unittest.TestCase):
 
         # check fragment content ok
         fromdb = self.manager.read("hr")  # fromdb bound
-        self.assertEqual(fromdb, self.content)
+        self.assertEqual(fromdb, self.tree1)
 
         with self.assertRaises(FragmentDoesNotExist):
             self.manager.write(self.dummy, "sales")
@@ -196,6 +202,18 @@ class TestNeo4jGraphManager(unittest.TestCase):
             self.manager.write(self.tree2, "sales")
 
     # TODO def test_write_frontiers(self):
+
+    def test_remove(self):
+        f = self.manager.create_fragment("hr")
+        self.manager.write(self.tree1, "hr")  # content bound
+
+        self.manager.remove("hr")
+        # check content is empty now
+        content = self.manager.read("hr")
+        self.assertFalse(bool(content))
+        # no links from fragment root
+        link = self.manager._graph.match_one((f, ), r_type='CONTAINS_ENTITY')
+        self.assertIsNone(link)
 
 
 if __name__ == '__main__':

@@ -44,9 +44,6 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         return Subgraph(id2node.values(), relationships)
 
-    def remove(self, id):
-        raise NotImplementedError  # TODO
-
     def remove_all(self):
         """Remove all nodes and relationships from this graph."""
 
@@ -250,6 +247,21 @@ class Neo4jGraphManager(AbstractGraphManager):
             # skips already bound nodes & relationships
             tx.create(subgraph | Subgraph(relationships=rels))
 
+            self._graph.commit(tx)
+        else:
+            raise FragmentDoesNotExist(f"fragment [{fragment}] does not exist")
+
+    def remove(self, fragment: str):
+        """Remove content of a given fragment.
+
+        Does not remove fragment root node.
+        Raises FragmentDoesNotExist if the fragment is missing.
+        """
+
+        if self.has_fragment(fragment):  # TODO separate tx
+            tx = self._graph.begin()
+            nodes = self._fragment_content_nodes(tx, fragment)
+            tx.delete(Subgraph(nodes))
             self._graph.commit(tx)
         else:
             raise FragmentDoesNotExist(f"fragment [{fragment}] does not exist")
