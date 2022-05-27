@@ -117,7 +117,7 @@ class Neo4jGraphManager(AbstractGraphManager):
         else:
             raise FragmentDoesNotExist(f"fragment [{name}] does not exist")
 
-    def _match_fragment_content_nodes(self, name: str, tx: Transaction) -> Cursor:
+    def _match_fragment_content_nodes(self, tx: Transaction, name: str) -> Cursor:
         """
         Match all descendant nodes belonging to a given fragment within a transaction.
 
@@ -134,15 +134,15 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         return cursor
 
-    def _fragment_content_nodes(self, name: str, tx: Transaction) -> Set[Node]:
+    def _fragment_content_nodes(self, tx: Transaction, name: str) -> Set[Node]:
         """
         Return a set of descendant nodes belonging to a given fragment within a transaction.
         """
 
-        cursor = self._match_fragment_content_nodes(name, tx)
+        cursor = self._match_fragment_content_nodes(tx, name)
         return set(record[0] for record in cursor)
 
-    def _match_fragment_content_relationships(self, name: str, tx: Transaction) -> Cursor:
+    def _match_fragment_content_relationships(self, tx: Transaction, name: str) -> Cursor:
         """
         Match all descendant relationships belonging to a given fragment
         within a transaction.
@@ -170,7 +170,7 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         return cursor
 
-    def _fragment_content(self, name: str, tx: Transaction) -> Subgraph:
+    def _fragment_content(self, tx: Transaction, name: str) -> Subgraph:
         """Return bound subgraph belonging to given fragment.
 
         All operations run within a given transaction.
@@ -178,14 +178,14 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         # TODO rels between entities are missing
         # nodes
-        nodes = self._fragment_content_nodes(name, tx)
+        nodes = self._fragment_content_nodes(tx, name)
         id2node = {
             node.identity: node
             for node in nodes
         }
 
         # relationships
-        rels_cursor = self._match_fragment_content_relationships(name, tx)
+        rels_cursor = self._match_fragment_content_relationships(tx, name)
 
         # workaround: py2neo sucks at efficient convertsion of rels to Subgraph
         # manually construct Relationships
@@ -207,7 +207,7 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         if self.has_fragment(fragment):  # TODO separate tx
             tx = self._graph.begin(readonly=True)
-            subgraph = self._fragment_content(fragment, tx)
+            subgraph = self._fragment_content(tx, fragment)
             self._graph.commit(tx)
             return subgraph
         else:
@@ -234,7 +234,7 @@ class Neo4jGraphManager(AbstractGraphManager):
             tx.merge(Subgraph(vertices), label, key)  # now some vertex roots may be bound
 
             # delete difference
-            current = self._fragment_content_nodes(fragment, tx)
+            current = self._fragment_content_nodes(tx, fragment)
             diff = current - vertices
             tx.delete(Subgraph(diff))
 
