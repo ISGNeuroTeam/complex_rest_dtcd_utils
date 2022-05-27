@@ -237,24 +237,18 @@ class Neo4jGraphManager(AbstractGraphManager):
         """
 
         # TODO error handling? (empty, bad format / input)
+        # TODO this approach deletes frontier nodes & cross-fragment rels
 
         f = self.get_fragment(fragment)  # TODO separate tx
 
         if f is not None:
             tx = self._graph.begin()
 
-            # merge vertex roots on (label, yfiles_id)
-            label = SCHEMA["labels"]["node"]
-            vertices = set(filter(lambda x: x.has_label(label), subgraph.nodes))  # O(n)
-            key = SCHEMA["keys"]["yfiles_id"]
-            tx.merge(Subgraph(vertices), label, key)  # now some vertex roots may be bound
+            # delete fragment content
+            nodes = self._fragment_content_nodes(tx, fragment)
+            tx.delete(Subgraph(nodes))
 
-            # delete difference
-            current = self._fragment_content_nodes(tx, fragment)
-            diff = current - vertices
-            tx.delete(Subgraph(diff))
-
-            # re-link fragment to subgraph entities
+            # re-link fragment to new subgraph entities
             type_ = SCHEMA["types"]["contains_entity"]
             rels = [
                 Relationship(f, type_, node)
@@ -263,7 +257,6 @@ class Neo4jGraphManager(AbstractGraphManager):
             ]
 
             # create the rest of the subgraph & fragment-entity links
-            # skips already bound nodes & relationships
             tx.create(subgraph | Subgraph(relationships=rels))
 
             self._graph.commit(tx)
