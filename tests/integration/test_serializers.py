@@ -31,7 +31,7 @@ class TestSubgraphSerializer(SimpleTestCase):
         sort_payload(exported)
         self.assertEqual(data, exported)
 
-    @unittest.skip("")
+    @unittest.skip("py2neo bug")
     @tag('slow')
     def test_load_dump_many_times(self):
         with open(FIXTURES_DIR / "graph-sample-small.json") as f:
@@ -63,7 +63,7 @@ class TestSubgraphSerializer(SimpleTestCase):
         sort_payload(exported)
         self.assertEqual(data, exported)
 
-    @unittest.skip("")
+    @unittest.skip("py2neo bug")
     @tag('slow')
     def test_load_dump_large_many_times(self):
         with open(FIXTURES_DIR / "graph-sample-large.json") as f:

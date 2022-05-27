@@ -147,7 +147,7 @@ class SubgraphSerializer:
 
         # around O(n)
         result = {
-            self._c["keys"]["nodes"]: [serializer.dump(n) for n in vertices],
+            self._c["keys"]["nodes"]: [serializer.dump(v) for v in vertices],
             self._c["keys"]["edges"]: [serializer.dump(e) for e in edges],
         }
 
