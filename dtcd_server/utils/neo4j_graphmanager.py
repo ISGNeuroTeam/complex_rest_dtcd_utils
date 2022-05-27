@@ -52,6 +52,10 @@ class Neo4jGraphManager(AbstractGraphManager):
     def update(self, graph):
         raise NotImplementedError  # TODO
 
+    # ------------------------------------------------------------------
+    # fragment root management
+    # ------------------------------------------------------------------
+
     def _match_fragment(self, name: str) -> NodeMatch:
         """Match a fragment with given name and return the match."""
         # TODO hardcoded fragment label
@@ -113,6 +117,10 @@ class Neo4jGraphManager(AbstractGraphManager):
             self._graph.delete(n)
         else:
             raise FragmentDoesNotExist(f"fragment [{name}] does not exist")
+
+    # ------------------------------------------------------------------
+    # fragment content management
+    # ------------------------------------------------------------------
 
     def _match_fragment_content_nodes(self, tx: Transaction, name: str) -> Cursor:
         """

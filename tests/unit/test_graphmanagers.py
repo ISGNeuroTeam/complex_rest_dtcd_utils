@@ -204,16 +204,19 @@ class TestNeo4jGraphManager(unittest.TestCase):
     # TODO def test_write_frontiers(self):
 
     def test_remove(self):
-        f = self.manager.create_fragment("hr")
+        self.manager.create_fragment("hr")
         self.manager.write(self.tree1, "hr")  # content bound
 
         self.manager.remove("hr")
-        # check content is empty now
-        content = self.manager.read("hr")
-        self.assertFalse(bool(content))
+        # make sure root is still present
+        f = self.manager.get_fragment("hr")
+        self.assertIsNotNone(f)
         # no links from fragment root
         link = self.manager._graph.match_one((f, ), r_type='CONTAINS_ENTITY')
         self.assertIsNone(link)
+        # check content is empty now
+        content = self.manager.read("hr")
+        self.assertFalse(bool(content))
 
 
 if __name__ == '__main__':
