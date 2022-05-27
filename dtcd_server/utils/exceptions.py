@@ -6,3 +6,8 @@ class FragmentDoesNotExist(Exception):
 class FragmentExists(Exception):
     """Fragment already exists."""
     pass
+
+
+class FragmentNotEmpty(Exception):
+    """Fragment is not empty."""
+    pass
