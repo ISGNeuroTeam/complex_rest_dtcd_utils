@@ -79,6 +79,17 @@ class TestNeo4jGraphManager(unittest.TestCase):
         self.assertTrue(self.manager.has_fragment("hr"))
         self.assertFalse(self.manager.has_fragment("sales"))
 
+    def test_fragment_names(self):
+        # no fragments
+        self.assertEqual(self.manager.fragment_names(), set())
+
+        # add some names
+        self.manager.create_fragment("hr")
+        self.manager.create_fragment("it")
+        self.manager.create_fragment("sales")
+
+        self.assertEqual(self.manager.fragment_names(), {"hr", "it", "sales"})
+
     def test_get_fragment(self):
         self.assertIsNone(self.manager.get_fragment("hr"))
 

@@ -62,6 +62,13 @@ class Neo4jGraphManager(AbstractGraphManager):
         # TODO hardcoded name key
         return self._graph.nodes.match("Fragment", name=name)
 
+    def fragment_names(self) -> Set[str]:
+        """Return a set of fragment names."""
+
+        # TODO hardcoded name key
+        match = self._graph.nodes.match("Fragment")
+        return set(node['name'] for node in match)
+
     def has_fragment(self, name: str) -> bool:
         """Return True if a fragment with the given name exists, False otherwise."""
 
