@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Set, Union
 
 from py2neo import Graph, Node, NodeMatch, Relationship, Subgraph, Transaction
 from py2neo.cypher import Cursor, cypher_join
@@ -6,6 +6,7 @@ from py2neo.cypher import Cursor, cypher_join
 from . import clauses
 from .abc_graphmanager import AbstractGraphManager
 from .exceptions import FragmentDoesNotExist, FragmentExists
+from ..settings import SCHEMA
 
 
 class Neo4jGraphManager(AbstractGraphManager):
@@ -53,9 +54,6 @@ class Neo4jGraphManager(AbstractGraphManager):
 
     def update(self, graph):
         raise NotImplementedError  # TODO
-
-    def write(self, subgraph: Subgraph):
-        raise NotImplementedError
 
     def _match_fragment(self, name: str) -> NodeMatch:
         """Match a fragment with given name and return the match."""
@@ -136,6 +134,14 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         return cursor
 
+    def _fragment_content_nodes(self, name: str, tx: Transaction) -> Set[Node]:
+        """
+        Return a set of descendant nodes belonging to a given fragment within a transaction.
+        """
+
+        cursor = self._match_fragment_content_nodes(name, tx)
+        return set(record[0] for record in cursor)
+
     def _match_fragment_content_relationships(self, name: str, tx: Transaction) -> Cursor:
         """
         Match all descendant relationships belonging to a given fragment
@@ -172,10 +178,10 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         # TODO rels between entities are missing
         # nodes
-        nodes_cursor = self._match_fragment_content_nodes(name, tx)
+        nodes = self._fragment_content_nodes(name, tx)
         id2node = {
-            record[0].identity: record[0]
-            for record in nodes_cursor
+            node.identity: node
+            for node in nodes
         }
 
         # relationships
@@ -204,5 +210,46 @@ class Neo4jGraphManager(AbstractGraphManager):
             subgraph = self._fragment_content(fragment, tx)
             self._graph.commit(tx)
             return subgraph
+        else:
+            raise FragmentDoesNotExist(f"fragment [{fragment}] does not exist")
+
+    def write(self, subgraph: Subgraph, fragment: str):
+        """Write new content for a given fragment.
+
+        Binds subgraph nodes on success.
+        Raises FragmentDoesNotExist if the fragment is missing.
+        """
+
+        # TODO error handling? (empty, bad format / input)
+
+        f = self.get_fragment(fragment)  # TODO separate tx
+
+        if f is not None:
+            tx = self._graph.begin()
+
+            # merge vertex roots on (label, yfiles_id)
+            label = SCHEMA["labels"]["node"]
+            vertices = set(filter(lambda x: x.has_label(label), subgraph.nodes))  # O(n)
+            key = SCHEMA["keys"]["yfiles_id"]
+            tx.merge(Subgraph(vertices), label, key)  # now some vertex roots may be bound
+
+            # delete difference
+            current = self._fragment_content_nodes(fragment, tx)
+            diff = current - vertices
+            tx.delete(Subgraph(diff))
+
+            # re-link fragment to subgraph entities
+            type_ = SCHEMA["types"]["contains_entity"]
+            rels = [
+                Relationship(f, type_, node)
+                for node in subgraph.nodes
+                if node.has_label(SCHEMA["labels"]["entity"])
+            ]
+
+            # create the rest of the subgraph & fragment-entity links
+            # skips already bound nodes & relationships
+            tx.create(subgraph | Subgraph(relationships=rels))
+
+            self._graph.commit(tx)
         else:
             raise FragmentDoesNotExist(f"fragment [{fragment}] does not exist")
