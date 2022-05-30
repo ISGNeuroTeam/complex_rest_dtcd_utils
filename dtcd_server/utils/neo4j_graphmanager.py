@@ -230,7 +230,7 @@ class Neo4jGraphManager(AbstractGraphManager):
             self._graph.commit(tx)
             return subgraph
         else:
-            raise FragmentDoesNotExist(f"fragment [{fragment}] does not exist")
+            raise FragmentDoesNotExist(f"fragment '{fragment}' does not exist")
 
     def write(self, subgraph: Subgraph, fragment: str):
         """Write new content for a given fragment.
@@ -264,7 +264,7 @@ class Neo4jGraphManager(AbstractGraphManager):
 
             self._graph.commit(tx)
         else:
-            raise FragmentDoesNotExist(f"fragment [{fragment}] does not exist")
+            raise FragmentDoesNotExist(f"fragment '{fragment}' does not exist")
 
     def remove(self, fragment: str):
         """Remove content of a given fragment.
@@ -279,7 +279,7 @@ class Neo4jGraphManager(AbstractGraphManager):
             tx.delete(Subgraph(nodes))
             self._graph.commit(tx)
         else:
-            raise FragmentDoesNotExist(f"fragment [{fragment}] does not exist")
+            raise FragmentDoesNotExist(f"fragment '{fragment}' does not exist")
 
     def empty(self, fragment: str) -> bool:
         """Return True if fragment's content is empty, False otherwise.
@@ -294,4 +294,4 @@ class Neo4jGraphManager(AbstractGraphManager):
             link = self._graph.match_one((f, ), r_type=SCHEMA['types']['contains_entity'])
             return link is None
         else:
-            raise FragmentDoesNotExist(f"fragment [{fragment}] does not exist")
+            raise FragmentDoesNotExist(f"fragment '{fragment}' does not exist")
