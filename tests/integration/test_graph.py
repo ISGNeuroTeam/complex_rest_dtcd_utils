@@ -20,6 +20,7 @@ USE_DB = config['general'].getboolean('use_db')
 N = config['general'].getint('num_iter')
 
 
+@unittest.skip("deprecated")
 @unittest.skipUnless(USE_DB, 'use_db=False')
 @tag('neo4j')
 class TestNeo4jGraphView(APISimpleTestCase):
