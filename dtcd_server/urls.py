@@ -1,7 +1,7 @@
 from .views.log_config import LogsView
 from .views.design_objects import DesignObjects
 from .views.plugins_list import PluginsList
-from .views.graph import (FragmentListCreateView, Neo4jGraph)
+from .views.graph import (FragmentListCreateView, FragmentUpdateDestroyView, Neo4jGraph)
 from .views.workspace import Workspace
 from .views.page import PageView
 from .views.user import UserView
@@ -22,5 +22,6 @@ urlpatterns = [
     re_path(r'^user/change-password?$', ChPassView.as_view()),
     path('graphContent/', include([
         path('fragments/', FragmentListCreateView.as_view(), name='fragments'),
+        path('fragments/<name>/', FragmentUpdateDestroyView.as_view(), name='fragment-detail'),
     ]))
 ]

@@ -6,7 +6,8 @@ import logging
 
 from .. import settings
 from ..serializers import FragmentSerializer
-from ..utils.exceptions import FragmentExists
+from ..utils.exceptions import (
+    FragmentDoesNotExist, FragmentExists, FragmentNotEmpty)
 from ..utils.neo4j_graphmanager import Neo4jGraphManager
 from ..utils.serializers import SubgraphSerializer
 
@@ -108,3 +109,51 @@ class FragmentListCreateView(APIView):
             return ErrorResponse(error_message=e)
         else:
             return SuccessResponse(http_status=status.HTTP_201_CREATED)
+
+
+class FragmentUpdateDestroyView(APIView):
+    """Rename or delete a fragment."""
+
+    http_method_names = ["put", "delete"]
+    permission_classes = (AllowAny,)
+    serializer_class = FragmentSerializer
+    graph_manager = GRAPH_MANAGER
+
+    def update(self, request: Request, name: str):
+        """Rename a fragment.
+
+        Returns 404 if a fragment does not exist or 400 if a new name is
+        already taken.
+        """
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        new = serializer.validated_data["name"]
+        old = name
+
+        try:
+            self.graph_manager.rename_fragment(old, new)
+        except FragmentDoesNotExist as e:
+            return ErrorResponse(
+                http_status=status.HTTP_404_NOT_FOUND, error_message=e)
+        except FragmentExists as e:
+            return ErrorResponse(error_message=e)
+        else:
+            return SuccessResponse()
+
+    def delete(self, request: Request, name: str):
+        """Delete a fragment.
+
+        Returns 404 if a fragment does not exist or 400 if a fragment
+        has graph content (not empty).
+        """
+
+        try:
+            self.graph_manager.remove_fragment(name)
+        except FragmentDoesNotExist as e:
+            return ErrorResponse(
+                http_status=status.HTTP_404_NOT_FOUND, error_message=e)
+        except FragmentNotEmpty as e:
+            return ErrorResponse(error_message=e)
+        else:
+            return SuccessResponse()

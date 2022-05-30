@@ -82,7 +82,7 @@ class Neo4jGraphManager(AbstractGraphManager):
     def create_fragment(self, name: str) -> Node:
         """Create and return a bound fragment node with the given name.
 
-        Raises FragmentExists error if fragment with the given name
+        Raises `FragmentExists` error if fragment with the given name
         already exists.
         """
 
@@ -93,29 +93,32 @@ class Neo4jGraphManager(AbstractGraphManager):
             self._graph.create(n)
             return n
         else:
-            raise FragmentExists(f"fragment [{name}] already exists")
+            raise FragmentExists(f"fragment '{name}' already exists")
 
     def rename_fragment(self, old: str, new: str):
         """Rename fragment with an old name to new one.
 
-        Raises FragmentDoesNotExist if a fragment with an old name is
-        missing.
+        Raises `FragmentDoesNotExist` if old is missing or `FragmentExists`
+        if there already is a fragment with the new name.
         """
 
         node = self.get_fragment(old)  # TODO separate tx
 
-        if node is not None:
-            # TODO hardcoded name key
-            node["name"] = new
-            self._graph.push(node)
+        if node is not None:  # old exists
+            if not self.has_fragment(new):  # new name is free
+                # TODO hardcoded name key
+                node["name"] = new
+                self._graph.push(node)
+            else:
+                raise FragmentExists(f"name '{new}' is taken")
         else:
-            raise FragmentDoesNotExist(f"fragment [{old}] does not exist")
+            raise FragmentDoesNotExist(f"fragment '{old}' does not exist")
 
     def remove_fragment(self, name: str):
         """Remove fragment.
 
-        Raises FragmentDoesNotExist if a fragment is missing,
-        FragmentNotEmpty if a fragment has some content.
+        Raises `FragmentDoesNotExist` if a fragment is missing,
+        `FragmentNotEmpty` if a fragment has some content.
         """
 
         # TODO take into account descendants
@@ -125,9 +128,9 @@ class Neo4jGraphManager(AbstractGraphManager):
             if self.empty(name):
                 self._graph.delete(n)
             else:
-                raise FragmentNotEmpty(f"fragment [{name}] has content")
+                raise FragmentNotEmpty(f"fragment '{name}' has content")
         else:
-            raise FragmentDoesNotExist(f"fragment [{name}] does not exist")
+            raise FragmentDoesNotExist(f"fragment '{name}' does not exist")
 
     # ------------------------------------------------------------------
     # fragment content management
@@ -218,7 +221,7 @@ class Neo4jGraphManager(AbstractGraphManager):
     def read(self, fragment: str) -> Subgraph:
         """Return subgraph belonging to given fragment.
 
-        Raises FragmentDoesNotExist if the fragment is missing.
+        Raises `FragmentDoesNotExist` if the fragment is missing.
         """
 
         if self.has_fragment(fragment):  # TODO separate tx
@@ -233,7 +236,7 @@ class Neo4jGraphManager(AbstractGraphManager):
         """Write new content for a given fragment.
 
         Binds subgraph nodes on success.
-        Raises FragmentDoesNotExist if the fragment is missing.
+        Raises `FragmentDoesNotExist` if the fragment is missing.
         """
 
         # TODO error handling? (empty, bad format / input)
@@ -267,7 +270,7 @@ class Neo4jGraphManager(AbstractGraphManager):
         """Remove content of a given fragment.
 
         Does not remove fragment root node.
-        Raises FragmentDoesNotExist if the fragment is missing.
+        Raises `FragmentDoesNotExist` if the fragment is missing.
         """
 
         if self.has_fragment(fragment):  # TODO separate tx
@@ -281,7 +284,7 @@ class Neo4jGraphManager(AbstractGraphManager):
     def empty(self, fragment: str) -> bool:
         """Return True if fragment's content is empty, False otherwise.
 
-        Raises FragmentDoesNotExist if the fragment is missing.
+        Raises `FragmentDoesNotExist` if the fragment is missing.
         """
 
         f = self.get_fragment(fragment)  # TODO separate tx
