@@ -7,10 +7,14 @@
         "array": "_Array",
         "attribute": "_Attribute",
         "composite": "_Composite",
+        "data": "_Data",
+        "entity": "_Entity",
         "item": "_Item"
     },
     "types": {
         "contains_item": "CONTAINS_ITEM",
-        "has_attribute": "HAS_ATTRIBUTE"
+        "contains_entity": "CONTAINS_ENTITY",
+        "has_attribute": "HAS_ATTRIBUTE",
+        "has_data": "HAS_DATA"
     }
 }

@@ -3,7 +3,9 @@
         "edges": "edges",
         "nodes": "nodes",
         "source_node": "sourceNode",
+        "source_port": "sourcePort",
         "target_node": "targetNode",
+        "target_port": "targetPort",
         "yfiles_id": "primitiveID"
     },
     "labels": {

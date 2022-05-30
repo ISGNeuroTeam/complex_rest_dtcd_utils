@@ -20,6 +20,7 @@ USE_DB = config['general'].getboolean('use_db')
 N = config['general'].getint('num_iter')
 
 
+@unittest.skip("deprecated")
 @unittest.skipUnless(USE_DB, 'use_db=False')
 @tag('neo4j')
 class TestNeo4jGraphView(APISimpleTestCase):
@@ -91,6 +92,7 @@ class TestNeo4jGraphView(APISimpleTestCase):
         fixtures.sort_payload(freshdata)
         self.assertEqual(data, freshdata)
 
+    @unittest.skip("py2neo bug")
     @tag('slow')
     def test_post_get_many_times(self):
         for i in range(N):
@@ -109,7 +111,7 @@ class TestNeo4jGraphView(APISimpleTestCase):
                 self.data, freshdata, msg=f"Lap {i}"
             )
 
-    @unittest.skip
+    @unittest.skip("py2neo bug")
     @tag('slow')
     def test_post_get_many_times_large_graph(self):
         with open(FIXTURES_DIR / "graph-sample-large.json") as f:
