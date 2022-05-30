@@ -24,8 +24,8 @@ urlpatterns = [
     re_path(r'^user/change-password?$', ChPassView.as_view()),
     path('graphContent/', include([
         path('fragments/', FragmentListCreateView.as_view(), name='fragments'),
-        path('fragments/<pk>/', FragmentUpdateDestroyView.as_view(), name='fragment-detail'),
-        path('fragments/<pk>/graph/', Neo4jGraphView.as_view(), name='fragment-graph'),
+        path('fragments/object/', FragmentUpdateDestroyView.as_view(), name='fragment-detail'),
+        path('fragments/object/graph/', Neo4jGraphView.as_view(), name='fragment-graph'),
     ]))
 ]
 

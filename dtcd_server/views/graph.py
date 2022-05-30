@@ -5,7 +5,8 @@ from rest_framework.request import Request
 import logging
 
 from .. import settings
-from ..serializers import GraphSerializer, FragmentSerializer
+from ..serializers import (
+    GraphSerializer, FragmentSerializer, FragmentUpdateSerializer)
 from ..utils.exceptions import (
     FragmentDoesNotExist, FragmentExists, FragmentNotEmpty)
 from ..utils.neo4j_graphmanager import Neo4jGraphManager
@@ -34,7 +35,7 @@ class FragmentListCreateView(APIView):
         names = self.graph_manager.fragment_names()
         return SuccessResponse({"fragments": sorted(names)})
 
-    def post(self, request: Request, format=None):
+    def post(self, request: Request):
         """Create a new fragment with the given name if it does not exist.
 
         Returns 201 on success or 400 if the fragment already exists.
@@ -42,10 +43,10 @@ class FragmentListCreateView(APIView):
 
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        name = serializer.validated_data["name"]
+        pk = serializer.validated_data["fragment"]
 
         try:
-            self.graph_manager.create_fragment(name)
+            self.graph_manager.create_fragment(pk)
         except FragmentExists as e:
             return ErrorResponse(error_message=str(e))
         else:
@@ -57,20 +58,19 @@ class FragmentUpdateDestroyView(APIView):
 
     http_method_names = ["put", "delete"]
     permission_classes = (AllowAny,)
-    serializer_class = FragmentSerializer
     graph_manager = GRAPH_MANAGER
 
-    def update(self, request: Request, pk: str, format=None):
+    def put(self, request: Request):
         """Rename a fragment.
 
         Returns 404 if a fragment does not exist or 400 if a new name is
         already taken.
         """
 
-        serializer = self.serializer_class(data=request.data)
+        serializer = FragmentUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        new = serializer.validated_data["name"]
-        old = pk
+        old = serializer.validated_data["fragment"]
+        new = serializer.validated_data["new_name"]
 
         try:
             self.graph_manager.rename_fragment(old, new)
@@ -82,12 +82,16 @@ class FragmentUpdateDestroyView(APIView):
         else:
             return SuccessResponse()
 
-    def delete(self, request: Request, pk: str, format=None):
+    def delete(self, request: Request):
         """Delete a fragment.
 
         Returns 404 if a fragment does not exist or 400 if a fragment
         has graph content (not empty).
         """
+
+        serializer = FragmentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        pk = serializer.validated_data["fragment"]
 
         try:
             self.graph_manager.remove_fragment(pk)
@@ -109,8 +113,12 @@ class Neo4jGraphView(APIView):
     converter_class = SubgraphSerializer
     graph_manager = GRAPH_MANAGER
 
-    def get(self, request: Request, pk: str, format=None):
+    def get(self, request: Request, format=None):
         """Read graph content of a fragment."""
+
+        serializer = FragmentSerializer(data=request.GET)
+        serializer.is_valid(raise_exception=True)
+        pk = serializer.validated_data["fragment"]
 
         # read fragment's graph
         try:
@@ -128,7 +136,7 @@ class Neo4jGraphView(APIView):
 
         return SuccessResponse({'graph': payload})
 
-    def put(self, request: Request, pk: str, format=None):
+    def put(self, request: Request):
         """Replace graph content.
 
         Returns 400 if it cannot convert data to subgraph or 404 if
@@ -137,6 +145,7 @@ class Neo4jGraphView(APIView):
 
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
+        pk = serializer.validated_data["fragment"]
         payload = serializer.validated_data["graph"]
 
         # convert dict to subgraph
