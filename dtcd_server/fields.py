@@ -11,7 +11,7 @@ class GraphField(DictField):
 
     KEYS = ('nodes', 'edges')  # TODO get these from config
     default_error_messages = {
-        'key_error': _("Key '{key}' is missing."),
+        'key_error': _("Key '{value}' is missing."),
     }
 
     def to_representation(self, value):
@@ -27,7 +27,7 @@ class GraphField(DictField):
         # make sure keys are present
         for key in self.KEYS:
             if key not in data:
-                self.fail('key_error', key=key)
+                self.fail('key_error', value=key)
 
         # TODO construct graphs from data
         # TODO use with SubgraphSerializer?

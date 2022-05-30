@@ -47,7 +47,7 @@ class FragmentListCreateView(APIView):
         try:
             self.graph_manager.create_fragment(name)
         except FragmentExists as e:
-            return ErrorResponse(error_message=e)
+            return ErrorResponse(error_message=str(e))
         else:
             return SuccessResponse(http_status=status.HTTP_201_CREATED)
 
@@ -76,9 +76,9 @@ class FragmentUpdateDestroyView(APIView):
             self.graph_manager.rename_fragment(old, new)
         except FragmentDoesNotExist as e:
             return ErrorResponse(
-                http_status=status.HTTP_404_NOT_FOUND, error_message=e)
+                http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
         except FragmentExists as e:
-            return ErrorResponse(error_message=e)
+            return ErrorResponse(error_message=str(e))
         else:
             return SuccessResponse()
 
@@ -93,9 +93,9 @@ class FragmentUpdateDestroyView(APIView):
             self.graph_manager.remove_fragment(pk)
         except FragmentDoesNotExist as e:
             return ErrorResponse(
-                http_status=status.HTTP_404_NOT_FOUND, error_message=e)
+                http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
         except FragmentNotEmpty as e:
-            return ErrorResponse(error_message=e)
+            return ErrorResponse(error_message=str(e))
         else:
             return SuccessResponse()
 
@@ -117,7 +117,7 @@ class Neo4jGraphView(APIView):
             subgraph = self.graph_manager.read(pk)
         except FragmentDoesNotExist as e:
             return ErrorResponse(
-                http_status=status.HTTP_404_NOT_FOUND, error_message=e)
+                http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
 
         # convert to representation format
         converter = self.converter_class()
@@ -151,6 +151,6 @@ class Neo4jGraphView(APIView):
             self.graph_manager.write(subgraph, pk)
         except FragmentDoesNotExist as e:
             return ErrorResponse(
-                http_status=status.HTTP_404_NOT_FOUND, error_message=e)
+                http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
 
         return SuccessResponse()

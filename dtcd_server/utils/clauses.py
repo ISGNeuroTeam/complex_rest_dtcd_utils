@@ -18,5 +18,5 @@ MATCH_FRAGMENT_DATA, _ = cypher_join(
     'MATCH (fragment:Fragment {name: $name})',
     '-[:CONTAINS_ENTITY]-> (entity:_Entity)',
     'OPTIONAL MATCH p = (entity) -[:HAS_DATA]-> (:_Data)',
-    '-[:HAS_ATTRIBUTE|CONTAINS_ITEM*]-> (descendant)',
+    '-[:HAS_ATTRIBUTE|CONTAINS_ITEM*0..]-> (descendant)',
 )
