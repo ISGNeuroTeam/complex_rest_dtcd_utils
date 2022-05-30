@@ -109,7 +109,6 @@ class Neo4jGraphView(APIView):
 
     http_method_names = ["get", "put", "delete"]
     permission_classes = (AllowAny,)
-    serializer_class = GraphSerializer
     converter_class = SubgraphSerializer
     graph_manager = GRAPH_MANAGER
 
@@ -143,7 +142,7 @@ class Neo4jGraphView(APIView):
         given fragment pk is missing.
         """
 
-        serializer = self.serializer_class(data=request.data)
+        serializer = GraphSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         pk = serializer.validated_data["fragment"]
         payload = serializer.validated_data["graph"]
@@ -163,3 +162,20 @@ class Neo4jGraphView(APIView):
                 http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
 
         return SuccessResponse()
+
+    def delete(self, request: Request):
+        """Delete graph content.
+
+        Raises 404 if given fragment is missing.
+        """
+
+        serializer = FragmentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        pk = serializer.validated_data["fragment"]
+
+        try:
+            self.graph_manager.remove(pk)
+        except FragmentDoesNotExist as e:
+            return ErrorResponse(error_message=str(e))
+        else:
+            return SuccessResponse()
