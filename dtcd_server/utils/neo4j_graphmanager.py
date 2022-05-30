@@ -82,7 +82,7 @@ class Neo4jGraphManager(AbstractGraphManager):
     def create_fragment(self, name: str) -> Node:
         """Create and return a bound fragment node with the given name.
 
-        Raises FragmentExistsError if fragment with the given name
+        Raises FragmentExists error if fragment with the given name
         already exists.
         """
 
