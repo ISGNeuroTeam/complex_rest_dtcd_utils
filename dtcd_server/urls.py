@@ -1,17 +1,15 @@
-from rest_framework.urlpatterns import format_suffix_patterns
+from django.urls import path, re_path
 
-from .views.log_config import LogsView
+from .views.change_password import ChPassView
 from .views.design_objects import DesignObjects
-from .views.plugins_list import PluginsList
 from .views.graph import (
-    FragmentListCreateView, FragmentUpdateDestroyView, Neo4jGraphView)
+    FragmentListView, FragmentDetailView, Neo4jGraphView)
+from .views.log_config import LogsView
+from .views.page import PageView
+from .views.plugins_list import PluginsList
+from .views.user import UserView
 from .views.workspace import Workspace
 from .views.workspace_dir import WorkspaceDir
-from .views.page import PageView
-from .views.user import UserView
-from .views.change_password import ChPassView
-from django.urls import re_path
-from django.urls import include, path
 
 
 app_name = 'dtcd_server'
@@ -26,11 +24,7 @@ urlpatterns = [
     path('page/<str:pagename>', PageView.as_view()),
     re_path(r'^user/?$', UserView.as_view()),
     re_path(r'^user/change-password?$', ChPassView.as_view()),
-    path('graphContent/', include([
-        path('fragments/', FragmentListCreateView.as_view(), name='fragments'),
-        path('fragments/object/', FragmentUpdateDestroyView.as_view(), name='fragment-detail'),
-        path('fragments/object/graph/', Neo4jGraphView.as_view(), name='fragment-graph'),
-    ]))
+    path('fragments', FragmentListView.as_view(), name='fragments'),
+    path('fragments/object', FragmentDetailView.as_view(), name='fragment-detail'),
+    path('fragments/object/graph', Neo4jGraphView.as_view(), name='fragment-graph'),
 ]
-
-urlpatterns = format_suffix_patterns(urlpatterns)
