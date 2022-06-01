@@ -57,7 +57,7 @@ class FragmentListView(APIView):
 
 
 class FragmentDetailView(APIView):
-    """Retrieve, update or delete a fragment."""
+    """Update or delete a fragment."""
 
     http_method_names = ["put", "delete"]
     permission_classes = (AllowAny,)

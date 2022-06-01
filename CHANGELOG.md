@@ -1,18 +1,29 @@
-## [unreleased]
+# Changelog
+All notable changes to this project will be documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+
+## [unreleased]
 ### Added
 - Workspaces can now be organized in directories. 
-- Creation and modification time are added to workspaces and directories for sorting reasons
+- Creation and modification times are added to workspaces and directories for sorting.
+- Limited fragment support for graph operations.
+
+### Changed
+- URL layout for graph operations.
+- Adopted convention for no trailing slashes at the end of URLs.
 
 ### Fixed
-- .gitkeep absence now doesn't error out when listing plugins and workspaces
+- .gitkeep absence now doesn't error out when listing plugins and workspaces.
 
 ## [0.2.0] - 2022-05-18
 ### Changed
 - Graphs are now handled by means of neo4j instead of file system.
-- Project is now called dtcd_server, not mock_server
+- Project is now called dtcd_server, not mock_server.
 
 ### Added:
-- User change password endpoint
-- Access to pages
-- Additional fields for User needed by DTCD
+- User change password endpoint.
+- Access to pages.
+- Additional fields for User needed by DTCD.
