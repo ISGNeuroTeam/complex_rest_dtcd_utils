@@ -76,8 +76,8 @@ class FragmentDetailView(APIView):
         f = self.graph_manager.get_fragment(pk)
 
         if f is not None:
-            data = {"id": f.identity, "name": f["name"]}
-            return SuccessResponse({"fragment": data})
+            serializer = self.serializer_class(f)
+            return SuccessResponse({"fragment": serializer.data})
         else:
             return ErrorResponse(http_status=status.HTTP_404_NOT_FOUND)
 

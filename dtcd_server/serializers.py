@@ -8,7 +8,7 @@ from .fields import GraphField
 
 
 class FragmentSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
+    id = serializers.IntegerField(read_only=True, source="__primaryvalue__")
     name = serializers.CharField(max_length=255)  # TODO value in settings
 
 
