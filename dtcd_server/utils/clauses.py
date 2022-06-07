@@ -9,14 +9,21 @@ This module is a collection of such queries.
 
 from py2neo.cypher import cypher_join
 
+from ..settings import SCHEMA
+
+
+KEYS = SCHEMA["keys"]
+LABELS = SCHEMA["labels"]
+TYPES = SCHEMA["types"]
+t = "|".join((TYPES["has_attribute"], TYPES["contains_item"]))  # TODO rename
 
 # TODO table-driven methods?
 # TODO replace hard-coded labels & properties
 # TODO explain what each claose is used for
 # TODO documentation? what variables you get? templates?
 MATCH_FRAGMENT_DATA, _ = cypher_join(
-    'MATCH (fragment:Fragment {name: $name})',
-    '-[:CONTAINS_ENTITY]-> (entity:_Entity)',
-    'OPTIONAL MATCH p = (entity) -[:HAS_DATA]-> (:_Data)',
-    '-[:HAS_ATTRIBUTE|CONTAINS_ITEM*0..]-> (descendant)',
+    f'MATCH (fragment:{LABELS["fragment"]}' + '{name: $name})',
+    f'-[:{TYPES["contains_entity"]}]-> (entity:{LABELS["entity"]})',
+    f'OPTIONAL MATCH p = (entity) -[:{TYPES["has_data"]}]-> (:{LABELS["data"]})',
+    f'-[:{t}*0..]-> (descendant)',
 )

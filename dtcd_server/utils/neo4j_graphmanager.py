@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Set, Union
 
 from py2neo import Graph, Node, NodeMatch, Relationship, Subgraph, Transaction
@@ -7,6 +8,18 @@ from . import clauses
 from .abc_graphmanager import AbstractGraphManager
 from .exceptions import FragmentDoesNotExist, FragmentExists, FragmentNotEmpty
 from ..settings import SCHEMA
+
+
+KEYS = SCHEMA["keys"]
+LABELS = SCHEMA["labels"]
+TYPES = SCHEMA["types"]
+
+
+@dataclass(frozen=True)
+class Fragment:
+    """Lightweight ADT for fragments."""
+    id: int
+    name: str
 
 
 class Neo4jGraphManager(AbstractGraphManager):
@@ -60,24 +73,48 @@ class Neo4jGraphManager(AbstractGraphManager):
         """Match a fragment with given name and return the match."""
         # TODO hardcoded fragment label
         # TODO hardcoded name key
-        return self._graph.nodes.match("Fragment", name=name)
+        return self._graph.nodes.match(LABELS["fragment"], name=name)
 
-    def fragment_names(self) -> Set[str]:
-        """Return a set of fragment names."""
+    def fragments(self) -> Set[Fragment]:
+        """Return a set of fragments."""
 
         # TODO hardcoded name key
-        match = self._graph.nodes.match("Fragment")
-        return set(node['name'] for node in match)
+        match = self._graph.nodes.match(LABELS["fragment"])
+        return set(
+            Fragment(node.identity, node['name'])
+            for node in match
+        )
 
     def has_fragment(self, name: str) -> bool:
         """Return True if a fragment with the given name exists, False otherwise."""
 
         return self._match_fragment(name).exists()
 
-    def get_fragment(self, name: str) -> Union[Node, None]:
-        """Return bound fragment node with name if it exists, None otherwise."""
+    def get_fragment(self, fragment_id: int) -> Union[Node, None]:
+        """Return bound fragment node with given id if it exists, None otherwise."""
 
-        return self._match_fragment(name).first()
+        n = self._graph.nodes.get(fragment_id)
+
+        # TODO hard-coded label
+        if n is not None and n.has_label(LABELS["fragment"]):
+            return n
+        else:
+            return None
+
+    def get_fragment_or_exception(self, fragment_id: int) -> Node:
+        """Return bound fragment node with given id.
+
+        Raises `FragmentDoesNotExist` if the fragment is missing.
+        """
+
+        # TODO replace with this function
+
+        f = self.get_fragment(fragment_id)
+
+        if f is not None:
+            return f
+        else:
+            raise FragmentDoesNotExist(f"fragment [{fragment_id}] does not exist")
 
     def create_fragment(self, name: str) -> Node:
         """Create and return a bound fragment node with the given name.
@@ -89,32 +126,30 @@ class Neo4jGraphManager(AbstractGraphManager):
         if not self.has_fragment(name):  # TODO this is a separate transaction
             # TODO fragment label
             # TODO name key
-            n = Node("Fragment", name=name)
+            n = Node(LABELS["fragment"], name=name)
             self._graph.create(n)
             return n
         else:
             raise FragmentExists(f"fragment '{name}' already exists")
 
-    def rename_fragment(self, old: str, new: str):
-        """Rename fragment with an old name to new one.
+    def rename_fragment(self, fragment_id: int, name: str):
+        """Rename a fragment.
 
-        Raises `FragmentDoesNotExist` if old is missing or `FragmentExists`
-        if there already is a fragment with the new name.
+        Raises `FragmentDoesNotExist` if fragment is missing or
+        `FragmentExists` if there already is a fragment with the new name.
         """
 
-        node = self.get_fragment(old)  # TODO separate tx
+        node = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
 
-        if node is not None:  # old exists
-            if not self.has_fragment(new):  # new name is free
-                # TODO hardcoded name key
-                node["name"] = new
-                self._graph.push(node)
-            else:
-                raise FragmentExists(f"name '{new}' is taken")
+        # TODO separate tx
+        if not self.has_fragment(name):  # new name is free
+            # TODO hardcoded name key
+            node["name"] = name
+            self._graph.push(node)
         else:
-            raise FragmentDoesNotExist(f"fragment '{old}' does not exist")
+            raise FragmentExists(f"name '{name}' is taken")
 
-    def remove_fragment(self, name: str):
+    def remove_fragment(self, fragment_id: int):
         """Remove fragment.
 
         Raises `FragmentDoesNotExist` if a fragment is missing,
@@ -122,15 +157,12 @@ class Neo4jGraphManager(AbstractGraphManager):
         """
 
         # TODO take into account descendants
-        n = self.get_fragment(name)
+        n = self.get_fragment_or_exception(fragment_id)
 
-        if n is not None:
-            if self.empty(name):
-                self._graph.delete(n)
-            else:
-                raise FragmentNotEmpty(f"fragment '{name}' has content")
+        if self.empty(fragment_id):
+            self._graph.delete(n)
         else:
-            raise FragmentDoesNotExist(f"fragment '{name}' does not exist")
+            raise FragmentNotEmpty(f"fragment [{fragment_id}] has content")
 
     # ------------------------------------------------------------------
     # fragment content management
@@ -218,21 +250,21 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         return Subgraph(id2node.values(), relationships)
 
-    def read(self, fragment: str) -> Subgraph:
+    def read(self, fragment_id: int) -> Subgraph:
         """Return subgraph belonging to given fragment.
 
         Raises `FragmentDoesNotExist` if the fragment is missing.
         """
 
-        if self.has_fragment(fragment):  # TODO separate tx
-            tx = self._graph.begin(readonly=True)
-            subgraph = self._fragment_content(tx, fragment)
-            self._graph.commit(tx)
-            return subgraph
-        else:
-            raise FragmentDoesNotExist(f"fragment '{fragment}' does not exist")
+        f = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
+        name = f["name"]  # TODO hard-coded
+        tx = self._graph.begin(readonly=True)
+        subgraph = self._fragment_content(tx, name)
+        self._graph.commit(tx)
 
-    def write(self, subgraph: Subgraph, fragment: str):
+        return subgraph
+
+    def write(self, subgraph: Subgraph, fragment_id: str):
         """Write new content for a given fragment.
 
         Binds subgraph nodes on success.
@@ -242,56 +274,49 @@ class Neo4jGraphManager(AbstractGraphManager):
         # TODO error handling? (empty, bad format / input)
         # TODO this approach deletes frontier nodes & cross-fragment rels
 
-        f = self.get_fragment(fragment)  # TODO separate tx
+        f = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
+        name = f["name"]  # TODO hard-coded
+        tx = self._graph.begin()
 
-        if f is not None:
-            tx = self._graph.begin()
+        # delete fragment content
+        nodes = self._fragment_content_nodes(tx, name)
+        tx.delete(Subgraph(nodes))
 
-            # delete fragment content
-            nodes = self._fragment_content_nodes(tx, fragment)
-            tx.delete(Subgraph(nodes))
+        # re-link fragment to new subgraph entities
+        type_ = SCHEMA["types"]["contains_entity"]
+        rels = [
+            Relationship(f, type_, node)
+            for node in subgraph.nodes
+            if node.has_label(SCHEMA["labels"]["entity"])
+        ]
 
-            # re-link fragment to new subgraph entities
-            type_ = SCHEMA["types"]["contains_entity"]
-            rels = [
-                Relationship(f, type_, node)
-                for node in subgraph.nodes
-                if node.has_label(SCHEMA["labels"]["entity"])
-            ]
+        # create the rest of the subgraph & fragment-entity links
+        tx.create(subgraph | Subgraph(relationships=rels))
 
-            # create the rest of the subgraph & fragment-entity links
-            tx.create(subgraph | Subgraph(relationships=rels))
+        self._graph.commit(tx)
 
-            self._graph.commit(tx)
-        else:
-            raise FragmentDoesNotExist(f"fragment '{fragment}' does not exist")
-
-    def remove(self, fragment: str):
+    def remove(self, fragment_id: int):
         """Remove content of a given fragment.
 
         Does not remove fragment root node.
         Raises `FragmentDoesNotExist` if the fragment is missing.
         """
 
-        if self.has_fragment(fragment):  # TODO separate tx
-            tx = self._graph.begin()
-            nodes = self._fragment_content_nodes(tx, fragment)
-            tx.delete(Subgraph(nodes))
-            self._graph.commit(tx)
-        else:
-            raise FragmentDoesNotExist(f"fragment '{fragment}' does not exist")
+        f = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
+        name = f["name"]  # TODO hardcoded
+        tx = self._graph.begin()
+        nodes = self._fragment_content_nodes(tx, name)
+        tx.delete(Subgraph(nodes))
+        self._graph.commit(tx)
 
-    def empty(self, fragment: str) -> bool:
+    def empty(self, fragment_id: int) -> bool:
         """Return True if fragment's content is empty, False otherwise.
 
         Raises `FragmentDoesNotExist` if the fragment is missing.
         """
 
-        f = self.get_fragment(fragment)  # TODO separate tx
+        f = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
 
-        if f is not None:
-            # empty if no links to entities
-            link = self._graph.match_one((f, ), r_type=SCHEMA['types']['contains_entity'])
-            return link is None
-        else:
-            raise FragmentDoesNotExist(f"fragment '{fragment}' does not exist")
+        # empty if no links to entities
+        link = self._graph.match_one((f, ), r_type=SCHEMA['types']['contains_entity'])
+        return link is None

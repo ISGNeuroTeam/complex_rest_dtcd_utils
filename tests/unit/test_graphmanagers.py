@@ -79,22 +79,24 @@ class TestNeo4jGraphManager(unittest.TestCase):
         self.assertTrue(self.manager.has_fragment("hr"))
         self.assertFalse(self.manager.has_fragment("sales"))
 
-    def test_fragment_names(self):
+    def test_fragments(self):
         # no fragments
-        self.assertEqual(self.manager.fragment_names(), set())
+        self.assertEqual(self.manager.fragments(), set())
 
         # add some names
         self.manager.create_fragment("hr")
         self.manager.create_fragment("it")
         self.manager.create_fragment("sales")
 
-        self.assertEqual(self.manager.fragment_names(), {"hr", "it", "sales"})
+        fragments = self.manager.fragments()
+
+        self.assertEqual({f.name for f in fragments}, {"hr", "it", "sales"})
 
     def test_get_fragment(self):
         self.assertIsNone(self.manager.get_fragment("hr"))
 
-        self.manager.create_fragment("hr")
-        n = self.manager.get_fragment("hr")
+        orig = self.manager.create_fragment("hr")
+        n = self.manager.get_fragment(orig.identity)
         # TODO replace hard-coded labels & properties
         self.assertIsNotNone(n.identity)  # make sure node is bound
         self.assertTrue(n.has_label("Fragment"))

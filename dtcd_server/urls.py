@@ -24,7 +24,7 @@ urlpatterns = [
     path('page/<str:pagename>', PageView.as_view()),
     re_path(r'^user/?$', UserView.as_view()),
     re_path(r'^user/change-password?$', ChPassView.as_view()),
-    re_path(r'^fragments/?$', FragmentListView.as_view(), name='fragments'),
-    re_path(r'^fragments/object/?$', FragmentDetailView.as_view(), name='fragment-detail'),
-    re_path(r'^fragments/object/graph/?$', Neo4jGraphView.as_view(), name='fragment-graph'),
+    path('fragments', FragmentListView.as_view(), name='fragments'),
+    path('fragments/<int:pk>', FragmentDetailView.as_view(), name='fragment-detail'),
+    path('fragments/<int:pk>/graph', Neo4jGraphView.as_view(), name='fragment-graph'),
 ]

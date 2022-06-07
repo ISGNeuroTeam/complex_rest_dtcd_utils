@@ -9,6 +9,7 @@
         "composite": "_Composite",
         "data": "_Data",
         "entity": "_Entity",
+        "fragment": "_Fragment",
         "item": "_Item"
     },
     "types": {
