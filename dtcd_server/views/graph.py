@@ -193,6 +193,17 @@ class Neo4jGraphView(APIView):
             return SuccessResponse()
 
 
+class ResetNeo4j(APIView):
+    """A view to reset Neo4j database."""
+    http_method_names = ["post"]
+    permission_classes = (AllowAny,)
+    graph_manager = GRAPH_MANAGER
+
+    def post(self, request, *args, **kwargs):
+        self.graph_manager.remove_all()
+        return SuccessResponse()
+
+
 def describe(data):
     """Return (num_nodes, num_edges) tuple from data."""
     return len(data["nodes"]), len(data["edges"])
