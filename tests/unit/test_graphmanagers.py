@@ -142,7 +142,8 @@ class TestNeo4jGraphManager(unittest.TestCase):
         self.manager._graph.create(full)
 
         tx = self.manager._graph.begin(True)
-        nodes_cursor = self.manager._match_fragment_content_nodes(tx, "hr")
+        nodes_cursor = self.manager._match_fragment_content_nodes(
+            tx, fragment.__primaryvalue__)
         self.manager._graph.commit(tx)
         nodes = set(i[0] for i in nodes_cursor)
 
@@ -159,7 +160,7 @@ class TestNeo4jGraphManager(unittest.TestCase):
         self.manager._graph.create(full)
 
         tx = self.manager._graph.begin(True)
-        subgraph = self.manager._fragment_content(tx, "hr")
+        subgraph = self.manager._fragment_content(tx, f.__primaryvalue__)
         self.manager._graph.commit(tx)
 
         self.assertEqual(subgraph, self.content)

@@ -21,9 +21,22 @@ t = "|".join((TYPES["has_attribute"], TYPES["contains_item"]))  # TODO rename
 # TODO replace hard-coded labels & properties
 # TODO explain what each claose is used for
 # TODO documentation? what variables you get? templates?
-MATCH_FRAGMENT_DATA, _ = cypher_join(
-    f'MATCH (fragment:{LABELS["fragment"]}' + '{name: $name})',
-    f'-[:{TYPES["contains_entity"]}]-> (entity:{LABELS["entity"]})',
+MATCH_FRAGMENT, _ = cypher_join(
+    'MATCH (fragment:{})'.format(LABELS["fragment"]),
+    'WHERE id(fragment) = $id',
+)
+
+MATCH_ENTITIES, _ = cypher_join(
+    f'MATCH (fragment) -[:{TYPES["contains_entity"]}]-> (entity:{LABELS["entity"]})',
+)
+
+MATCH_DATA, _ = cypher_join(
     f'OPTIONAL MATCH p = (entity) -[:{TYPES["has_data"]}]-> (:{LABELS["data"]})',
     f'-[:{t}*0..]-> (descendant)',
+)
+
+MATCH_FRAGMENT_DATA, _ = cypher_join(
+    MATCH_FRAGMENT,
+    MATCH_ENTITIES,
+    MATCH_DATA,
 )

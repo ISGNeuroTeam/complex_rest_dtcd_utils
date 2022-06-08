@@ -131,7 +131,7 @@ class Neo4jGraphManager(AbstractGraphManager):
     # fragment content management
     # ------------------------------------------------------------------
 
-    def _match_fragment_content_nodes(self, tx: Transaction, name: str) -> Cursor:
+    def _match_fragment_content_nodes(self, tx: Transaction, fragment_id: int) -> Cursor:
         """
         Match all descendant nodes belonging to a given fragment within a transaction.
 
@@ -142,21 +142,21 @@ class Neo4jGraphManager(AbstractGraphManager):
             clauses.MATCH_FRAGMENT_DATA,
             'UNWIND nodes(p) as n',  # TODO explain where p comes from
             'RETURN DISTINCT n',
-            name=name,  # TODO explain why we need this
+            id=fragment_id,  # TODO explain why we need this
         )
         cursor = tx.run(q, params)
 
         return cursor
 
-    def _fragment_content_nodes(self, tx: Transaction, name: str) -> Set[Node]:
+    def _fragment_content_nodes(self, tx: Transaction, fragment_id: int) -> Set[Node]:
         """
         Return a set of descendant nodes belonging to a given fragment within a transaction.
         """
 
-        cursor = self._match_fragment_content_nodes(tx, name)
+        cursor = self._match_fragment_content_nodes(tx, fragment_id)
         return set(record[0] for record in cursor)
 
-    def _match_fragment_content_relationships(self, tx: Transaction, name: str) -> Cursor:
+    def _match_fragment_content_relationships(self, tx: Transaction, fragment_id: int) -> Cursor:
         """
         Match all descendant relationships belonging to a given fragment
         within a transaction.
@@ -178,13 +178,13 @@ class Neo4jGraphManager(AbstractGraphManager):
                  'type(r) AS `type`',
                  'properties(r) AS `properties`', ]
             ),
-            name=name,
+            id=fragment_id,
         )
         cursor = tx.run(q, params)
 
         return cursor
 
-    def _fragment_content(self, tx: Transaction, name: str) -> Subgraph:
+    def _fragment_content(self, tx: Transaction, fragment_id: int) -> Subgraph:
         """Return bound subgraph belonging to given fragment.
 
         All operations run within a given transaction.
@@ -192,14 +192,14 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         # TODO rels between entities are missing
         # nodes
-        nodes = self._fragment_content_nodes(tx, name)
+        nodes = self._fragment_content_nodes(tx, fragment_id)
         id2node = {
             node.identity: node
             for node in nodes
         }
 
         # relationships
-        rels_cursor = self._match_fragment_content_relationships(tx, name)
+        rels_cursor = self._match_fragment_content_relationships(tx, fragment_id)
 
         # workaround: py2neo sucks at efficient convertsion of rels to Subgraph
         # manually construct Relationships
@@ -219,15 +219,14 @@ class Neo4jGraphManager(AbstractGraphManager):
         Raises `FragmentDoesNotExist` if the fragment is missing.
         """
 
-        fragment = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
-        name = fragment.name
+        _ = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
         tx = self._graph.begin(readonly=True)
-        subgraph = self._fragment_content(tx, name)
+        subgraph = self._fragment_content(tx, fragment_id)
         self._graph.commit(tx)
 
         return subgraph
 
-    def write(self, subgraph: Subgraph, fragment_id: str):
+    def write(self, subgraph: Subgraph, fragment_id: int):
         """Write new content for a given fragment.
 
         Binds subgraph nodes on success.
@@ -238,11 +237,10 @@ class Neo4jGraphManager(AbstractGraphManager):
         # TODO this approach deletes frontier nodes & cross-fragment rels
 
         fragment = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
-        name = fragment.name
         tx = self._graph.begin()
 
         # delete fragment content
-        nodes = self._fragment_content_nodes(tx, name)
+        nodes = self._fragment_content_nodes(tx, fragment_id)
         tx.delete(Subgraph(nodes))
 
         # re-link fragment node to new subgraph entities
@@ -266,10 +264,9 @@ class Neo4jGraphManager(AbstractGraphManager):
         Raises `FragmentDoesNotExist` if the fragment is missing.
         """
 
-        fragment = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
-        name = fragment.name
+        _ = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
         tx = self._graph.begin()
-        nodes = self._fragment_content_nodes(tx, name)
+        nodes = self._fragment_content_nodes(tx, fragment_id)
         tx.delete(Subgraph(nodes))
         self._graph.commit(tx)
 
