@@ -8,8 +8,7 @@ from rest.permissions import AllowAny
 
 from .. import settings
 from ..serializers import GraphSerializer, FragmentSerializer
-from ..utils.exceptions import (
-    FragmentDoesNotExist, FragmentExists, FragmentNotEmpty)
+from ..utils.exceptions import FragmentDoesNotExist, FragmentNotEmpty
 from ..utils.neo4j_graphmanager import Neo4jGraphManager
 from ..utils.serializers import SubgraphSerializer
 
@@ -42,21 +41,21 @@ class FragmentListView(APIView):
     def post(self, request: Request):
         """Create a new fragment with the given name if it does not exist.
 
-        Returns 201 on success or 400 if the fragment already exists.
+        Returns 201 on success.
         """
 
-        # TODO allow duplicate names in fragments?
-
+        # validation
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         name = serializer.validated_data["name"]  # TODO put .create in serializer?
+        # create a fragment
+        fragment = self.graph_manager.create_fragment(name)
+        serializer = self.serializer_class(fragment)
 
-        try:
-            self.graph_manager.create_fragment(name)
-        except FragmentExists as e:
-            return ErrorResponse(error_message=str(e))
-        else:
-            return SuccessResponse(http_status=status.HTTP_201_CREATED)
+        return SuccessResponse(
+            data={"fragment": serializer.data},
+            http_status=status.HTTP_201_CREATED
+        )
 
 
 class FragmentDetailView(APIView):
@@ -84,8 +83,7 @@ class FragmentDetailView(APIView):
     def put(self, request: Request, pk: int):
         """Rename a fragment.
 
-        Returns 404 if a fragment does not exist or 400 if a new name is
-        already taken.
+        Returns 404 if a fragment does not exist.
         """
 
         serializer = self.serializer_class(data=request.data)
@@ -97,8 +95,6 @@ class FragmentDetailView(APIView):
         except FragmentDoesNotExist as e:
             return ErrorResponse(
                 http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
-        except FragmentExists as e:
-            return ErrorResponse(error_message=str(e))
         else:
             return SuccessResponse()
 

@@ -5,9 +5,8 @@ from pathlib import Path
 from py2neo import Node, Relationship
 
 from dtcd_server import settings
-from dtcd_server.utils.exceptions import (
-    FragmentDoesNotExist, FragmentExists, FragmentNotEmpty)
-from dtcd_server.utils.neo4j_graphmanager import Neo4jGraphManager
+from dtcd_server.utils.exceptions import FragmentDoesNotExist, FragmentNotEmpty
+from dtcd_server.utils.neo4j_graphmanager import Fragment, Neo4jGraphManager
 
 from .. import fixtures
 
@@ -74,74 +73,72 @@ class TestNeo4jGraphManager(unittest.TestCase):
 
     # TODO read_all
 
-    def test_has_fragment(self):
-        self.manager.create_fragment("hr")
-        self.assertTrue(self.manager.has_fragment("hr"))
-        self.assertFalse(self.manager.has_fragment("sales"))
-
     def test_fragments(self):
         # no fragments
-        self.assertEqual(self.manager.fragments(), set())
+        self.assertEqual(self.manager.fragments(), [])
 
         # add some names
         self.manager.create_fragment("hr")
         self.manager.create_fragment("it")
         self.manager.create_fragment("sales")
-
         fragments = self.manager.fragments()
-
         self.assertEqual({f.name for f in fragments}, {"hr", "it", "sales"})
 
     def test_get_fragment(self):
-        self.assertIsNone(self.manager.get_fragment("hr"))
+        self.assertIsNone(self.manager.get_fragment(42))
 
         orig = self.manager.create_fragment("hr")
-        n = self.manager.get_fragment(orig.identity)
-        # TODO replace hard-coded labels & properties
-        self.assertIsNotNone(n.identity)  # make sure node is bound
-        self.assertTrue(n.has_label("Fragment"))
-        self.assertIn("name", n)
-        self.assertTrue(n["name"] == "hr")
+        f = self.manager.get_fragment(orig.__primaryvalue__)
+        self.assertEqual(f, orig)
+
+    def test_get_fragment_or_exception(self):
+        orig = self.manager.create_fragment("hr")
+        f = self.manager.get_fragment_or_exception(orig.__primaryvalue__)
+        self.assertEqual(f, orig)
+
+        with self.assertRaises(FragmentDoesNotExist):
+            self.manager.get_fragment_or_exception(orig.__primaryvalue__ + 1)
 
     def test_create_fragment(self):
-        self.manager.create_fragment("hr")
-        # TODO replace hard-coded labels & properties
-        match = self.manager._graph.nodes.match("Fragment", name="hr")
-        self.assertTrue(match.exists())
-
-        with self.assertRaises(FragmentExists):
-            self.manager.create_fragment("hr")
+        orig = self.manager.create_fragment("hr")
+        f = self.manager._repo.get(Fragment, orig.__primaryvalue__)
+        self.assertEqual(f, orig)
 
     def test_rename_fragment(self):
         with self.assertRaises(FragmentDoesNotExist):
-            self.manager.rename_fragment("hr", "sales")
+            self.manager.rename_fragment(42, "sales")
 
-        self.manager.create_fragment("it")
-        self.manager.rename_fragment("it", "r&d")
-        self.assertTrue(self.manager.has_fragment("r&d"))
-        self.assertFalse(self.manager.has_fragment("it"))
+        orig = self.manager.create_fragment("it")
+        fragment_id = orig.__primaryvalue__
+        self.manager.rename_fragment(fragment_id, "r&d")
+        f = self.manager.get_fragment(fragment_id)
+        self.assertEqual(f.name, "r&d")
 
     def test_remove_fragment(self):
-        self.manager.create_fragment("hr")
-        self.manager.remove_fragment("hr")
-        self.assertFalse(self.manager.has_fragment("hr"))
+        orig = self.manager.create_fragment("hr")
+        fragment_id = orig.__primaryvalue__
+        self.manager.remove_fragment(fragment_id)
+        f = self.manager.get_fragment(fragment_id)
+        self.assertIsNone(f)
 
         # missing fragment error
         with self.assertRaises(FragmentDoesNotExist):
-            self.manager.remove_fragment("sales")
+            self.manager.remove_fragment(fragment_id + 1)
 
         # non-empty fragment error
-        self.manager.create_fragment("it")
-        self.manager.write(self.tree1, "it")  # content bound
+        orig = self.manager.create_fragment("it")
+        fragment_id = orig.__primaryvalue__
+        self.manager.write(self.tree1, fragment_id)  # content bound
 
         with self.assertRaises(FragmentNotEmpty):
-            self.manager.remove_fragment("it")
+            self.manager.remove_fragment(fragment_id)
 
     def test_match_fragment_content_nodes(self):
-        f = self.manager.create_fragment("hr")
-        r1 = Relationship(f, 'CONTAINS_ENTITY', self.e1)
-        r2 = Relationship(f, 'CONTAINS_ENTITY', self.e2)
-        full = self.content | f | r1 | r2
+        fragment = self.manager.create_fragment("hr")
+        root = fragment.__node__
+        r1 = Relationship(root, 'CONTAINS_ENTITY', self.e1)
+        r2 = Relationship(root, 'CONTAINS_ENTITY', self.e2)
+        full = self.content | root | r1 | r2
         self.manager._graph.create(full)
 
         tx = self.manager._graph.begin(True)
@@ -155,9 +152,10 @@ class TestNeo4jGraphManager(unittest.TestCase):
 
     def test_fragment_content(self):
         f = self.manager.create_fragment("hr")
-        r1 = Relationship(f, 'CONTAINS_ENTITY', self.e1)
-        r2 = Relationship(f, 'CONTAINS_ENTITY', self.e2)
-        full = self.content | f | r1 | r2
+        root = f.__node__
+        r1 = Relationship(root, 'CONTAINS_ENTITY', self.e1)
+        r2 = Relationship(root, 'CONTAINS_ENTITY', self.e2)
+        full = self.content | root | r1 | r2
         self.manager._graph.create(full)
 
         tx = self.manager._graph.begin(True)
@@ -170,86 +168,95 @@ class TestNeo4jGraphManager(unittest.TestCase):
         # TODO add one more fragment
         # create fragment node, link it to entities
         f = self.manager.create_fragment("hr")
-        r1 = Relationship(f, 'CONTAINS_ENTITY', self.e1)
-        r2 = Relationship(f, 'CONTAINS_ENTITY', self.e2)
-        full = self.content | f | r1 | r2
+        root = f.__node__
+        r1 = Relationship(root, 'CONTAINS_ENTITY', self.e1)
+        r2 = Relationship(root, 'CONTAINS_ENTITY', self.e2)
+        full = self.content | root | r1 | r2
         full |= self.dummy  # add some dummy data
         self.manager._graph.create(full)
 
-        content = self.manager.read("hr")
+        content = self.manager.read(f.__primaryvalue__)
         self.assertEqual(content, self.content)
 
         with self.assertRaises(FragmentDoesNotExist):
-            content = self.manager.read("sales")
+            content = self.manager.read(f.__primaryvalue__ + 1)
 
     def test_read_empty(self):
-        self.manager.create_fragment("hr")
+        f = self.manager.create_fragment("hr")
 
-        content = self.manager.read("hr")
+        content = self.manager.read(f.__primaryvalue__)
         self.assertFalse(bool(content))  # make sure empty subgraph
 
     def test_write(self):
         f = self.manager.create_fragment("hr")
-        self.manager.write(self.tree1, "hr")  # content bound
+        fragment_id = f.__primaryvalue__
+        self.manager.write(self.tree1, fragment_id)  # content bound
 
         # check link from fragment to entity
         # TODO replace hard-coded stuff
-        link = self.manager._graph.match_one((f, ), r_type='CONTAINS_ENTITY')
+        root = f.__node__
+        link = self.manager._graph.match_one((root, ), r_type='CONTAINS_ENTITY')
         self.assertIsNotNone(
             link, 'relationship from fragment node to entity node is missing')
         self.assertTrue(
             link.end_node.has_label('_Entity'), 'must link to node with entity label')
 
         # check fragment content ok
-        fromdb = self.manager.read("hr")  # fromdb bound
+        fromdb = self.manager.read(fragment_id)  # fromdb bound
         self.assertEqual(fromdb, self.tree1)
 
         with self.assertRaises(FragmentDoesNotExist):
-            self.manager.write(self.dummy, "sales")
+            self.manager.write(self.dummy, fragment_id + 1)
 
     def test_write_rewrite(self):
         # TODO tests for frontier nodes & relationship retention
         # TODO replace hard-coded stuff
         f = self.manager.create_fragment("hr")
+        fragment_id = f.__primaryvalue__
+        root = f.__node__
+
         # old data
-        r1 = Relationship(f, 'CONTAINS_ENTITY', self.e1)
-        old = self.tree1 | f | r1
+        r1 = Relationship(root, 'CONTAINS_ENTITY', self.e1)
+        old = self.tree1 | root | r1
         self.manager._graph.create(old)  # tree1, f, r1 bound
 
-        self.manager.write(self.tree2, "hr")
-        fromdb = self.manager.read("hr")
+        self.manager.write(self.tree2, fragment_id)
+        fromdb = self.manager.read(fragment_id)
         self.assertEqual(fromdb, self.tree2)
 
         with self.assertRaises(FragmentDoesNotExist):
-            self.manager.write(self.tree2, "sales")
+            self.manager.write(self.tree2, fragment_id + 1)
 
     # TODO def test_write_frontiers(self):
 
     def test_remove(self):
-        self.manager.create_fragment("hr")
-        self.manager.write(self.tree1, "hr")  # content bound
+        orig = self.manager.create_fragment("hr")
+        fragment_id = orig.__primaryvalue__
+        self.manager.write(self.tree1, fragment_id)  # content bound
 
-        self.manager.remove("hr")
+        self.manager.remove(fragment_id)
         # make sure root is still present
-        f = self.manager.get_fragment("hr")
+        f = self.manager.get_fragment(fragment_id)
         self.assertIsNotNone(f)
         # no links from fragment root
-        link = self.manager._graph.match_one((f, ), r_type='CONTAINS_ENTITY')
+        root = f.__node__
+        link = self.manager._graph.match_one((root, ), r_type='CONTAINS_ENTITY')
         self.assertIsNone(link)
         # check content is empty now
-        content = self.manager.read("hr")
+        content = self.manager.read(fragment_id)
         self.assertFalse(bool(content))
 
     def test_empty(self):
-        self.manager.create_fragment("hr")
+        f = self.manager.create_fragment("hr")
+        fragment_id = f.__primaryvalue__
         # empty
-        self.assertTrue(self.manager.empty("hr"))
+        self.assertTrue(self.manager.empty(fragment_id))
         # write some data
-        self.manager.write(self.tree1, "hr")
-        self.assertFalse(self.manager.empty("hr"))
+        self.manager.write(self.tree1, fragment_id)
+        self.assertFalse(self.manager.empty(fragment_id))
         # error
         with self.assertRaises(FragmentDoesNotExist):
-            self.manager.empty("sales")
+            self.manager.empty(fragment_id + 1)
 
 
 if __name__ == '__main__':
