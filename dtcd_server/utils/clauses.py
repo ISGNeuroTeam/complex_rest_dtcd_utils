@@ -21,8 +21,12 @@ t = "|".join((TYPES["has_attribute"], TYPES["contains_item"]))  # TODO rename
 # TODO replace hard-coded labels & properties
 # TODO explain what each claose is used for
 # TODO documentation? what variables you get? templates?
-MATCH_FRAGMENT, _ = cypher_join(
+MATCH_ALL_FRAGMENTS, _ = cypher_join(
     'MATCH (fragment:{})'.format(LABELS["fragment"]),
+)
+
+MATCH_FRAGMENT, _ = cypher_join(
+    MATCH_ALL_FRAGMENTS,
     'WHERE id(fragment) = $id',
 )
 
@@ -35,10 +39,33 @@ MATCH_DATA, _ = cypher_join(
     f'-[:{t}*0..]-> (descendant)',
 )
 
-MATCH_FRAGMENT_DATA, _ = cypher_join(
-    MATCH_FRAGMENT,
+MATCH_CONTENT, _ = cypher_join(
     MATCH_ENTITIES,
     MATCH_DATA,
+)
+
+MATCH_FRAGMENT_CONTENT, _ = cypher_join(
+    MATCH_FRAGMENT,
+    MATCH_CONTENT,
+)
+
+RETURN_NODES, _ = cypher_join(
+    'UNWIND nodes(p) AS n',
+    'RETURN DISTINCT n',
+)
+
+_FINAL = ", ".join([
+    'id(startNode(r)) AS start_id',
+    'id(endNode(r)) AS end_id',
+    'type(r) AS `type`',
+    'properties(r) AS `properties`',
+])
+
+RETURN_RELATIONSHIPS, _ = cypher_join(
+    'UNWIND relationships(p) AS r',
+    'WITH DISTINCT r AS r',
+    'RETURN',
+    _FINAL
 )
 
 DELETE_FRAGMENT_DESCENDANTS, _ = cypher_join(

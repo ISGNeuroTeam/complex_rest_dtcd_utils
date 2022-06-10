@@ -139,7 +139,8 @@ class Neo4jGraphManager(AbstractGraphManager):
     # fragment content management
     # ------------------------------------------------------------------
 
-    def _match_fragment_content_nodes(self, tx: Transaction, fragment_id: int) -> Cursor:
+    def _match_fragment_content_nodes(
+            self, tx: Transaction, fragment_id: int = None) -> Cursor:
         """
         Match all descendant nodes belonging to a given fragment within a transaction.
 
@@ -147,9 +148,8 @@ class Neo4jGraphManager(AbstractGraphManager):
         """
 
         q, params = cypher_join(
-            clauses.MATCH_FRAGMENT_DATA,
-            'UNWIND nodes(p) as n',  # TODO explain where p comes from
-            'RETURN DISTINCT n',
+            clauses.MATCH_FRAGMENT_CONTENT,
+            clauses.RETURN_NODES,
             id=fragment_id,  # TODO explain why we need this
         )
         cursor = tx.run(q, params)
@@ -177,15 +177,8 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         # TODO relationships BETWEEN entities are not matched here
         q, params = cypher_join(
-            clauses.MATCH_FRAGMENT_DATA,
-            'UNWIND relationships(p) as r',
-            'RETURN',
-            ", ".join(
-                ['id(startNode(r)) AS start_id',
-                 'id(endNode(r)) AS end_id',
-                 'type(r) AS `type`',
-                 'properties(r) AS `properties`', ]
-            ),
+            clauses.MATCH_FRAGMENT_CONTENT,
+            clauses.RETURN_RELATIONSHIPS,
             id=fragment_id,
         )
         cursor = tx.run(q, params)
