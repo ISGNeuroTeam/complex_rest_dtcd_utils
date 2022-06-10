@@ -91,12 +91,13 @@ class FragmentDetailView(APIView):
         new = serializer.validated_data["name"]
 
         try:
-            self.graph_manager.rename_fragment(pk, new)
+            fragment = self.graph_manager.rename_fragment(pk, new)
         except FragmentDoesNotExist as e:
             return ErrorResponse(
                 http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
         else:
-            return SuccessResponse()
+            serializer = self.serializer_class(fragment)
+            return SuccessResponse({"fragment": serializer.data})
 
     def delete(self, request: Request, pk: int):
         """Delete a fragment.

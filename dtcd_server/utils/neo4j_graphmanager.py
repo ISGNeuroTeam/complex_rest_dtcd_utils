@@ -108,7 +108,7 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         return fragment
 
-    def rename_fragment(self, fragment_id: int, name: str):
+    def rename_fragment(self, fragment_id: int, name: str) -> Fragment:
         """Rename a fragment.
 
         Raises `FragmentDoesNotExist` if fragment is missing.
@@ -117,6 +117,7 @@ class Neo4jGraphManager(AbstractGraphManager):
         fragment = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
         fragment.name = name
         self._repo.save(fragment)
+        return fragment
 
     def remove_fragment(self, fragment_id: int):
         """Remove fragment.
