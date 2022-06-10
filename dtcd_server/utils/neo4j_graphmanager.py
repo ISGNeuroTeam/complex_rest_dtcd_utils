@@ -1,5 +1,5 @@
 from textwrap import shorten
-from typing import List, Set, Union
+from typing import Generator, List, Set, Union
 
 from py2neo import Graph, Node, Relationship, Subgraph, Transaction
 from py2neo import ogm
@@ -14,6 +14,11 @@ from ..settings import SCHEMA
 KEYS = SCHEMA["keys"]
 LABELS = SCHEMA["labels"]
 TYPES = SCHEMA["types"]
+
+
+def filter_nodes(subgraph: Subgraph, label: str) -> Generator[Node, None, None]:
+    """Construct an iterator over subgraph nodes with the given label."""
+    return (x for x in subgraph.nodes if x.has_label(label))
 
 
 class Fragment(ogm.Model):
@@ -226,6 +231,82 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         return subgraph
 
+    @staticmethod
+    def _merge_vertices(tx: Transaction, subgraph: Subgraph):
+        """Merge Vertex nodes from subgraph, return a set of merged nodes."""
+
+        # merge vertex roots on (label, yfiles_id)
+        label = SCHEMA["labels"]["node"]
+        vertices = set(filter_nodes(subgraph, label))  # O(n)
+        key = SCHEMA["keys"]["yfiles_id"]
+        tx.merge(Subgraph(vertices), label, key)
+
+        return vertices
+
+    @staticmethod
+    def _merge_edges(tx: Transaction, subgraph: Subgraph):
+        """Merge Edge nodes from subgraph, return a set of merged nodes."""
+        label = SCHEMA["labels"]["edge"]
+        edges = set(filter_nodes(subgraph, label))  # O(n)
+        # TODO edge.pk
+        keys = tuple(
+            SCHEMA["keys"][key]
+            for key in ('source_node', 'source_port', 'target_node', 'target_port')
+        )
+        tx.merge(Subgraph(edges), label, keys)
+
+        return edges
+
+    @staticmethod
+    def _relink_entities(subgraph: Subgraph, root: Node):
+        """Create relationships between root and Entity nodes in the subgraph."""
+
+        label = SCHEMA["labels"]["entity"]
+        entities = filter_nodes(subgraph, label)
+        type_ = SCHEMA["types"]["contains_entity"]
+        # CREATE (fragment) --> (entity)
+        return (Relationship(root, type_, node) for node in entities)
+
+    def _merge(self, tx: Transaction, subgraph: Subgraph, fragment: Fragment):
+        """Merge given subgraph into the fragment.
+
+        We want to preserve connections (edges and frontier vertices)
+        between fragments. The merge is made as follows:
+
+        1. Merge entity roots:
+            1. Merge root nodes of *vertex* trees.
+            2. Merge edge root nodes of *edge* trees.
+        2. Remove old entities (roots and their trees).
+        3. Re-link fragment with new entities to be created.
+        4. Merge newly created entities and links.
+        """
+
+        # merge vertex & edge roots
+        vertices = self._merge_vertices(tx, subgraph)
+        edges = self._merge_edges(tx, subgraph)
+
+        # delete difference
+        # TODO think about this more
+        current = self._fragment_content_nodes(tx, fragment.__primaryvalue__)
+        old = current - vertices - edges
+        tx.delete(Subgraph(old))
+
+        # re-link fragment to subgraph entities (the roots vertex and edge trees)
+        # tries to re-link already linked entities;
+        # some bound entities might be linked already; those are skipped
+        rels = self._relink_entities(subgraph, fragment.__node__)
+        # TODO how about
+        # from itertools import chain
+        # type_ = SCHEMA["types"]["contains_entity"]
+        # rels = set(
+        #     Relationship(f, type_, entity)
+        #     for entity in chain(vertices, edges)
+        # )
+
+        # create the rest of the subgraph & fragment-entity links
+        # skips already bound nodes & relationships
+        tx.create(subgraph | Subgraph(relationships=rels))
+
     def write(self, subgraph: Subgraph, fragment_id: int):
         """Write new content for a given fragment.
 
@@ -234,27 +315,9 @@ class Neo4jGraphManager(AbstractGraphManager):
         """
 
         # TODO error handling? (empty, bad format / input)
-        # TODO this approach deletes frontier nodes & cross-fragment rels
-
         fragment = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
         tx = self._graph.begin()
-
-        # delete fragment content
-        nodes = self._fragment_content_nodes(tx, fragment_id)
-        tx.delete(Subgraph(nodes))
-
-        # re-link fragment node to new subgraph entities
-        root = fragment.__node__
-        type_ = SCHEMA["types"]["contains_entity"]
-        rels = [
-            Relationship(root, type_, node)
-            for node in subgraph.nodes
-            if node.has_label(SCHEMA["labels"]["entity"])
-        ]
-
-        # create the rest of the subgraph & fragment-entity links
-        tx.create(subgraph | Subgraph(relationships=rels))
-
+        self._merge(tx, subgraph, fragment)
         self._graph.commit(tx)
 
     def remove(self, fragment_id: int):

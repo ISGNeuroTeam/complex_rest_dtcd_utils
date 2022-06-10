@@ -16,6 +16,10 @@ TEST_DIR = Path(__file__).resolve().parent.parent
 config = configparser.ConfigParser()
 config.read(TEST_DIR / 'config.ini')
 USE_DB = config['general'].getboolean('use_db')
+# service settings for Neo4j operations
+KEYS = settings.SCHEMA["keys"]
+LABELS = settings.SCHEMA["labels"]
+TYPES = settings.SCHEMA["types"]
 
 
 @ unittest.skipUnless(USE_DB, 'use_db=False')
@@ -33,12 +37,14 @@ class TestNeo4jGraphManager(unittest.TestCase):
         self.dummy = fixtures.generate_dummy()
         self.manager._graph.delete_all()  # FIXME wipes out the database
 
-        # TODO replace hard-coded labels & types
-        self.e1 = Node('_Entity', 'Node', primitiveID="e1")
-        self.d1 = Node('_Data', '_Composite', primitiveID="e1", age=27)
-        self.attr = Node('_Attribute', x=0, y=0)
-        self.d1_has_attr = Relationship(self.d1, 'HAS_ATTRIBUTE', self.attr, _key='layout')
-        self.e1_d1 = Relationship(self.e1, 'HAS_DATA', self.d1)
+        self.e1 = Node(LABELS["entity"], LABELS["node"])
+        self.e1[KEYS["yfiles_id"]] = "e1"
+        self.d1 = Node(LABELS["data"], LABELS["composite"], age=27)
+        self.d1[KEYS["yfiles_id"]] = "e1"
+        self.attr = Node(LABELS["attribute"], x=0, y=0)
+        self.d1_has_attr = Relationship(self.d1, TYPES["has_attribute"], self.attr)
+        self.d1_has_attr[KEYS["parent_key"]] = 'layout'
+        self.e1_d1 = Relationship(self.e1, TYPES["has_data"], self.d1)
         self.tree1 = (
             self.e1
             | self.d1
@@ -47,13 +53,17 @@ class TestNeo4jGraphManager(unittest.TestCase):
             | self.e1_d1
         )
 
-        self.e2 = Node('_Entity', 'Node', primitiveID="e2")
-        self.d2 = Node('_Data', '_Composite', primitiveID="e2", online=True)
-        self.ports = Node('_Array', '_Attribute')
-        self.item0 = Node('_Item', primitiveID='p3')
-        self.ports_contains_item0 = Relationship(self.ports, 'CONTAINS_ITEM', self.item0, _pos=0)
-        self.d2_has_ports = Relationship(self.d2, 'HAS_ATTRIBUTE', self.ports, _key='initPorts')
-        self.e2_d2 = Relationship(self.e2, 'HAS_DATA', self.d2)
+        self.e2 = Node(LABELS["entity"], LABELS["node"])
+        self.e2[KEYS["yfiles_id"]] = "e2"
+        self.d2 = Node(LABELS["data"], LABELS["composite"], online=True)
+        self.d2[KEYS["yfiles_id"]] = "e2"
+        self.ports = Node(LABELS["array"], LABELS["attribute"])
+        self.item0 = Node(LABELS["item"], primitiveID='p3')
+        self.ports_contains_item0 = Relationship(self.ports, TYPES["contains_item"], self.item0)
+        self.ports_contains_item0[KEYS["position"]] = 0
+        self.d2_has_ports = Relationship(self.d2, TYPES["has_attribute"], self.ports)
+        self.d2_has_ports[KEYS["parent_key"]] = 'initPorts'
+        self.e2_d2 = Relationship(self.e2, TYPES["has_data"], self.d2)
         self.tree2 = (
             self.e2
             | self.d2
@@ -66,7 +76,7 @@ class TestNeo4jGraphManager(unittest.TestCase):
 
         self.content = self.tree1 | self.tree2
 
-        self.e3 = Node('_Entity', primitiveID="e3")
+        self.e3 = Node(LABELS["entity"], primitiveID="e3")
 
     def tearDown(self) -> None:
         self.manager._graph.delete_all()  # FIXME wipes out the database
@@ -136,8 +146,8 @@ class TestNeo4jGraphManager(unittest.TestCase):
     def test_match_fragment_content_nodes(self):
         fragment = self.manager.create_fragment("hr")
         root = fragment.__node__
-        r1 = Relationship(root, 'CONTAINS_ENTITY', self.e1)
-        r2 = Relationship(root, 'CONTAINS_ENTITY', self.e2)
+        r1 = Relationship(root, TYPES["contains_entity"], self.e1)
+        r2 = Relationship(root, TYPES["contains_entity"], self.e2)
         full = self.content | root | r1 | r2
         self.manager._graph.create(full)
 
@@ -154,8 +164,8 @@ class TestNeo4jGraphManager(unittest.TestCase):
     def test_fragment_content(self):
         f = self.manager.create_fragment("hr")
         root = f.__node__
-        r1 = Relationship(root, 'CONTAINS_ENTITY', self.e1)
-        r2 = Relationship(root, 'CONTAINS_ENTITY', self.e2)
+        r1 = Relationship(root, TYPES["contains_entity"], self.e1)
+        r2 = Relationship(root, TYPES["contains_entity"], self.e2)
         full = self.content | root | r1 | r2
         self.manager._graph.create(full)
 
@@ -170,8 +180,8 @@ class TestNeo4jGraphManager(unittest.TestCase):
         # create fragment node, link it to entities
         f = self.manager.create_fragment("hr")
         root = f.__node__
-        r1 = Relationship(root, 'CONTAINS_ENTITY', self.e1)
-        r2 = Relationship(root, 'CONTAINS_ENTITY', self.e2)
+        r1 = Relationship(root, TYPES["contains_entity"], self.e1)
+        r2 = Relationship(root, TYPES["contains_entity"], self.e2)
         full = self.content | root | r1 | r2
         full |= self.dummy  # add some dummy data
         self.manager._graph.create(full)
@@ -188,19 +198,44 @@ class TestNeo4jGraphManager(unittest.TestCase):
         content = self.manager.read(f.__primaryvalue__)
         self.assertFalse(bool(content))  # make sure empty subgraph
 
+    def test_merge_vertices(self):
+        # initial merge = create
+        tx = self.manager._graph.begin()
+        vertices = self.manager._merge_vertices(tx, self.content)
+        self.manager._graph.commit(tx)
+        self.assertEqual(len(vertices), 2)
+        self.assertTrue(all(v.identity is not None for v in vertices))
+        # TODO after merge
+
+    # TODO def test_merge_edges(self)
+
+    def test_relink_entities(self):
+        root = Node()
+        links = self.manager._relink_entities(self.content, root)
+        self.assertEqual(len(list(links)), 2)
+        # TODO more tests?
+
+    def test_merge(self):
+        fragment = self.manager.create_fragment("hr")
+        # first merge = create
+        tx = self.manager._graph.begin()
+        self.manager._merge(tx, self.content, fragment)
+        self.manager._graph.commit(tx)
+        fromdb = self.manager.read(fragment.__primaryvalue__)
+        self.assertEqual(fromdb, self.content)
+
     def test_write(self):
         f = self.manager.create_fragment("hr")
         fragment_id = f.__primaryvalue__
         self.manager.write(self.tree1, fragment_id)  # content bound
 
         # check link from fragment to entity
-        # TODO replace hard-coded stuff
         root = f.__node__
-        link = self.manager._graph.match_one((root, ), r_type='CONTAINS_ENTITY')
+        link = self.manager._graph.match_one((root, ), r_type=TYPES["contains_entity"])
         self.assertIsNotNone(
             link, 'relationship from fragment node to entity node is missing')
         self.assertTrue(
-            link.end_node.has_label('_Entity'), 'must link to node with entity label')
+            link.end_node.has_label(LABELS["entity"]), 'must link to node with entity label')
 
         # check fragment content ok
         fromdb = self.manager.read(fragment_id)  # fromdb bound
@@ -211,13 +246,12 @@ class TestNeo4jGraphManager(unittest.TestCase):
 
     def test_write_rewrite(self):
         # TODO tests for frontier nodes & relationship retention
-        # TODO replace hard-coded stuff
         f = self.manager.create_fragment("hr")
         fragment_id = f.__primaryvalue__
         root = f.__node__
 
         # old data
-        r1 = Relationship(root, 'CONTAINS_ENTITY', self.e1)
+        r1 = Relationship(root, TYPES["contains_entity"], self.e1)
         old = self.tree1 | root | r1
         self.manager._graph.create(old)  # tree1, f, r1 bound
 
@@ -241,7 +275,7 @@ class TestNeo4jGraphManager(unittest.TestCase):
         self.assertIsNotNone(f)
         # no links from fragment root
         root = f.__node__
-        link = self.manager._graph.match_one((root, ), r_type='CONTAINS_ENTITY')
+        link = self.manager._graph.match_one((root, ), r_type=TYPES["contains_entity"])
         self.assertIsNone(link)
         # check content is empty now
         content = self.manager.read(fragment_id)
