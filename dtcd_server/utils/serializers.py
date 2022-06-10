@@ -46,7 +46,6 @@ class SubgraphSerializer:
         # remember vertex id on root Entity node
         id_key = self._c["keys"]["yfiles_id"]
         tree.root[id_key] = vertex_dict[id_key]
-        # add Vertex label
         tree.root.add_label(self._c["labels"]["node"])
 
         return tree
@@ -56,7 +55,6 @@ class SubgraphSerializer:
 
         tree = self._load_entity(edge_dict)
         root = tree.root
-        # TODO add surrogate ID based on [src|tgt][port|node]
         root.add_label(self._c["labels"]["edge"])
 
         src_node = self._c["keys"]["source_node"]

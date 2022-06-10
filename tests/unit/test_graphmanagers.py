@@ -209,12 +209,6 @@ class TestNeo4jGraphManager(unittest.TestCase):
 
     # TODO def test_merge_edges(self)
 
-    def test_relink_entities(self):
-        root = Node()
-        links = self.manager._relink_entities(self.content, root)
-        self.assertEqual(len(list(links)), 2)
-        # TODO more tests?
-
     def test_merge(self):
         fragment = self.manager.create_fragment("hr")
         # first merge = create

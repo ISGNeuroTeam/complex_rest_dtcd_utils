@@ -1,3 +1,4 @@
+from itertools import chain
 from textwrap import shorten
 from typing import Generator, List, Set, Union
 
@@ -115,7 +116,7 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         fragment = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
         fragment.name = name
-        self._repo.save(fragment)  # TODO or push?
+        self._repo.save(fragment)
 
     def remove_fragment(self, fragment_id: int):
         """Remove fragment.
@@ -124,7 +125,7 @@ class Neo4jGraphManager(AbstractGraphManager):
         `FragmentNotEmpty` if a fragment has some content.
         """
 
-        # TODO take into account descendants
+        # TODO cascade remove content?
         fragment = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
 
         if self.empty(fragment_id):  # TODO separate tx
@@ -172,7 +173,7 @@ class Neo4jGraphManager(AbstractGraphManager):
         - `properties` is a dictionary of relationship properties
         """
 
-        # TODO relationships between entities are not matched yet
+        # TODO relationships BETWEEN entities are not matched here
         q, params = cypher_join(
             clauses.MATCH_FRAGMENT_DATA,
             'UNWIND relationships(p) as r',
@@ -206,7 +207,7 @@ class Neo4jGraphManager(AbstractGraphManager):
         # relationships
         rels_cursor = self._match_fragment_content_relationships(tx, fragment_id)
 
-        # workaround: py2neo sucks at efficient convertsion of rels to Subgraph
+        # workaround: py2neo sucks at efficient conversion of rels to Subgraph
         # manually construct Relationships
         relationships = []
         for record in rels_cursor:
@@ -257,16 +258,6 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         return edges
 
-    @staticmethod
-    def _relink_entities(subgraph: Subgraph, root: Node):
-        """Create relationships between root and Entity nodes in the subgraph."""
-
-        label = SCHEMA["labels"]["entity"]
-        entities = filter_nodes(subgraph, label)
-        type_ = SCHEMA["types"]["contains_entity"]
-        # CREATE (fragment) --> (entity)
-        return (Relationship(root, type_, node) for node in entities)
-
     def _merge(self, tx: Transaction, subgraph: Subgraph, fragment: Fragment):
         """Merge given subgraph into the fragment.
 
@@ -275,13 +266,12 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         1. Merge entity roots:
             1. Merge root nodes of *vertex* trees.
-            2. Merge edge root nodes of *edge* trees.
-        2. Remove old entities (roots and their trees).
+            2. Merge root nodes of *edge* trees.
+        2. Remove old content (entity roots and their trees).
         3. Re-link fragment with new entities to be created.
         4. Merge newly created entities and links.
         """
 
-        # merge vertex & edge roots
         vertices = self._merge_vertices(tx, subgraph)
         edges = self._merge_edges(tx, subgraph)
 
@@ -291,21 +281,18 @@ class Neo4jGraphManager(AbstractGraphManager):
         old = current - vertices - edges
         tx.delete(Subgraph(old))
 
-        # re-link fragment to subgraph entities (the roots vertex and edge trees)
-        # tries to re-link already linked entities;
-        # some bound entities might be linked already; those are skipped
-        rels = self._relink_entities(subgraph, fragment.__node__)
-        # TODO how about
-        # from itertools import chain
-        # type_ = SCHEMA["types"]["contains_entity"]
-        # rels = set(
-        #     Relationship(f, type_, entity)
-        #     for entity in chain(vertices, edges)
-        # )
+        # re-link fragment to subgraph entities (roots of vertex and edge trees)
+        # entities with existing relationship are skipped
+        root = fragment.__node__
+        type_ = SCHEMA["types"]["contains_entity"]
+        links = set(
+            Relationship(root, type_, entity)
+            for entity in chain(vertices, edges)
+        )
 
         # create the rest of the subgraph & fragment-entity links
         # skips already bound nodes & relationships
-        tx.create(subgraph | Subgraph(relationships=rels))
+        tx.create(subgraph | Subgraph(relationships=links))
 
     def write(self, subgraph: Subgraph, fragment_id: int):
         """Write new content for a given fragment.
