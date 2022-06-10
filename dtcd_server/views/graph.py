@@ -8,7 +8,7 @@ from rest.permissions import AllowAny
 
 from .. import settings
 from ..serializers import GraphSerializer, FragmentSerializer
-from ..utils.exceptions import FragmentDoesNotExist, FragmentNotEmpty
+from ..utils.exceptions import FragmentDoesNotExist
 from ..utils.neo4j_graphmanager import Neo4jGraphManager
 from ..utils.serializers import SubgraphSerializer
 
@@ -102,8 +102,8 @@ class FragmentDetailView(APIView):
     def delete(self, request: Request, pk: int):
         """Delete a fragment.
 
-        Returns 404 if a fragment does not exist or 400 if a fragment
-        has graph content (not empty).
+        The content is deleted in cascading fashion.
+        Returns 404 if a fragment does not exist.
         """
 
         try:
@@ -111,8 +111,6 @@ class FragmentDetailView(APIView):
         except FragmentDoesNotExist as e:
             return ErrorResponse(
                 http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
-        except FragmentNotEmpty as e:
-            return ErrorResponse(error_message=str(e))
         else:
             return SuccessResponse()
 

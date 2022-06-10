@@ -8,7 +8,7 @@ from py2neo.cypher import Cursor, cypher_join
 
 from . import clauses
 from .abc_graphmanager import AbstractGraphManager
-from .exceptions import FragmentDoesNotExist, FragmentNotEmpty
+from .exceptions import FragmentDoesNotExist
 from ..settings import SCHEMA
 
 
@@ -120,19 +120,20 @@ class Neo4jGraphManager(AbstractGraphManager):
         return fragment
 
     def remove_fragment(self, fragment_id: int):
-        """Remove fragment.
+        """Remove fragment and its content.
 
-        Raises `FragmentDoesNotExist` if a fragment is missing,
-        `FragmentNotEmpty` if a fragment has some content.
+        Raises `FragmentDoesNotExist` if a fragment is missing.
         """
 
-        # TODO cascade remove content?
-        fragment = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
-
-        if self.empty(fragment_id):  # TODO separate tx
-            self._repo.delete(fragment)
-        else:
-            raise FragmentNotEmpty(f"fragment [{fragment_id}] has content")
+        # TODO separate txs
+        fragment = self.get_fragment_or_exception(fragment_id)
+        # delete content
+        q, params = cypher_join(
+            clauses.DELETE_FRAGMENT_DESCENDANTS,
+            id=fragment_id,
+        )
+        self._graph.update(q, params)
+        self._repo.delete(fragment)
 
     # ------------------------------------------------------------------
     # fragment content management

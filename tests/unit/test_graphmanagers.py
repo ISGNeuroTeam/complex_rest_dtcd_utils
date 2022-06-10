@@ -5,7 +5,7 @@ from pathlib import Path
 from py2neo import Node, Relationship
 
 from dtcd_server import settings
-from dtcd_server.utils.exceptions import FragmentDoesNotExist, FragmentNotEmpty
+from dtcd_server.utils.exceptions import FragmentDoesNotExist
 from dtcd_server.utils.neo4j_graphmanager import Fragment, Neo4jGraphManager
 
 from .. import fixtures
@@ -134,14 +134,6 @@ class TestNeo4jGraphManager(unittest.TestCase):
         # missing fragment error
         with self.assertRaises(FragmentDoesNotExist):
             self.manager.remove_fragment(fragment_id + 1)
-
-        # non-empty fragment error
-        orig = self.manager.create_fragment("it")
-        fragment_id = orig.__primaryvalue__
-        self.manager.write(self.tree1, fragment_id)  # content bound
-
-        with self.assertRaises(FragmentNotEmpty):
-            self.manager.remove_fragment(fragment_id)
 
     def test_match_fragment_content_nodes(self):
         fragment = self.manager.create_fragment("hr")

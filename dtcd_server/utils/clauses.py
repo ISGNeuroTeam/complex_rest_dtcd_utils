@@ -40,3 +40,9 @@ MATCH_FRAGMENT_DATA, _ = cypher_join(
     MATCH_ENTITIES,
     MATCH_DATA,
 )
+
+DELETE_FRAGMENT_DESCENDANTS, _ = cypher_join(
+    MATCH_FRAGMENT,
+    'MATCH (fragment) -[*0..]-> (descendant)',
+    'DETACH DELETE (descendant)',
+)
