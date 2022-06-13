@@ -9,7 +9,7 @@ from rest.permissions import AllowAny
 from .. import settings
 from ..serializers import GraphSerializer, FragmentSerializer
 from ..utils.exceptions import FragmentDoesNotExist
-from ..utils.neo4j_graphmanager import Neo4jGraphManager
+from ..utils.neo4j_graphmanager import Fragment, Neo4jGraphManager
 from ..utils.serializers import SubgraphSerializer
 
 
@@ -20,6 +20,13 @@ GRAPH_MANAGER = Neo4jGraphManager(
     settings.NEO4J['name'],
     auth=(settings.NEO4J['user'], settings.NEO4J['password'])
 )
+
+
+def get_fragment_or_404(
+        graph_manager: Neo4jGraphManager, fragment_id: int) -> Fragment:
+    """Return a fragment with given id using provided manager."""
+    # TODO how to do it properly?
+    raise NotImplementedError
 
 
 class FragmentListView(APIView):
@@ -33,7 +40,7 @@ class FragmentListView(APIView):
     def get(self, request: Request):
         """Read a list of existing fragment names."""
 
-        fragments = self.graph_manager.fragments()
+        fragments = self.graph_manager.fragments.all()
         serializer = self.serializer_class(fragments, many=True)
 
         return SuccessResponse({"fragments": serializer.data})
@@ -49,7 +56,7 @@ class FragmentListView(APIView):
         serializer.is_valid(raise_exception=True)
         name = serializer.validated_data["name"]  # TODO put .create in serializer?
         # create a fragment
-        fragment = self.graph_manager.create_fragment(name)
+        fragment = self.graph_manager.fragments.create(name)
         serializer = self.serializer_class(fragment)
 
         return SuccessResponse(
@@ -72,7 +79,7 @@ class FragmentDetailView(APIView):
         Returns 404 if a fragment does not exist
         """
 
-        f = self.graph_manager.get_fragment(pk)
+        f = self.graph_manager.fragments.get(pk)
 
         if f is not None:
             serializer = self.serializer_class(f)
@@ -91,7 +98,7 @@ class FragmentDetailView(APIView):
         new = serializer.validated_data["name"]
 
         try:
-            fragment = self.graph_manager.rename_fragment(pk, new)
+            fragment = self.graph_manager.fragments.rename(pk, new)
         except FragmentDoesNotExist as e:
             return ErrorResponse(
                 http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
@@ -107,7 +114,7 @@ class FragmentDetailView(APIView):
         """
 
         try:
-            self.graph_manager.remove_fragment(pk)
+            self.graph_manager.fragments.remove(pk)
         except FragmentDoesNotExist as e:
             return ErrorResponse(
                 http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
@@ -128,10 +135,12 @@ class Neo4jGraphView(APIView):
 
         # read fragment's graph
         try:
-            subgraph = self.graph_manager.read(pk)
+            fragment = self.graph_manager.fragments.get_or_exception(pk)
         except FragmentDoesNotExist as e:
             return ErrorResponse(
                 http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
+
+        subgraph = self.graph_manager.fragments.content.get(fragment)
         logger.info(
             f"Read {len(subgraph.nodes)} nodes, {len(subgraph.relationships)} relationships.")
 
@@ -170,13 +179,13 @@ class Neo4jGraphView(APIView):
             f"Writing {len(subgraph.nodes)} nodes, {len(subgraph.relationships)} relationships.")
 
         # replace fragment content with new subgraph
-        try:
-            self.graph_manager.write(subgraph, pk)
-        except FragmentDoesNotExist as e:
-            return ErrorResponse(
-                http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
+        fragment = self.graph_manager.fragments.get(pk)
 
-        return SuccessResponse()
+        if fragment is not None:
+            self.graph_manager.fragments.content.replace(subgraph, fragment)
+            return SuccessResponse()
+        else:
+            return ErrorResponse(http_status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request: Request, pk: int):
         """Delete graph content.
@@ -185,21 +194,24 @@ class Neo4jGraphView(APIView):
         """
 
         try:
-            self.graph_manager.remove(pk)
+            fragment = self.graph_manager.fragments.get_or_exception(pk)
         except FragmentDoesNotExist as e:
-            return ErrorResponse(error_message=str(e))
-        else:
-            return SuccessResponse()
+            return ErrorResponse(
+                http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
+
+        self.graph_manager.fragments.content.remove(fragment)
+        return SuccessResponse()
 
 
 class ResetNeo4j(APIView):
     """A view to reset Neo4j database."""
+
     http_method_names = ["post"]
     permission_classes = (AllowAny,)
     graph_manager = GRAPH_MANAGER
 
     def post(self, request, *args, **kwargs):
-        self.graph_manager.remove_all()
+        self.graph_manager.clear()
         return SuccessResponse()
 
 

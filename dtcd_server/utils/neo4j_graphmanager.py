@@ -7,10 +7,12 @@ from py2neo import ogm
 from py2neo.cypher import Cursor, cypher_join
 
 from . import clauses
-from .abc_graphmanager import AbstractGraphManager
-from .exceptions import FragmentDoesNotExist
+from .exceptions import (
+    FragmentDoesNotBelongToGraph, FragmentDoesNotExist, FragmentIsNotBound)
 from ..settings import SCHEMA
 
+# TODO custom type
+FragmentID = int
 
 KEYS = SCHEMA["keys"]
 LABELS = SCHEMA["labels"]
@@ -31,76 +33,55 @@ class Fragment(ogm.Model):
         return shorten(text, 30)
 
 
-class Neo4jGraphManager(AbstractGraphManager):
+class Neo4jGraphManager:
     """Interface to Neo4j operations."""
 
     def __init__(self, profile: str, name: str = None, **settings):
-        self._graph = Graph(profile, name, **settings)  # raw queries
-        self._repo = ogm.Repository.wrap(self._graph)  # ogm management
+        self._graph = Graph(profile, name, **settings)
         # TODO make sure graph is available
+        self._fragment_manager = FragmentManager(self._graph)
 
-    def read_all(self) -> Subgraph:
-        """Return a subgraph of all nodes and relationships."""
-
-        # TODO set artificial limit on number of nodes and rels returned
-        tx = self._graph.begin(readonly=True)
-        nodes_cursor = tx.run('MATCH (n) RETURN n')
-        rels_cursor = tx.run(
-            "MATCH () -[r]-> () "
-            "RETURN id(startNode(r)) AS start_id, id(endNode(r)) AS end_id, "
-            "type(r) AS `type`, properties(r) AS `properties`")
-        self._graph.commit(tx)
-
-        # FIXME py2neo bug in Nodes.__hash__ logic
-        id2node = {
-            record['n'].identity: record['n']
-            for record in nodes_cursor
-        }
-
-        relationships = []
-        for record in rels_cursor:
-            start_node = id2node[record['start_id']]
-            end_node = id2node[record['end_id']]
-            t = record['type']
-            properties = record.get('properties', {})
-            relationships.append(Relationship(start_node, t, end_node, **properties))
-
-        return Subgraph(id2node.values(), relationships)
-
-    def remove_all(self):
-        """Remove all nodes and relationships from this graph."""
-
+    def clear(self):
+        """Remove all nodes and relationships from managed graph."""
         self._graph.delete_all()
 
-    def update(self, graph):
-        raise NotImplementedError  # TODO
+    @property
+    def fragments(self):
+        """Fragment manager for this graph."""
+        return self._fragment_manager
 
-    # ------------------------------------------------------------------
-    # fragment root management
-    # ------------------------------------------------------------------
 
-    def fragments(self) -> List[Fragment]:
-        """Return a set of all fragments."""
+class FragmentManager:
+    """ADT for fragment and content management."""
+
+    def __init__(self, graph: Graph):
+        self._graph = graph
+        self._repo = ogm.Repository.wrap(self._graph)  # ogm management
+        # content manager works on the same graph
+        self._content_manager = ContentManager(self._graph)
+
+    def all(self) -> List[Fragment]:
+        """Return a list of all fragments."""
         return Fragment.match(self._repo).all()
 
-    def get_fragment(self, fragment_id: int) -> Union[Fragment, None]:
+    def get(self, fragment_id: int) -> Union[Fragment, None]:
         """Return a fragment with given id if it exists, None otherwise."""
         return self._repo.get(Fragment, fragment_id)
 
-    def get_fragment_or_exception(self, fragment_id: int) -> Fragment:
+    def get_or_exception(self, fragment_id: int) -> Fragment:
         """Return a fragment with given id.
 
         Raises `FragmentDoesNotExist` if the fragment is missing.
         """
 
-        fragment = self.get_fragment(fragment_id)
+        fragment = self.get(fragment_id)
 
         if fragment is not None:
             return fragment
         else:
             raise FragmentDoesNotExist(f"fragment [{fragment_id}] does not exist")
 
-    def create_fragment(self, name: str) -> Fragment:
+    def create(self, name: str) -> Fragment:
         """Create and return a fragment with the given name."""
 
         fragment = Fragment(name=name)
@@ -108,35 +89,57 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         return fragment
 
-    def rename_fragment(self, fragment_id: int, name: str) -> Fragment:
+    def rename(self, fragment_id: int, name: str) -> Fragment:
         """Rename a fragment.
 
         Raises `FragmentDoesNotExist` if fragment is missing.
         """
 
-        fragment = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
+        fragment = self.get_or_exception(fragment_id)  # TODO separate tx
         fragment.name = name
         self._repo.save(fragment)
         return fragment
 
-    def remove_fragment(self, fragment_id: int):
+    def remove(self, fragment_id: int):
         """Remove fragment and its content.
 
         Raises `FragmentDoesNotExist` if a fragment is missing.
         """
 
         # TODO separate txs
-        fragment = self.get_fragment_or_exception(fragment_id)
-        # delete content
-        self.remove(fragment_id)
+        fragment = self.get_or_exception(fragment_id)
+        # remove content
+        self.content.remove(fragment)
         self._repo.delete(fragment)
 
-    # ------------------------------------------------------------------
-    # fragment content management
-    # ------------------------------------------------------------------
+    @property
+    def content(self):
+        """Content manager for this graph."""
+        return self._content_manager
+
+
+class ContentManager:
+    """ADT for management of fragment's content."""
+
+    def __init__(self, graph: Graph):
+        self._graph = graph
+
+    def _validate(self, fragment: Fragment):
+        """Validate given fragment.
+
+        - Raises `FragmentIsNotBound` exception if a fragment is not bound.
+        - Raises `FragmentDoesNotBelongToGraph` if fragment's graph is
+            different from this one.
+        """
+
+        # TODO does not belong to managed graph
+        if fragment.__primaryvalue__ is None:
+            raise FragmentIsNotBound
+        if fragment.__node__.graph != self._graph:
+            raise FragmentDoesNotBelongToGraph
 
     @staticmethod
-    def _match_content_query(fragment_id=None) -> Tuple[str, dict]:
+    def _match_query(fragment_id: int = None) -> Tuple[str, dict]:
         """Prepare Cypher clause and params to match graph's content.
 
         If `fragment_id` is provided, then match entities, their trees
@@ -160,12 +163,12 @@ class Neo4jGraphManager(AbstractGraphManager):
                 id=fragment_id,
             )
 
-    def cursor_from_content(
+    def _cursor(
             self,
             tx: Transaction,
             return_clause: str,
             fragment_id: int = None) -> Cursor:
-        clause, kwargs = self._match_content_query(fragment_id)
+        clause, kwargs = self._match_query(fragment_id)
         q, params = cypher_join(
             clause,
             return_clause,
@@ -174,31 +177,31 @@ class Neo4jGraphManager(AbstractGraphManager):
         cursor = tx.run(q, params)
         return cursor
 
-    def match_content_nodes(self, tx: Transaction, fragment_id: int = None):
-        return self.cursor_from_content(tx, clauses.RETURN_NODES, fragment_id)
+    def _match_nodes(self, tx: Transaction, fragment_id: int = None):
+        return self._cursor(tx, clauses.RETURN_NODES, fragment_id)
 
-    def content_nodes(self, tx: Transaction, fragment_id: int = None) -> Set[Node]:
+    def _nodes(self, tx: Transaction, fragment_id: int = None) -> Set[Node]:
         """
         Return a set of content nodes.
 
-        If `fragment_id` is provided, then match nodes from a given 
+        If `fragment_id` is provided, then match nodes from a given
         fragment. Otherwise, match all content nodes.
         """
 
-        cursor = self.match_content_nodes(tx, fragment_id)
+        cursor = self._match_nodes(tx, fragment_id)
         return set(record[0] for record in cursor)
 
-    def match_relationships(self, tx: Transaction, fragment_id: int = None):
+    def _match_relationships(self, tx: Transaction, fragment_id: int = None):
         """
         Match content relationships.
 
-        If `fragment_id` is provided, then match relationships from a given 
+        If `fragment_id` is provided, then match relationships from a given
         fragment. Otherwise, match all content relationships.
         """
 
-        return self.cursor_from_content(tx, clauses.RETURN_RELATIONSHIPS, fragment_id)
+        return self._cursor(tx, clauses.RETURN_RELATIONSHIPS, fragment_id)
 
-    def content(self, tx: Transaction, fragment_id: int = None) -> Subgraph:
+    def _content(self, tx: Transaction, fragment_id: int = None) -> Subgraph:
         """Return bound subgraph with content.
 
         If `fragment_id` is provided, then return content subgraph from
@@ -206,14 +209,14 @@ class Neo4jGraphManager(AbstractGraphManager):
         """
 
         # nodes
-        nodes = self.content_nodes(tx, fragment_id)
+        nodes = self._nodes(tx, fragment_id)
         id2node = {
             node.identity: node
             for node in nodes
         }
 
         # relationships
-        rels_cursor = self.match_relationships(tx, fragment_id)
+        rels_cursor = self._match_relationships(tx, fragment_id)
 
         # workaround: py2neo sucks at efficient conversion of rels to Subgraph
         # manually construct Relationships
@@ -227,18 +230,22 @@ class Neo4jGraphManager(AbstractGraphManager):
 
         return Subgraph(id2node.values(), relationships)
 
-    def read(self, fragment_id: int = None) -> Subgraph:
-        """Return subgraph belonging to given fragment.
+    def get(self, fragment: Fragment = None) -> Subgraph:
+        """Return bound subgraph with content.
 
-        Raises `FragmentDoesNotExist` if the fragment is missing.
+        If `fragment` is provided, then return content subgraph from
+        a given fragment. Otherwise, return the whole content.
         """
 
-        if fragment_id is not None:
-            # make sure fragment with given id exists
-            self.get_fragment_or_exception(fragment_id)  # TODO separate tx
+        # TODO error handling + docs
+        if fragment is not None:
+            self._validate(fragment)
+            fragment_id = fragment.__primaryvalue__
+        else:
+            fragment_id = None
 
         tx = self._graph.begin(readonly=True)
-        subgraph = self.content(tx, fragment_id)
+        subgraph = self._content(tx, fragment_id)
         self._graph.commit(tx)
 
         return subgraph
@@ -251,23 +258,24 @@ class Neo4jGraphManager(AbstractGraphManager):
         label = SCHEMA["labels"]["node"]
         vertices = set(filter_nodes(subgraph, label))  # O(n)
         key = SCHEMA["keys"]["yfiles_id"]
-        tx.merge(Subgraph(vertices), label, key)
+        subgraph = Subgraph(vertices)  # TODO better way to return merged nodes?
+        tx.merge(subgraph, label, key)
 
-        return vertices
+        return set(subgraph.nodes)
 
     @staticmethod
     def _merge_edges(tx: Transaction, subgraph: Subgraph):
         """Merge Edge nodes from subgraph, return a set of merged nodes."""
         label = SCHEMA["labels"]["edge"]
         edges = set(filter_nodes(subgraph, label))  # O(n)
-        # TODO edge.pk
         keys = tuple(
             SCHEMA["keys"][key]
             for key in ('source_node', 'source_port', 'target_node', 'target_port')
         )
-        tx.merge(Subgraph(edges), label, keys)
+        subgraph = Subgraph(edges)  # TODO better way to return merged nodes?
+        tx.merge(subgraph, label, keys)
 
-        return edges
+        return set(subgraph.nodes)
 
     def _merge(
             self, tx: Transaction, subgraph: Subgraph, fragment: Fragment = None):
@@ -290,10 +298,11 @@ class Neo4jGraphManager(AbstractGraphManager):
         # delete difference
         # TODO think about this more
         if fragment is not None:
-            # TODO fragment might be missing from subgraph
-            current = self.content_nodes(tx, fragment.__primaryvalue__)
+            # TODO validation + docs
+            self._validate(fragment)
+            current = self._nodes(tx, fragment.__primaryvalue__)
         else:
-            current = self.content_nodes(tx)
+            current = self._nodes(tx)
         old = current - vertices - edges
         tx.delete(Subgraph(old))
 
@@ -313,44 +322,40 @@ class Neo4jGraphManager(AbstractGraphManager):
         # skips already bound nodes & relationships
         tx.create(subgraph | Subgraph(relationships=links))
 
-    def write(self, subgraph: Subgraph, fragment_id: int = None):
-        """Write new content for a given fragment.
+    def replace(self, subgraph: Subgraph, fragment: Fragment = None):
+        """Replace old content of a fragment with a new one.
 
-        Binds subgraph nodes on success.
-        Raises `FragmentDoesNotExist` if the fragment is missing.
+        Merges existing and deletes old nodes, binds subgraph nodes on
+        success.
         """
 
-        # TODO error handling? (empty, bad format / input)
-        if fragment_id is not None:
-            fragment = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
-        else:
-            fragment = None
+        # TODO error handling? (non-bound fragment, empty, bad format / input)
+        if fragment is not None:
+            self._validate(fragment)
 
         tx = self._graph.begin()
         self._merge(tx, subgraph, fragment)
         self._graph.commit(tx)
 
-    def remove(self, fragment_id: int):
+    def remove(self, fragment: Fragment):
         """Remove content of a given fragment.
 
         Does not remove fragment root node.
         """
 
+        self._validate(fragment)
+        fragment_id = fragment.__primaryvalue__
         q, params = cypher_join(
             clauses.DELETE_FRAGMENT_DESCENDANTS,
             id=fragment_id,
         )
         self._graph.update(q, params)
 
-    def empty(self, fragment_id: int) -> bool:
-        """Return True if fragment's content is empty, False otherwise.
-
-        Raises `FragmentDoesNotExist` if the fragment is missing.
-        """
-
-        fragment = self.get_fragment_or_exception(fragment_id)  # TODO separate tx
+    def empty(self, fragment: Fragment) -> bool:
+        """Return True if fragment's content is empty, False otherwise."""
 
         # empty if there are no links to entities
+        self._validate(fragment)
         n = fragment.__node__
         link = self._graph.match_one((n, ), r_type=SCHEMA['types']['contains_entity'])
         return link is None
