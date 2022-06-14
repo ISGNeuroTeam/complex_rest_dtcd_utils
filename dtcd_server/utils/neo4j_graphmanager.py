@@ -1,5 +1,4 @@
 from itertools import chain
-from textwrap import shorten
 from typing import Generator, List, Set, Tuple, Union
 
 from py2neo import Graph, Node, Relationship, Subgraph, Transaction
@@ -9,6 +8,7 @@ from py2neo.cypher import Cursor, cypher_join
 from . import clauses
 from .exceptions import (
     FragmentDoesNotBelongToGraph, FragmentDoesNotExist, FragmentIsNotBound)
+from ..models import Fragment
 from ..settings import SCHEMA
 
 # TODO custom type
@@ -22,15 +22,6 @@ TYPES = SCHEMA["types"]
 def filter_nodes(subgraph: Subgraph, label: str) -> Generator[Node, None, None]:
     """Construct an iterator over subgraph nodes with the given label."""
     return (x for x in subgraph.nodes if x.has_label(label))
-
-
-class Fragment(ogm.Model):
-    __primarylabel__ = LABELS["fragment"]
-    name = ogm.Property()
-
-    def __repr__(self):
-        text = f"[{self.__primaryvalue__}] {self.name}"
-        return shorten(text, 30)
 
 
 class Neo4jGraphManager:
@@ -354,8 +345,8 @@ class ContentManager:
     def empty(self, fragment: Fragment) -> bool:
         """Return True if fragment's content is empty, False otherwise."""
 
-        # empty if there are no links to entities
         self._validate(fragment)
+        # empty if there are no links to entities
         n = fragment.__node__
         link = self._graph.match_one((n, ), r_type=SCHEMA['types']['contains_entity'])
         return link is None

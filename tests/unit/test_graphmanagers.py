@@ -5,8 +5,9 @@ from pathlib import Path
 from py2neo import Node, Relationship
 
 from dtcd_server import settings
+from dtcd_server.models import Fragment
 from dtcd_server.utils.exceptions import FragmentDoesNotExist
-from dtcd_server.utils.neo4j_graphmanager import Fragment, Neo4jGraphManager
+from dtcd_server.utils.neo4j_graphmanager import Neo4jGraphManager
 
 from .. import fixtures
 

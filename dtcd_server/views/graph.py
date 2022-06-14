@@ -7,9 +7,10 @@ from rest.response import status, SuccessResponse, ErrorResponse
 from rest.permissions import AllowAny
 
 from .. import settings
+from ..models import Fragment
 from ..serializers import GraphSerializer, FragmentSerializer
 from ..utils.exceptions import FragmentDoesNotExist
-from ..utils.neo4j_graphmanager import Fragment, Neo4jGraphManager
+from ..utils.neo4j_graphmanager import Neo4jGraphManager
 from ..utils.serializers import SubgraphSerializer
 
 
