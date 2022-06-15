@@ -324,9 +324,7 @@ class ContentManager:
         fragment_id = fragment.__primaryvalue__
         q, params = cypher_join(
             clauses.MATCH_FRAGMENT,
-            'MATCH (fragment) -[*1..]-> (descendant)',
-            'WITH DISTINCT descendant AS d',
-            'DETACH DELETE d',
+            clauses.DELETE_DESCENDANTS,
             id=fragment_id,
         )
         self._graph.update(q, params)
@@ -337,9 +335,7 @@ class ContentManager:
         match_content = self._match_query()
         q, _ = cypher_join(
             match_content,
-            'UNWIND nodes(p) AS n',
-            'WITH DISTINCT n AS n',
-            'DETACH DELETE n',
+            clauses.DELETE_NODES,
         )
         self._graph.update(q)
 

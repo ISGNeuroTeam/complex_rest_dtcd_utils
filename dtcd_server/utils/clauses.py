@@ -54,3 +54,15 @@ RETURN_RELATIONSHIPS, _ = cypher_join(
     'RETURN',
     _FINAL
 )
+
+DELETE_DESCENDANTS, _ = cypher_join(
+    'MATCH (fragment) -[*1..]-> (descendant)',
+    'WITH DISTINCT descendant AS d',
+    'DETACH DELETE d',
+)
+
+DELETE_NODES, _ = cypher_join(
+    'UNWIND nodes(p) AS n',
+    'WITH DISTINCT n AS n',
+    'DETACH DELETE n',
+)
