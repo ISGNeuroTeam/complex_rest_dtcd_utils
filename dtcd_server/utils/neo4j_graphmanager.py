@@ -123,7 +123,6 @@ class ContentManager:
             different from this one.
         """
 
-        # TODO does not belong to managed graph
         if fragment.__primaryvalue__ is None:
             raise FragmentIsNotBound
         if fragment.__node__.graph != self._graph:
@@ -168,7 +167,7 @@ class ContentManager:
         cursor = tx.run(q, params)
         return cursor
 
-    def _match_nodes(self, tx: Transaction, fragment_id: int = None):
+    def _match_nodes(self, tx: Transaction, fragment_id: int = None) -> Cursor:
         return self._cursor(tx, clauses.RETURN_NODES, fragment_id)
 
     def _nodes(self, tx: Transaction, fragment_id: int = None) -> Set[Node]:
@@ -182,7 +181,7 @@ class ContentManager:
         cursor = self._match_nodes(tx, fragment_id)
         return set(record[0] for record in cursor)
 
-    def _match_relationships(self, tx: Transaction, fragment_id: int = None):
+    def _match_relationships(self, tx: Transaction, fragment_id: int = None) -> Cursor:
         """
         Match content relationships.
 
@@ -242,7 +241,7 @@ class ContentManager:
         return subgraph
 
     @staticmethod
-    def _merge_vertices(tx: Transaction, subgraph: Subgraph):
+    def _merge_vertices(tx: Transaction, subgraph: Subgraph) -> Set[Node]:
         """Merge Vertex nodes from subgraph, return a set of merged nodes."""
 
         # merge vertex roots on (label, yfiles_id)
@@ -255,7 +254,7 @@ class ContentManager:
         return set(subgraph.nodes)
 
     @staticmethod
-    def _merge_edges(tx: Transaction, subgraph: Subgraph):
+    def _merge_edges(tx: Transaction, subgraph: Subgraph) -> Set[Node]:
         """Merge Edge nodes from subgraph, return a set of merged nodes."""
         label = SCHEMA["labels"]["edge"]
         edges = set(filter_nodes(subgraph, label))  # O(n)
@@ -318,6 +317,8 @@ class ContentManager:
 
         Merges existing and deletes old nodes, binds subgraph nodes on
         success.
+        If `fragment` is provided, then replace content from a given
+        fragment. Otherwise, replace the whole content.
         """
 
         # TODO error handling? (non-bound fragment, empty, bad format / input)
@@ -337,8 +338,20 @@ class ContentManager:
         self._validate(fragment)
         fragment_id = fragment.__primaryvalue__
         q, params = cypher_join(
-            clauses.DELETE_FRAGMENT_DESCENDANTS,
+            clauses.MATCH_FRAGMENT,
+            clauses.MATCH_FRAGMENT_DESCENDANTS,
+            clauses.DELETE_DESCENDANT,
             id=fragment_id,
+        )
+        self._graph.update(q, params)
+
+    def clear(self):
+        """Remove all content from this graph."""
+
+        q, params = cypher_join(
+            clauses.MATCH_ALL_FRAGMENTS,
+            clauses.MATCH_FRAGMENT_DESCENDANTS,
+            clauses.DELETE_DESCENDANT,
         )
         self._graph.update(q, params)
 

@@ -3,7 +3,8 @@ from django.urls import path, re_path
 from .views.change_password import ChPassView
 from .views.design_objects import DesignObjects
 from .views.graph import (
-    FragmentListView, FragmentDetailView, Neo4jGraphView, ResetNeo4j)
+    RootGraphView, FragmentListView, FragmentDetailView, FragmentGraphView, ResetNeo4j
+)
 from .views.log_config import LogsView
 from .views.page import PageView
 from .views.plugins_list import PluginsList
@@ -26,6 +27,7 @@ urlpatterns = [
     re_path(r'^user/change-password?$', ChPassView.as_view()),
     path('fragments', FragmentListView.as_view(), name='fragments'),
     path('fragments/<int:pk>', FragmentDetailView.as_view(), name='fragment-detail'),
-    path('fragments/<int:pk>/graph', Neo4jGraphView.as_view(), name='fragment-graph'),
+    path('fragments/<int:pk>/graph', FragmentGraphView.as_view(), name='fragment-graph'),
+    path('fragments/root/graph', RootGraphView.as_view(), name='root-graph'),
     path('reset', ResetNeo4j.as_view(), name='reset'),
 ]

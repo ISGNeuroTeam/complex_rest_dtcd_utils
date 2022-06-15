@@ -1,5 +1,7 @@
 import logging
+from typing import Union
 
+from rest_framework.exceptions import NotFound
 from rest_framework.request import Request
 
 from rest.views import APIView
@@ -24,10 +26,19 @@ GRAPH_MANAGER = Neo4jGraphManager(
 
 
 def get_fragment_or_404(
-        graph_manager: Neo4jGraphManager, fragment_id: int) -> Fragment:
-    """Return a fragment with given id using provided manager."""
-    # TODO how to do it properly?
-    raise NotImplementedError
+    graph_manager: Neo4jGraphManager,
+    fragment_id: int
+) -> Union[Fragment, ErrorResponse]:
+    """Return a fragment with a given id from the provided manager.
+
+    Calls `.fragments.get()` on a given manager, but raises `NotFound`
+    instead of `FragmentDoesNotExist`.
+    """
+
+    try:
+        return graph_manager.fragments.get_or_exception(fragment_id)
+    except FragmentDoesNotExist as e:
+        raise NotFound(detail=str(e))
 
 
 class FragmentListView(APIView):
@@ -80,13 +91,10 @@ class FragmentDetailView(APIView):
         Returns 404 if a fragment does not exist
         """
 
-        f = self.graph_manager.fragments.get(pk)
+        fragment = get_fragment_or_404(self.graph_manager, pk)
+        serializer = self.serializer_class(fragment)
 
-        if f is not None:
-            serializer = self.serializer_class(f)
-            return SuccessResponse({"fragment": serializer.data})
-        else:
-            return ErrorResponse(http_status=status.HTTP_404_NOT_FOUND)
+        return SuccessResponse({"fragment": serializer.data})
 
     def put(self, request: Request, pk: int):
         """Rename a fragment.
@@ -123,8 +131,8 @@ class FragmentDetailView(APIView):
             return SuccessResponse()
 
 
-class Neo4jGraphView(APIView):
-    """Retrieve, replace or delete graph content."""
+class FragmentGraphView(APIView):
+    """Retrieve, replace or delete graph content of a fragment."""
 
     http_method_names = ["get", "put", "delete"]
     permission_classes = (AllowAny,)
@@ -135,12 +143,7 @@ class Neo4jGraphView(APIView):
         """Read graph content of a fragment."""
 
         # read fragment's graph
-        try:
-            fragment = self.graph_manager.fragments.get_or_exception(pk)
-        except FragmentDoesNotExist as e:
-            return ErrorResponse(
-                http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
-
+        fragment = get_fragment_or_404(self.graph_manager, pk)
         subgraph = self.graph_manager.fragments.content.get(fragment)
         logger.info(
             f"Read {len(subgraph.nodes)} nodes, {len(subgraph.relationships)} relationships.")
@@ -157,7 +160,7 @@ class Neo4jGraphView(APIView):
         return SuccessResponse({'graph': payload})
 
     def put(self, request: Request, pk: int):
-        """Replace graph content.
+        """Replace graph content of a fragment with given pk.
 
         Returns 400 if it cannot convert data to subgraph or 404 if
         given fragment pk is missing.
@@ -180,27 +183,73 @@ class Neo4jGraphView(APIView):
             f"Writing {len(subgraph.nodes)} nodes, {len(subgraph.relationships)} relationships.")
 
         # replace fragment content with new subgraph
-        fragment = self.graph_manager.fragments.get(pk)
+        fragment = get_fragment_or_404(self.graph_manager, pk)
+        self.graph_manager.fragments.content.replace(subgraph, fragment)
 
-        if fragment is not None:
-            self.graph_manager.fragments.content.replace(subgraph, fragment)
-            return SuccessResponse()
-        else:
-            return ErrorResponse(http_status=status.HTTP_404_NOT_FOUND)
+        return SuccessResponse()
 
     def delete(self, request: Request, pk: int):
-        """Delete graph content.
+        """Delete graph content of a fragment with given pk.
 
         Raises 404 if given fragment is missing.
         """
 
-        try:
-            fragment = self.graph_manager.fragments.get_or_exception(pk)
-        except FragmentDoesNotExist as e:
-            return ErrorResponse(
-                http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
-
+        fragment = get_fragment_or_404(self.graph_manager, pk)
         self.graph_manager.fragments.content.remove(fragment)
+
+        return SuccessResponse()
+
+
+class RootGraphView(APIView):
+    """Retrieve, replace or delete full graph content."""
+
+    http_method_names = ["get", "put", "delete"]
+    permission_classes = (AllowAny,)
+    converter_class = SubgraphSerializer
+    graph_manager = GRAPH_MANAGER
+
+    def get(self, request: Request):
+        """Read all content."""
+
+        # TODO copy-paste from FragmentGraphView
+        subgraph = self.graph_manager.fragments.content.get()
+        logger.info(
+            f"Read {len(subgraph.nodes)} nodes, {len(subgraph.relationships)} relationships.")
+
+        converter = self.converter_class()
+        payload = converter.dump(subgraph)
+        n, m = describe(payload)
+        logger.info(f"Converted to payload with {n} vertices, {m} edges.")
+
+        return SuccessResponse({'graph': payload})
+
+    def put(self, request: Request):
+        """Replace graph content.
+
+        Returns 400 if it cannot convert data to subgraph.
+        """
+
+        serializer = GraphSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        payload = serializer.validated_data["graph"]
+        n, m = describe(payload)
+        logger.info(f"Got payload with {n} vertices, {m} edges.")
+
+        converter = self.converter_class()
+        try:
+            subgraph = converter.load(payload)
+        except Exception:
+            return ErrorResponse(error_message="Failed to convert data to subgraph.")
+        logger.info(
+            f"Writing {len(subgraph.nodes)} nodes, {len(subgraph.relationships)} relationships.")
+
+        self.graph_manager.fragments.content.replace(subgraph)
+
+        return SuccessResponse()
+
+    def delete(self, request: Request):
+        """Delete whole graph content."""
+        self.graph_manager.fragments.content.clear()
         return SuccessResponse()
 
 
@@ -212,6 +261,7 @@ class ResetNeo4j(APIView):
     graph_manager = GRAPH_MANAGER
 
     def post(self, request, *args, **kwargs):
+        """Delete all nodes and relationships from Neo4j database."""
         self.graph_manager.clear()
         return SuccessResponse()
 

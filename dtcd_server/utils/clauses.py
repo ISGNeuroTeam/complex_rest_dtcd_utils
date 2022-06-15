@@ -68,8 +68,17 @@ RETURN_RELATIONSHIPS, _ = cypher_join(
     _FINAL
 )
 
+MATCH_FRAGMENT_DESCENDANTS, _ = cypher_join(
+    'MATCH (fragment) -[*1..]-> (descendant)',
+    'WITH DISTINCT descendant AS descendant',
+)
+
+DELETE_DESCENDANT , _ = cypher_join(
+    'DETACH DELETE (descendant)',
+)
+
 DELETE_FRAGMENT_DESCENDANTS, _ = cypher_join(
     MATCH_FRAGMENT,
-    'MATCH (fragment) -[*0..]-> (descendant)',
-    'DETACH DELETE (descendant)',
+    MATCH_FRAGMENT_DESCENDANTS,
+    DELETE_DESCENDANT,
 )
