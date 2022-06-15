@@ -9,7 +9,7 @@ from ..settings import SCHEMA
 Tree = RecursiveSerializer.Tree
 
 
-class SubgraphSerializer:
+class Converter:
     """ADT for data serialization to/from specified exchange formats."""
 
     def __init__(self, config: Mapping[str, Mapping[str, str]] = SCHEMA) -> None:

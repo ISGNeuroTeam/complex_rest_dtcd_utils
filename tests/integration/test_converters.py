@@ -5,7 +5,7 @@ from pathlib import Path
 
 from django.test import SimpleTestCase, tag
 
-from dtcd_server.utils.serializers import SubgraphSerializer
+from dtcd_server.utils.converters import Converter
 
 from ..fixtures import sort_payload
 
@@ -20,13 +20,13 @@ config.read(TEST_DIR / 'config.ini')
 N = config['general'].getint('num_iter')
 
 
-class TestSubgraphSerializer(SimpleTestCase):
+class TestConverter(SimpleTestCase):
 
     def _check_load_dump(self, data):
         sort_payload(data)
-        serializer = SubgraphSerializer()
-        subgraph = serializer.load(data)
-        exported = serializer.dump(subgraph)
+        converter = Converter()
+        subgraph = converter.load(data)
+        exported = converter.dump(subgraph)
         sort_payload(exported)
         self.assertEqual(data, exported)
 
@@ -55,10 +55,10 @@ class TestSubgraphSerializer(SimpleTestCase):
 
         # TODO settings for number of iterations
         for _ in range(N):
-            serializer = SubgraphSerializer()
-            subgraph = serializer.load(data)
-            serializer = SubgraphSerializer()
-            exported = serializer.dump(subgraph)
+            converter = Converter()
+            subgraph = converter.load(data)
+            converter = Converter()
+            exported = converter.dump(subgraph)
             sort_payload(exported)
             if data != exported:
                 ok = False
@@ -77,9 +77,9 @@ class TestSubgraphSerializer(SimpleTestCase):
         sort_payload(data)
 
         for i in range(N):
-            serializer = SubgraphSerializer()
-            subgraph = serializer.load(data)
-            exported = serializer.dump(subgraph)
+            converter = Converter()
+            subgraph = converter.load(data)
+            exported = converter.dump(subgraph)
             sort_payload(exported)
             self.assertEqual(data, exported, msg=f'Lap {i}')
 

@@ -12,7 +12,7 @@ from ..models import Fragment
 from ..serializers import GraphSerializer, FragmentSerializer
 from ..utils.exceptions import FragmentDoesNotExist, LoadingError
 from ..utils.neo4j_graphmanager import Neo4jGraphManager
-from ..utils.serializers import SubgraphSerializer
+from ..utils.converters import Converter
 
 
 logger = logging.getLogger('dtcd_server')
@@ -37,7 +37,7 @@ def get_fragment_or_404(manager: Neo4jGraphManager, id_: int) -> Fragment:
         raise NotFound(detail=str(e))
 
 
-def load_or_400(loader: SubgraphSerializer, data: dict):
+def load_or_400(loader: Converter, data: dict):
     """Convert data to subgraph.
 
     Calls `.load()` on a given loader and raises `LoadingError` if it
@@ -125,7 +125,7 @@ class FragmentGraphView(APIView):
 
     http_method_names = ["get", "put", "delete"]
     permission_classes = (AllowAny,)
-    converter_class = SubgraphSerializer
+    converter_class = Converter
     graph_manager = GRAPH_MANAGER
 
     def get(self, request: Request, pk: int):
@@ -187,7 +187,7 @@ class RootGraphView(APIView):
 
     http_method_names = ["get", "put", "delete"]
     permission_classes = (AllowAny,)
-    converter_class = SubgraphSerializer
+    converter_class = Converter
     graph_manager = GRAPH_MANAGER
 
     def get(self, request: Request):

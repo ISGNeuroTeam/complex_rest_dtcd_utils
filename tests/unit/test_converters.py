@@ -3,7 +3,7 @@ import unittest
 from operator import itemgetter
 from pathlib import Path
 
-from dtcd_server.utils.serializers import SubgraphSerializer
+from dtcd_server.utils.converters import Converter
 
 from .. import fixtures
 
@@ -12,7 +12,7 @@ TEST_DIR = Path(__file__).resolve().parent.parent
 FIXTURES_DIR = TEST_DIR / "fixtures"
 
 
-class TestSubgraphSerializer(unittest.TestCase):
+class TestConverter(unittest.TestCase):
 
     def test_load_data(self):
         data = {
@@ -25,8 +25,8 @@ class TestSubgraphSerializer(unittest.TestCase):
             }
         }
 
-        serializer = SubgraphSerializer()
-        tree = serializer._load_data(data)
+        converter = Converter()
+        tree = converter._load_data(data)
         self.assertEqual(len(tree.subgraph.nodes), 2)
         self.assertEqual(len(tree.subgraph.relationships), 1)
         self.assertTrue(tree.root.has_label("_Data"))
@@ -41,8 +41,8 @@ class TestSubgraphSerializer(unittest.TestCase):
                 "y": 0
             }
         }
-        serializer = SubgraphSerializer()
-        tree = serializer._load_entity(data)
+        converter = Converter()
+        tree = converter._load_entity(data)
         self.assertEqual(len(tree.subgraph.nodes), 3)
         self.assertEqual(len(tree.subgraph.relationships), 2)
         self.assertTrue(tree.root.has_label("_Entity"))
@@ -59,8 +59,8 @@ class TestSubgraphSerializer(unittest.TestCase):
                 "y": 0
             }
         }
-        serializer = SubgraphSerializer()
-        tree = serializer._load_vertex(data)
+        converter = Converter()
+        tree = converter._load_vertex(data)
         self.assertEqual(len(tree.subgraph.nodes), 3)
         self.assertEqual(len(tree.subgraph.relationships), 2)
         self.assertTrue(tree.root.has_label("Node"))
@@ -74,8 +74,8 @@ class TestSubgraphSerializer(unittest.TestCase):
             "targetNode": "bob",
             "targetPort": "i1"
         }
-        serializer = SubgraphSerializer()
-        tree = serializer._load_edge(data)
+        converter = Converter()
+        tree = converter._load_edge(data)
         self.assertEqual(len(tree.subgraph.nodes), 2)
         self.assertEqual(len(tree.subgraph.relationships), 1)
         self.assertTrue(tree.root.has_label("Edge"))
@@ -90,8 +90,8 @@ class TestSubgraphSerializer(unittest.TestCase):
 
     def test_load(self):
         data = fixtures.generate_data()['data']
-        serializer = SubgraphSerializer()
-        subgraph = serializer.load(data)
+        converter = Converter()
+        subgraph = converter.load(data)
         self.assertEqual(len(subgraph.nodes), 17)
         self.assertEqual(len(subgraph.relationships), 16)
 
@@ -99,8 +99,8 @@ class TestSubgraphSerializer(unittest.TestCase):
         with open(FIXTURES_DIR / "graph-sample-small.json") as f:
             data = json.load(f)
 
-        serializer = SubgraphSerializer()
-        subgraph = serializer.load(data)
+        converter = Converter()
+        subgraph = converter.load(data)
         self.assertEqual(len(subgraph.nodes), 19)
         self.assertEqual(len(subgraph.relationships), 18)
 
@@ -108,8 +108,8 @@ class TestSubgraphSerializer(unittest.TestCase):
         d = fixtures.generate_data()
         data = d['data']
         subgraph = d['subgraph']
-        serializer = SubgraphSerializer()
-        exported = serializer.dump(subgraph)
+        converter = Converter()
+        exported = converter.dump(subgraph)
 
         # fix order of arrays
         exported['nodes'] = sorted(

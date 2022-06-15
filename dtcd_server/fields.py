@@ -16,7 +16,7 @@ class GraphField(DictField):
 
     def to_representation(self, value):
         """Convert to primitive, serializable data types."""
-        # TODO add SubgraphSerializer inside .to_representation()
+        # TODO add Converter inside .to_representation()
         return super().to_representation(value)
 
     def to_internal_value(self, data: dict):
@@ -30,6 +30,6 @@ class GraphField(DictField):
                 self.fail('key_error', value=key)
 
         # TODO construct graphs from data
-        # TODO use with SubgraphSerializer?
+        # TODO use with Converter?
 
         return data
