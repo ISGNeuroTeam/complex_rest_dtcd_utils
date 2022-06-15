@@ -11,7 +11,7 @@ from .exceptions import (
 from ..models import Fragment
 from ..settings import SCHEMA
 
-# TODO custom type
+# TODO custom type aliases
 FragmentID = int
 
 KEYS = SCHEMA["keys"]
@@ -124,7 +124,7 @@ class ContentManager:
         # case 1: match all entities
         # FIXME does not work for nodes without ancestor fragment
         if fragment_id is None:
-            label = SCHEMA["labels"]["entity"]
+            label = LABELS["entity"]
             return cypher_join(
                 f"MATCH (entity:{label})",
                 clauses.MATCH_DATA,
@@ -133,7 +133,8 @@ class ContentManager:
         else:
             return cypher_join(
                 clauses.MATCH_FRAGMENT,
-                clauses.MATCH_CONTENT,
+                clauses.MATCH_ENTITIES,
+                clauses.MATCH_DATA,
                 id=fragment_id,
             )
 
@@ -229,9 +230,9 @@ class ContentManager:
         """Merge Vertex nodes from subgraph, return a set of merged nodes."""
 
         # merge vertex roots on (label, yfiles_id)
-        label = SCHEMA["labels"]["node"]
+        label = LABELS["node"]
         vertices = set(filter_nodes(subgraph, label))  # O(n)
-        key = SCHEMA["keys"]["yfiles_id"]
+        key = KEYS["yfiles_id"]
         subgraph = Subgraph(vertices)  # TODO better way to return merged nodes?
         tx.merge(subgraph, label, key)
 
@@ -240,10 +241,10 @@ class ContentManager:
     @staticmethod
     def _merge_edges(tx: Transaction, subgraph: Subgraph) -> Set[Node]:
         """Merge Edge nodes from subgraph, return a set of merged nodes."""
-        label = SCHEMA["labels"]["edge"]
+        label = LABELS["edge"]
         edges = set(filter_nodes(subgraph, label))  # O(n)
         keys = tuple(
-            SCHEMA["keys"][key]
+            KEYS[key]
             for key in ('source_node', 'source_port', 'target_node', 'target_port')
         )
         subgraph = Subgraph(edges)  # TODO better way to return merged nodes?
@@ -284,7 +285,7 @@ class ContentManager:
         # entities with existing relationship are skipped
         if fragment is not None:
             root = fragment.__node__
-            type_ = SCHEMA["types"]["contains_entity"]
+            type_ = TYPES["contains_entity"]
             links = set(
                 Relationship(root, type_, entity)
                 for entity in chain(vertices, edges)
@@ -323,8 +324,9 @@ class ContentManager:
         fragment_id = fragment.__primaryvalue__
         q, params = cypher_join(
             clauses.MATCH_FRAGMENT,
-            clauses.MATCH_FRAGMENT_DESCENDANTS,
-            clauses.DELETE_DESCENDANT,
+            'MATCH (fragment) -[*1..]-> (descendant)',
+            'WITH DISTINCT descendant AS d',
+            'DETACH DELETE d',
             id=fragment_id,
         )
         self._graph.update(q, params)
@@ -347,5 +349,5 @@ class ContentManager:
         self._validate(fragment)
         # empty if there are no links to entities
         n = fragment.__node__
-        link = self._graph.match_one((n, ), r_type=SCHEMA['types']['contains_entity'])
+        link = self._graph.match_one((n, ), r_type=TYPES['contains_entity'])
         return link is None

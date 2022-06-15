@@ -12,21 +12,18 @@ from py2neo.cypher import cypher_join
 from ..settings import SCHEMA
 
 
-KEYS = SCHEMA["keys"]
 LABELS = SCHEMA["labels"]
 TYPES = SCHEMA["types"]
-t = "|".join((TYPES["has_attribute"], TYPES["contains_item"]))  # TODO rename
+data_tree_relationship_types = "|".join([
+    TYPES["has_attribute"],
+    TYPES["contains_item"],
+])
 
 # TODO table-driven methods?
-# TODO replace hard-coded labels & properties
-# TODO explain what each claose is used for
+# TODO explain what each clause is used for
 # TODO documentation? what variables you get? templates?
-MATCH_ALL_FRAGMENTS, _ = cypher_join(
-    'MATCH (fragment:{})'.format(LABELS["fragment"]),
-)
-
 MATCH_FRAGMENT, _ = cypher_join(
-    MATCH_ALL_FRAGMENTS,
+    'MATCH (fragment:{})'.format(LABELS["fragment"]),
     'WHERE id(fragment) = $id',
 )
 
@@ -36,17 +33,7 @@ MATCH_ENTITIES, _ = cypher_join(
 
 MATCH_DATA, _ = cypher_join(
     f'OPTIONAL MATCH p = (entity) -[:{TYPES["has_data"]}]-> (:{LABELS["data"]})',
-    f'-[:{t}*0..]-> (descendant)',
-)
-
-MATCH_CONTENT, _ = cypher_join(
-    MATCH_ENTITIES,
-    MATCH_DATA,
-)
-
-MATCH_FRAGMENT_CONTENT, _ = cypher_join(
-    MATCH_FRAGMENT,
-    MATCH_CONTENT,
+    f'-[:{data_tree_relationship_types}*0..]-> (descendant)',
 )
 
 RETURN_NODES, _ = cypher_join(
@@ -66,19 +53,4 @@ RETURN_RELATIONSHIPS, _ = cypher_join(
     'WITH DISTINCT r AS r',
     'RETURN',
     _FINAL
-)
-
-MATCH_FRAGMENT_DESCENDANTS, _ = cypher_join(
-    'MATCH (fragment) -[*1..]-> (descendant)',
-    'WITH DISTINCT descendant AS descendant',
-)
-
-DELETE_DESCENDANT , _ = cypher_join(
-    'DETACH DELETE (descendant)',
-)
-
-DELETE_FRAGMENT_DESCENDANTS, _ = cypher_join(
-    MATCH_FRAGMENT,
-    MATCH_FRAGMENT_DESCENDANTS,
-    DELETE_DESCENDANT,
 )
