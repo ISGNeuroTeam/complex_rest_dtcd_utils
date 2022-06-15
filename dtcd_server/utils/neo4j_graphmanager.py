@@ -72,34 +72,18 @@ class FragmentManager:
         else:
             raise FragmentDoesNotExist(f"fragment [{fragment_id}] does not exist")
 
-    def create(self, name: str) -> Fragment:
-        """Create and return a fragment with the given name."""
+    def save(self, fragment: Fragment):
+        """Save local fragment into the repository.
 
-        fragment = Fragment(name=name)
+        Creates or updates a fragment depending on if it exists in the
+        database.
+        """
         self._repo.save(fragment)
 
-        return fragment
-
-    def rename(self, fragment_id: int, name: str) -> Fragment:
-        """Rename a fragment.
-
-        Raises `FragmentDoesNotExist` if fragment is missing.
-        """
-
-        fragment = self.get_or_exception(fragment_id)  # TODO separate tx
-        fragment.name = name
-        self._repo.save(fragment)
-        return fragment
-
-    def remove(self, fragment_id: int):
-        """Remove fragment and its content.
-
-        Raises `FragmentDoesNotExist` if a fragment is missing.
-        """
+    def remove(self, fragment: Fragment):
+        """Remove fragment and its content."""
 
         # TODO separate txs
-        fragment = self.get_or_exception(fragment_id)
-        # remove content
         self.content.remove(fragment)
         self._repo.delete(fragment)
 

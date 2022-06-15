@@ -58,21 +58,19 @@ class FragmentListView(APIView):
         return SuccessResponse({"fragments": serializer.data})
 
     def post(self, request: Request):
-        """Create a new fragment with the given name if it does not exist.
-
-        Returns 201 on success.
-        """
+        """Create a new fragment."""
 
         # validation
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        name = serializer.validated_data["name"]  # TODO put .create in serializer?
+
         # create a fragment
-        fragment = self.graph_manager.fragments.create(name)
-        serializer = self.serializer_class(fragment)
+        fragment = serializer.save()
+        self.graph_manager.fragments.save(fragment)
 
         return SuccessResponse(
-            data={"fragment": serializer.data},
+            # TODO how to get rid of additional serializer here?
+            data={"fragment": self.serializer_class(fragment).data},
             http_status=status.HTTP_201_CREATED
         )
 
@@ -86,10 +84,7 @@ class FragmentDetailView(APIView):
     graph_manager = GRAPH_MANAGER
 
     def get(self, request: Request, pk: int):
-        """Return a fragment.
-
-        Returns 404 if a fragment does not exist
-        """
+        """Return a fragment."""
 
         fragment = get_fragment_or_404(self.graph_manager, pk)
         serializer = self.serializer_class(fragment)
@@ -97,38 +92,23 @@ class FragmentDetailView(APIView):
         return SuccessResponse({"fragment": serializer.data})
 
     def put(self, request: Request, pk: int):
-        """Rename a fragment.
+        """Update a fragment."""
 
-        Returns 404 if a fragment does not exist.
-        """
-
-        serializer = self.serializer_class(data=request.data)
+        old = get_fragment_or_404(self.graph_manager, pk)
+        serializer = self.serializer_class(old, data=request.data)
         serializer.is_valid(raise_exception=True)
-        new = serializer.validated_data["name"]
+        new = serializer.save()
+        self.graph_manager.fragments.save(new)
 
-        try:
-            fragment = self.graph_manager.fragments.rename(pk, new)
-        except FragmentDoesNotExist as e:
-            return ErrorResponse(
-                http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
-        else:
-            serializer = self.serializer_class(fragment)
-            return SuccessResponse({"fragment": serializer.data})
+        return SuccessResponse({"fragment": serializer.data})
 
     def delete(self, request: Request, pk: int):
-        """Delete a fragment.
+        """Delete a fragment and its content."""
 
-        The content is deleted in cascading fashion.
-        Returns 404 if a fragment does not exist.
-        """
+        fragment = get_fragment_or_404(self.graph_manager, pk)
+        self.graph_manager.fragments.remove(fragment)
 
-        try:
-            self.graph_manager.fragments.remove(pk)
-        except FragmentDoesNotExist as e:
-            return ErrorResponse(
-                http_status=status.HTTP_404_NOT_FOUND, error_message=str(e))
-        else:
-            return SuccessResponse()
+        return SuccessResponse()
 
 
 class FragmentGraphView(APIView):
@@ -140,7 +120,7 @@ class FragmentGraphView(APIView):
     graph_manager = GRAPH_MANAGER
 
     def get(self, request: Request, pk: int):
-        """Read graph content of a fragment."""
+        """Read graph content of a fragment with the given id."""
 
         # read fragment's graph
         fragment = get_fragment_or_404(self.graph_manager, pk)
@@ -160,21 +140,17 @@ class FragmentGraphView(APIView):
         return SuccessResponse({'graph': payload})
 
     def put(self, request: Request, pk: int):
-        """Replace graph content of a fragment with given pk.
-
-        Returns 400 if it cannot convert data to subgraph or 404 if
-        given fragment pk is missing.
-        """
+        """Replace graph content of a fragment with given id."""
 
         serializer = GraphSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         payload = serializer.validated_data["graph"]
-
         n, m = describe(payload)
         logger.info(f"Got payload with {n} vertices, {m} edges.")
 
         # convert dict to subgraph
         converter = self.converter_class()
+        # TODO replace with to_subgraph_or_400(converter, payload)
         try:
             subgraph = converter.load(payload)
         except Exception:
@@ -189,10 +165,7 @@ class FragmentGraphView(APIView):
         return SuccessResponse()
 
     def delete(self, request: Request, pk: int):
-        """Delete graph content of a fragment with given pk.
-
-        Raises 404 if given fragment is missing.
-        """
+        """Delete graph content of a fragment with the given id."""
 
         fragment = get_fragment_or_404(self.graph_manager, pk)
         self.graph_manager.fragments.content.remove(fragment)
