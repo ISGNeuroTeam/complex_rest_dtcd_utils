@@ -1,17 +1,16 @@
 import logging
-from typing import Union
 
 from rest_framework.exceptions import NotFound
 from rest_framework.request import Request
 
 from rest.views import APIView
-from rest.response import status, SuccessResponse, ErrorResponse
+from rest.response import status, SuccessResponse
 from rest.permissions import AllowAny
 
 from .. import settings
 from ..models import Fragment
 from ..serializers import GraphSerializer, FragmentSerializer
-from ..utils.exceptions import FragmentDoesNotExist
+from ..utils.exceptions import FragmentDoesNotExist, LoadingError
 from ..utils.neo4j_graphmanager import Neo4jGraphManager
 from ..utils.serializers import SubgraphSerializer
 
@@ -25,10 +24,7 @@ GRAPH_MANAGER = Neo4jGraphManager(
 )
 
 
-def get_fragment_or_404(
-    graph_manager: Neo4jGraphManager,
-    fragment_id: int
-) -> Union[Fragment, ErrorResponse]:
+def get_fragment_or_404(manager: Neo4jGraphManager, id_: int) -> Fragment:
     """Return a fragment with a given id from the provided manager.
 
     Calls `.fragments.get()` on a given manager, but raises `NotFound`
@@ -36,9 +32,22 @@ def get_fragment_or_404(
     """
 
     try:
-        return graph_manager.fragments.get_or_exception(fragment_id)
+        return manager.fragments.get_or_exception(id_)
     except FragmentDoesNotExist as e:
         raise NotFound(detail=str(e))
+
+
+def load_or_400(loader: SubgraphSerializer, data: dict):
+    """Convert data to subgraph.
+
+    Calls `.load()` on a given loader and raises `LoadingError` if it
+    cannot convert the data.
+    """
+
+    try:
+        return loader.load(data)
+    except Exception:
+        raise LoadingError
 
 
 class FragmentListView(APIView):
@@ -126,7 +135,9 @@ class FragmentGraphView(APIView):
         fragment = get_fragment_or_404(self.graph_manager, pk)
         subgraph = self.graph_manager.fragments.content.get(fragment)
         logger.info(
-            f"Read {len(subgraph.nodes)} nodes, {len(subgraph.relationships)} relationships.")
+            f"Read {len(subgraph.nodes)} nodes, "
+            f"{len(subgraph.relationships)} relationships."
+        )
 
         # convert to representation format
         converter = self.converter_class()
@@ -150,13 +161,11 @@ class FragmentGraphView(APIView):
 
         # convert dict to subgraph
         converter = self.converter_class()
-        # TODO replace with to_subgraph_or_400(converter, payload)
-        try:
-            subgraph = converter.load(payload)
-        except Exception:
-            return ErrorResponse(error_message="Failed to convert data to subgraph.")
+        subgraph = load_or_400(converter, payload)
         logger.info(
-            f"Writing {len(subgraph.nodes)} nodes, {len(subgraph.relationships)} relationships.")
+            f"Writing {len(subgraph.nodes)} nodes, "
+            f"{len(subgraph.relationships)} relationships."
+        )
 
         # replace fragment content with new subgraph
         fragment = get_fragment_or_404(self.graph_manager, pk)
@@ -187,7 +196,9 @@ class RootGraphView(APIView):
         # TODO copy-paste from FragmentGraphView
         subgraph = self.graph_manager.fragments.content.get()
         logger.info(
-            f"Read {len(subgraph.nodes)} nodes, {len(subgraph.relationships)} relationships.")
+            f"Read {len(subgraph.nodes)} nodes, "
+            f"{len(subgraph.relationships)} relationships."
+        )
 
         converter = self.converter_class()
         payload = converter.dump(subgraph)
@@ -197,10 +208,7 @@ class RootGraphView(APIView):
         return SuccessResponse({'graph': payload})
 
     def put(self, request: Request):
-        """Replace graph content.
-
-        Returns 400 if it cannot convert data to subgraph.
-        """
+        """Replace graph content."""
 
         serializer = GraphSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -209,12 +217,11 @@ class RootGraphView(APIView):
         logger.info(f"Got payload with {n} vertices, {m} edges.")
 
         converter = self.converter_class()
-        try:
-            subgraph = converter.load(payload)
-        except Exception:
-            return ErrorResponse(error_message="Failed to convert data to subgraph.")
+        subgraph = load_or_400(converter, payload)
         logger.info(
-            f"Writing {len(subgraph.nodes)} nodes, {len(subgraph.relationships)} relationships.")
+            f"Writing {len(subgraph.nodes)} nodes, "
+            f"{len(subgraph.relationships)} relationships."
+        )
 
         self.graph_manager.fragments.content.replace(subgraph)
 

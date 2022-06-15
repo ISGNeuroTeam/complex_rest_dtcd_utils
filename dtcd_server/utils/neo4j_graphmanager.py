@@ -121,13 +121,13 @@ class ContentManager:
         match all content.
         """
 
-        # TODO put it in clauses?
-
         # case 1: match all entities
+        # FIXME does not work for nodes without ancestor fragment
         if fragment_id is None:
+            label = SCHEMA["labels"]["entity"]
             return cypher_join(
-                clauses.MATCH_ALL_FRAGMENTS,
-                clauses.MATCH_CONTENT,
+                f"MATCH (entity:{label})",
+                clauses.MATCH_DATA,
             )
         # case 2: match entities of a given fragment
         else:
@@ -142,9 +142,9 @@ class ContentManager:
             tx: Transaction,
             return_clause: str,
             fragment_id: int = None) -> Cursor:
-        clause, kwargs = self._match_query(fragment_id)
+        match_clause, kwargs = self._match_query(fragment_id)
         q, params = cypher_join(
-            clause,
+            match_clause,
             return_clause,
             **kwargs
         )
@@ -332,12 +332,14 @@ class ContentManager:
     def clear(self):
         """Remove all content from this graph."""
 
-        q, params = cypher_join(
-            clauses.MATCH_ALL_FRAGMENTS,
-            clauses.MATCH_FRAGMENT_DESCENDANTS,
-            clauses.DELETE_DESCENDANT,
+        match_content = self._match_query()
+        q, _ = cypher_join(
+            match_content,
+            'UNWIND nodes(p) AS n',
+            'WITH DISTINCT n AS n',
+            'DETACH DELETE n',
         )
-        self._graph.update(q, params)
+        self._graph.update(q)
 
     def empty(self, fragment: Fragment) -> bool:
         """Return True if fragment's content is empty, False otherwise."""
