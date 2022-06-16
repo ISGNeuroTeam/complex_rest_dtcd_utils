@@ -123,8 +123,8 @@ class ContentManager:
         match all content.
         """
 
+        # TODO does not match (entity) --> (entity) relationships
         # case 1: match all entities
-        # FIXME does not work for nodes without ancestor fragment
         if fragment_id is None:
             label = LABELS["entity"]
             return cypher_join(
@@ -141,10 +141,11 @@ class ContentManager:
             )
 
     def _cursor(
-            self,
-            tx: Transaction,
-            return_clause: str,
-            fragment_id: int = None) -> Cursor:
+        self,
+        tx: Transaction,
+        return_clause: str,
+        fragment_id: int = None
+    ) -> Cursor:
         match_clause, kwargs = self._match_query(fragment_id)
         q, params = cypher_join(
             match_clause,

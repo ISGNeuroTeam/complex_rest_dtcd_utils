@@ -6,8 +6,12 @@ from py2neo import Graph
 
 from dtcd_server import settings
 from dtcd_server.models import Fragment
-from dtcd_server.utils.exceptions import FragmentDoesNotExist
-from dtcd_server.utils.neo4j_graphmanager import FragmentManager
+from dtcd_server.utils.exceptions import (
+    FragmentDoesNotExist, FragmentIsNotBound
+)
+from dtcd_server.utils.neo4j_graphmanager import (
+    FragmentManager, ContentManager
+)
 
 
 TEST_DIR = Path(__file__).resolve().parent.parent
@@ -77,7 +81,7 @@ class TestFragmentManager(unittest.TestCase):
         # TODO same as get test???
         orig = Fragment(name="amy")
         self.manager.save(orig)
-        fromdb = self.manager.get(orig.__primaryvalue__)
+        fromdb = self.manager._repo.get(Fragment, orig.__primaryvalue__)
         self.assertEqual(fromdb, orig)
 
     def test_remove(self):
@@ -86,6 +90,44 @@ class TestFragmentManager(unittest.TestCase):
         self.manager.remove(orig)
         fromdb = self.manager.get(orig.__primaryvalue__)
         self.assertIsNone(fromdb)
+
+
+@ unittest.skipUnless(USE_DB, 'use_db=False')
+class TestContentManager(unittest.TestCase):
+
+    @ classmethod
+    def setUpClass(cls) -> None:
+        # create default fragment
+        cls.fragment_manager = FragmentManager(GRAPH)
+        cls.fragment = Fragment(name="sales")
+        cls.fragment_manager.save(cls.fragment)
+
+        cls.content_manager = ContentManager(GRAPH)
+
+    def tearDown(self) -> None:
+        GRAPH.delete_all()
+
+    def test_get_invalid_fragment(self):
+        # unbound fragment
+        f = Fragment(name="unbound")
+        with self.assertRaises(FragmentIsNotBound):
+            self.content_manager.get(f)
+
+        # TODO fragment from different graph?
+
+    def test_get_empty_content(self):
+        # all content
+        subgraph = self.content_manager.get()
+        self.assertEqual(len(subgraph.nodes), 0)
+        self.assertEqual(len(subgraph.relationships), 0)
+
+        # content of a fragment
+        subgraph = self.content_manager.get(self.fragment)
+        self.assertEqual(len(subgraph.nodes), 0)
+        self.assertEqual(len(subgraph.relationships), 0)
+
+    # TODO how to efficiently construct data for tests?
+    # TODO construction of data for main methods is finicky
 
 
 if __name__ == '__main__':
