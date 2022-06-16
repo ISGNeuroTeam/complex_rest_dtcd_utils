@@ -19,8 +19,81 @@ config = configparser.ConfigParser()
 config.read(TEST_DIR / 'config.ini')
 USE_DB = config['general'].getboolean('use_db')
 N = config['general'].getint('num_iter')
+URL_RESET = reverse('dtcd_server:reset')  # post here resets the db
 
 
+@tag('api', 'neo4j')
+class TestFragmentListView(APISimpleTestCase):
+    def setUp(self) -> None:
+        # reset db
+        self.client.post(URL_RESET)
+        self.url = reverse('dtcd_server:fragments')
+
+    def tearDown(self) -> None:
+        # reset the db
+        self.client.post(URL_RESET)
+
+    def test_post(self):
+        response = self.client.post(
+            self.url, data={"name": "sales"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        fragment = response.data["fragment"]
+        self.assertIn("id", fragment)
+        self.assertEqual(fragment["name"], "sales")
+
+    def test_get(self):
+        names = {"hr", "marketing", "sales"}
+        for name in names:
+            self.client.post(self.url, data={"name": name}, format="json")
+        response = self.client.get(self.url)
+        data = response.data
+        fragments = data["fragments"]
+        self.assertEqual({f["name"] for f in fragments}, names)
+
+
+@tag('api', 'neo4j')
+class TestFragmentDetailView(APISimpleTestCase):
+    def setUp(self) -> None:
+        # reset db
+        self.client.post(URL_RESET)
+        # default fragment
+        response = self.client.post(
+            reverse('dtcd_server:fragments'),
+            data={"name": "sales"},
+            format="json",
+        )
+        self.fragment = response.data["fragment"]
+        self.pk = self.fragment["id"]
+        self.url = reverse("dtcd_server:fragment-detail", args=(self.pk,))
+
+    def tearDown(self) -> None:
+        self.client.post(URL_RESET)
+
+    def test_get(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        fragment = response.data["fragment"]
+        self.assertEqual(fragment["id"], self.pk)
+        self.assertEqual(fragment["name"], "sales")
+
+    def test_put(self):
+        data = {"name": "marketing"}
+        response = self.client.put(self.url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # get detail back with the same pk
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        fragment = response.data["fragment"]
+        self.assertEqual(fragment["name"], "marketing")
+
+    def test_delete(self):
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+@unittest.skip("deprecated")
 @unittest.skipUnless(USE_DB, 'use_db=False')
 @tag('api', 'neo4j')
 class TestNeo4jGraphView(APISimpleTestCase):
