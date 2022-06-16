@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - 2022-06-16
 ### Added
-- Workspaces can now be organized in directories. 
-- Creation and modification times are added to workspaces and directories for sorting.
 - Fragment management and full support for graph-related operations.
 
 ### Changed
