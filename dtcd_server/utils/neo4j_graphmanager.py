@@ -72,13 +72,13 @@ class FragmentManager:
         else:
             raise FragmentDoesNotExist(f"fragment [{fragment_id}] does not exist")
 
-    def save(self, fragment: Fragment):
-        """Save local fragment into the repository.
+    def save(self, *fragments: Fragment):
+        """Save local fragments into the repository.
 
-        Creates or updates a fragment depending on if it exists in the
+        Creates or updates fragments depending on if they exist in the
         database.
         """
-        self._repo.save(fragment)
+        self._repo.save(*fragments)
 
     def remove(self, fragment: Fragment):
         """Remove fragment and its content."""
