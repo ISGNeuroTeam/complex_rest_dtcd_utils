@@ -43,8 +43,8 @@ make_build: venv.tar.gz
 	cp -r $(plugin_name) $(build_dir)
 
 	# copy configuration files
-	rm -rf $(plugin_dir)/serialization.json
-	rm -rf $(plugin_dir)/exchange.json
+	rm -rf $(plugin_dir)/serialization.json 2> /dev/null
+	rm -rf $(plugin_dir)/exchange.json 2> /dev/null
 	cp docs/dtcd_server.conf.example $(plugin_dir)/dtcd_server.conf
 	cp docs/log_configuration.json.example $(plugin_dir)/log_configuration.json
 	cp docs/serialization.json.example $(plugin_dir)/serialization.json
