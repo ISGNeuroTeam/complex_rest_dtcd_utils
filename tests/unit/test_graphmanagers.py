@@ -2,14 +2,12 @@ import configparser
 import unittest
 from pathlib import Path
 
-from py2neo import Node, Relationship
+from py2neo import Graph
 
 from dtcd_server import settings
 from dtcd_server.models import Fragment
 from dtcd_server.utils.exceptions import FragmentDoesNotExist
-from dtcd_server.utils.neo4j_graphmanager import Neo4jGraphManager
-
-from .. import fixtures
+from dtcd_server.utils.neo4j_graphmanager import FragmentManager
 
 
 TEST_DIR = Path(__file__).resolve().parent.parent
@@ -21,264 +19,73 @@ USE_DB = config['general'].getboolean('use_db')
 KEYS = settings.SCHEMA["keys"]
 LABELS = settings.SCHEMA["labels"]
 TYPES = settings.SCHEMA["types"]
+# connection to Neo4j db
+GRAPH = Graph(
+    settings.NEO4J['uri'],
+    settings.NEO4J['name'],
+    auth=(settings.NEO4J['user'], settings.NEO4J['password'])
+)
+GRAPH.delete_all()  # clear the db
 
 
 @ unittest.skipUnless(USE_DB, 'use_db=False')
-class TestNeo4jGraphManager(unittest.TestCase):
+class TestFragmentManager(unittest.TestCase):
 
     @ classmethod
     def setUpClass(cls) -> None:
-        cls.manager = Neo4jGraphManager(
-            settings.NEO4J['uri'],
-            settings.NEO4J['name'],
-            auth=(settings.NEO4J['user'], settings.NEO4J['password'])
-        )
-
-    def setUp(self):
-        self.dummy = fixtures.generate_dummy()
-        self.manager._graph.delete_all()  # FIXME wipes out the database
-
-        self.e1 = Node(LABELS["entity"], LABELS["node"])
-        self.e1[KEYS["yfiles_id"]] = "e1"
-        self.d1 = Node(LABELS["data"], LABELS["composite"], age=27)
-        self.d1[KEYS["yfiles_id"]] = "e1"
-        self.attr = Node(LABELS["attribute"], x=0, y=0)
-        self.d1_has_attr = Relationship(self.d1, TYPES["has_attribute"], self.attr)
-        self.d1_has_attr[KEYS["parent_key"]] = 'layout'
-        self.e1_d1 = Relationship(self.e1, TYPES["has_data"], self.d1)
-        self.tree1 = (
-            self.e1
-            | self.d1
-            | self.attr
-            | self.d1_has_attr
-            | self.e1_d1
-        )
-
-        self.e2 = Node(LABELS["entity"], LABELS["node"])
-        self.e2[KEYS["yfiles_id"]] = "e2"
-        self.d2 = Node(LABELS["data"], LABELS["composite"], online=True)
-        self.d2[KEYS["yfiles_id"]] = "e2"
-        self.ports = Node(LABELS["array"], LABELS["attribute"])
-        self.item0 = Node(LABELS["item"], primitiveID='p3')
-        self.ports_contains_item0 = Relationship(self.ports, TYPES["contains_item"], self.item0)
-        self.ports_contains_item0[KEYS["position"]] = 0
-        self.d2_has_ports = Relationship(self.d2, TYPES["has_attribute"], self.ports)
-        self.d2_has_ports[KEYS["parent_key"]] = 'initPorts'
-        self.e2_d2 = Relationship(self.e2, TYPES["has_data"], self.d2)
-        self.tree2 = (
-            self.e2
-            | self.d2
-            | self.ports
-            | self.item0
-            | self.ports_contains_item0
-            | self.d2_has_ports
-            | self.e2_d2
-        )
-
-        self.content = self.tree1 | self.tree2
-
-        self.e3 = Node(LABELS["entity"], primitiveID="e3")
+        cls.manager = FragmentManager(GRAPH)
 
     def tearDown(self) -> None:
-        self.manager._graph.delete_all()  # FIXME wipes out the database
+        GRAPH.delete_all()
 
-    # TODO read_all
+    def test_all(self):
+        # empty
+        fragments = self.manager.all()
+        self.assertEqual(len(fragments), 0)
 
-    def test_fragments(self):
-        # no fragments
-        self.assertEqual(self.manager.fragments(), [])
+        # some fragments
+        f1 = Fragment(name="amy")
+        f2 = Fragment(name="bob")
+        f3 = Fragment(name="cloe")
+        self.manager.save(f1, f2, f3)
+        fragments = self.manager.all()
+        self.assertEqual(len(fragments), 3)
+        self.assertEqual(set(f.name for f in fragments), {"amy", "bob", "cloe"})
 
-        # add some names
-        self.manager.create_fragment("hr")
-        self.manager.create_fragment("it")
-        self.manager.create_fragment("sales")
-        fragments = self.manager.fragments()
-        self.assertEqual({f.name for f in fragments}, {"hr", "it", "sales"})
-
-    def test_get_fragment(self):
-        self.assertIsNone(self.manager.get_fragment(42))
-
-        orig = self.manager.create_fragment("hr")
-        f = self.manager.get_fragment(orig.__primaryvalue__)
-        self.assertEqual(f, orig)
-
-    def test_get_fragment_or_exception(self):
-        orig = self.manager.create_fragment("hr")
-        f = self.manager.get_fragment_or_exception(orig.__primaryvalue__)
-        self.assertEqual(f, orig)
-
-        with self.assertRaises(FragmentDoesNotExist):
-            self.manager.get_fragment_or_exception(orig.__primaryvalue__ + 1)
-
-    def test_create_fragment(self):
-        orig = self.manager.create_fragment("hr")
-        f = self.manager._repo.get(Fragment, orig.__primaryvalue__)
-        self.assertEqual(f, orig)
-
-    def test_rename_fragment(self):
-        with self.assertRaises(FragmentDoesNotExist):
-            self.manager.rename_fragment(42, "sales")
-
-        orig = self.manager.create_fragment("it")
-        fragment_id = orig.__primaryvalue__
-        self.manager.rename_fragment(fragment_id, "r&d")
-        f = self.manager.get_fragment(fragment_id)
-        self.assertEqual(f.name, "r&d")
-
-    def test_remove_fragment(self):
-        orig = self.manager.create_fragment("hr")
-        fragment_id = orig.__primaryvalue__
-        self.manager.remove_fragment(fragment_id)
-        f = self.manager.get_fragment(fragment_id)
+    def test_get(self):
+        # non-existent fragment
+        f = self.manager.get(42)
         self.assertIsNone(f)
 
-        # missing fragment error
+        # real fragment
+        orig = Fragment(name="amy")
+        self.manager.save(orig)
+        fromdb = self.manager.get(orig.__primaryvalue__)
+        self.assertEqual(fromdb, orig)
+
+    def test_get_or_exception(self):
         with self.assertRaises(FragmentDoesNotExist):
-            self.manager.remove_fragment(fragment_id + 1)
+            self.manager.get_or_exception(42)
 
-    def test_match_fragment_content_nodes(self):
-        fragment = self.manager.create_fragment("hr")
-        root = fragment.__node__
-        r1 = Relationship(root, TYPES["contains_entity"], self.e1)
-        r2 = Relationship(root, TYPES["contains_entity"], self.e2)
-        full = self.content | root | r1 | r2
-        self.manager._graph.create(full)
+        # real fragment
+        orig = Fragment(name="amy")
+        self.manager.save(orig)
+        fromdb = self.manager.get_or_exception(orig.__primaryvalue__)
+        self.assertEqual(fromdb, orig)
 
-        tx = self.manager._graph.begin(True)
-        nodes_cursor = self.manager._match_fragment_content_nodes(
-            tx, fragment.__primaryvalue__)
-        self.manager._graph.commit(tx)
-        nodes = set(i[0] for i in nodes_cursor)
-
-        self.assertEqual(nodes, self.content.nodes)
-
-    # TODO def test_match_fragment_content_relationships
-
-    def test_fragment_content(self):
-        f = self.manager.create_fragment("hr")
-        root = f.__node__
-        r1 = Relationship(root, TYPES["contains_entity"], self.e1)
-        r2 = Relationship(root, TYPES["contains_entity"], self.e2)
-        full = self.content | root | r1 | r2
-        self.manager._graph.create(full)
-
-        tx = self.manager._graph.begin(True)
-        subgraph = self.manager._fragment_content(tx, f.__primaryvalue__)
-        self.manager._graph.commit(tx)
-
-        self.assertEqual(subgraph, self.content)
-
-    def test_read(self):
-        # TODO add one more fragment
-        # create fragment node, link it to entities
-        f = self.manager.create_fragment("hr")
-        root = f.__node__
-        r1 = Relationship(root, TYPES["contains_entity"], self.e1)
-        r2 = Relationship(root, TYPES["contains_entity"], self.e2)
-        full = self.content | root | r1 | r2
-        full |= self.dummy  # add some dummy data
-        self.manager._graph.create(full)
-
-        content = self.manager.read(f.__primaryvalue__)
-        self.assertEqual(content, self.content)
-
-        with self.assertRaises(FragmentDoesNotExist):
-            content = self.manager.read(f.__primaryvalue__ + 1)
-
-    def test_read_empty(self):
-        f = self.manager.create_fragment("hr")
-
-        content = self.manager.read(f.__primaryvalue__)
-        self.assertFalse(bool(content))  # make sure empty subgraph
-
-    def test_merge_vertices(self):
-        # initial merge = create
-        tx = self.manager._graph.begin()
-        vertices = self.manager._merge_vertices(tx, self.content)
-        self.manager._graph.commit(tx)
-        self.assertEqual(len(vertices), 2)
-        self.assertTrue(all(v.identity is not None for v in vertices))
-        # TODO after merge
-
-    # TODO def test_merge_edges(self)
-
-    def test_merge(self):
-        fragment = self.manager.create_fragment("hr")
-        # first merge = create
-        tx = self.manager._graph.begin()
-        self.manager._merge(tx, self.content, fragment)
-        self.manager._graph.commit(tx)
-        fromdb = self.manager.read(fragment.__primaryvalue__)
-        self.assertEqual(fromdb, self.content)
-
-    def test_write(self):
-        f = self.manager.create_fragment("hr")
-        fragment_id = f.__primaryvalue__
-        self.manager.write(self.tree1, fragment_id)  # content bound
-
-        # check link from fragment to entity
-        root = f.__node__
-        link = self.manager._graph.match_one((root, ), r_type=TYPES["contains_entity"])
-        self.assertIsNotNone(
-            link, 'relationship from fragment node to entity node is missing')
-        self.assertTrue(
-            link.end_node.has_label(LABELS["entity"]), 'must link to node with entity label')
-
-        # check fragment content ok
-        fromdb = self.manager.read(fragment_id)  # fromdb bound
-        self.assertEqual(fromdb, self.tree1)
-
-        with self.assertRaises(FragmentDoesNotExist):
-            self.manager.write(self.dummy, fragment_id + 1)
-
-    def test_write_rewrite(self):
-        # TODO tests for frontier nodes & relationship retention
-        f = self.manager.create_fragment("hr")
-        fragment_id = f.__primaryvalue__
-        root = f.__node__
-
-        # old data
-        r1 = Relationship(root, TYPES["contains_entity"], self.e1)
-        old = self.tree1 | root | r1
-        self.manager._graph.create(old)  # tree1, f, r1 bound
-
-        self.manager.write(self.tree2, fragment_id)
-        fromdb = self.manager.read(fragment_id)
-        self.assertEqual(fromdb, self.tree2)
-
-        with self.assertRaises(FragmentDoesNotExist):
-            self.manager.write(self.tree2, fragment_id + 1)
-
-    # TODO def test_write_frontiers(self):
+    def test_save(self):
+        # TODO same as get test???
+        orig = Fragment(name="amy")
+        self.manager.save(orig)
+        fromdb = self.manager.get(orig.__primaryvalue__)
+        self.assertEqual(fromdb, orig)
 
     def test_remove(self):
-        orig = self.manager.create_fragment("hr")
-        fragment_id = orig.__primaryvalue__
-        self.manager.write(self.tree1, fragment_id)  # content bound
-
-        self.manager.remove(fragment_id)
-        # make sure root is still present
-        f = self.manager.get_fragment(fragment_id)
-        self.assertIsNotNone(f)
-        # no links from fragment root
-        root = f.__node__
-        link = self.manager._graph.match_one((root, ), r_type=TYPES["contains_entity"])
-        self.assertIsNone(link)
-        # check content is empty now
-        content = self.manager.read(fragment_id)
-        self.assertFalse(bool(content))
-
-    def test_empty(self):
-        f = self.manager.create_fragment("hr")
-        fragment_id = f.__primaryvalue__
-        # empty
-        self.assertTrue(self.manager.empty(fragment_id))
-        # write some data
-        self.manager.write(self.tree1, fragment_id)
-        self.assertFalse(self.manager.empty(fragment_id))
-        # error
-        with self.assertRaises(FragmentDoesNotExist):
-            self.manager.empty(fragment_id + 1)
+        orig = Fragment(name="amy")
+        self.manager.save(orig)
+        self.manager.remove(orig)
+        fromdb = self.manager.get(orig.__primaryvalue__)
+        self.assertIsNone(fromdb)
 
 
 if __name__ == '__main__':

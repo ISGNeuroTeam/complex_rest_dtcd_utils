@@ -87,6 +87,8 @@ class FragmentManager:
         self.content.remove(fragment)
         self._repo.delete(fragment)
 
+    # TODO clear method
+
     @property
     def content(self):
         """Content manager for this graph."""
