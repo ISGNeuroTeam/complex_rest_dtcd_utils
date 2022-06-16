@@ -13,40 +13,154 @@ from .. import fixtures
 
 TEST_DIR = Path(__file__).resolve().parent.parent
 FIXTURES_DIR = TEST_DIR / "fixtures"
+DATA_DIR = TEST_DIR / "data"
 # testing config
 config = configparser.ConfigParser()
 config.read(TEST_DIR / 'config.ini')
 USE_DB = config['general'].getboolean('use_db')
 N = config['general'].getint('num_iter')
+URL_RESET = reverse('dtcd_server:reset')  # post here resets the db
 
 
-@unittest.skipUnless(USE_DB, 'use_db=False')
-@tag('neo4j')
-class TestNeo4jGraphView(APISimpleTestCase):
+@tag('api', 'neo4j')
+class TestFragmentListView(APISimpleTestCase):
+    def setUp(self) -> None:
+        # reset db
+        self.client.post(URL_RESET)
+        self.url = reverse('dtcd_server:fragments')
 
-    def setUp(self):
-        """
-        define instructions that will be executed before each test method
-        """
+    def tearDown(self) -> None:
+        # reset the db
+        self.client.post(URL_RESET)
 
-        # TODO add graph clear
-        self.url = reverse('dtcd_server:graph')
-        self.data = fixtures.generate_data()['data']
-        fixtures.sort_payload(self.data)
-
-    def test_post_get(self):
-        # post
-        response = self.client.post(self.url, data={'graph': self.data}, format='json')
+    def test_post(self):
+        response = self.client.post(
+            self.url, data={"name": "sales"}, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        fragment = response.data["fragment"]
+        self.assertIn("id", fragment)
+        self.assertEqual(fragment["name"], "sales")
 
-        # get
+    def test_get(self):
+        names = {"hr", "marketing", "sales"}
+        for name in names:
+            self.client.post(self.url, data={"name": name}, format="json")
+        response = self.client.get(self.url)
+        data = response.data
+        fragments = data["fragments"]
+        self.assertEqual({f["name"] for f in fragments}, names)
+
+
+@tag('api', 'neo4j')
+class TestFragmentDetailView(APISimpleTestCase):
+    def setUp(self) -> None:
+        # reset db
+        self.client.post(URL_RESET)
+        # default fragment
+        response = self.client.post(
+            reverse('dtcd_server:fragments'),
+            data={"name": "sales"},
+            format="json",
+        )
+        self.fragment = response.data["fragment"]
+        self.pk = self.fragment["id"]
+        self.url = reverse("dtcd_server:fragment-detail", args=(self.pk,))
+
+    def tearDown(self) -> None:
+        self.client.post(URL_RESET)
+
+    def test_get(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        freshdata = response.data['graph']
-        fixtures.sort_payload(freshdata)
-        self.assertEqual(self.data, freshdata)
+        fragment = response.data["fragment"]
+        self.assertEqual(fragment["id"], self.pk)
+        self.assertEqual(fragment["name"], "sales")
 
-    def test_post_get_duplicated_edge(self):
+    def test_put(self):
+        data = {"name": "marketing"}
+        response = self.client.put(self.url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # get detail back with the same pk
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        fragment = response.data["fragment"]
+        self.assertEqual(fragment["name"], "marketing")
+
+    def test_delete(self):
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+@unittest.skip("deprecated")
+@unittest.skipUnless(USE_DB, 'use_db=False')
+@tag('api', 'neo4j')
+class TestNeo4jGraphView(APISimpleTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.url_fragments = reverse('dtcd_server:fragments')
+        cls.url_reset = reverse('dtcd_server:reset')
+        cls.data = fixtures.generate_data()['data']
+        fixtures.sort_payload(cls.data)
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
+
+    def setUp(self):
+        # create a fragment
+        response = self.client.post(
+            self.url_fragments, data={"name": "sales"}, format="json")
+        self.fragment_id = int(response.data["fragment"]["id"])
+        self.url_graph = reverse(
+            'dtcd_server:fragment-graph', args=(self.fragment_id,))
+
+    def tearDown(self):
+        # clear Neo4j
+        self.client.post(self.url_reset)
+
+    def _put(self, data):
+        """Shortcut to upload graph data to pre-created fragment."""
+
+        fixtures.sort_payload(data)
+        response = self.client.put(
+            self.url_graph, data={'graph': data}, format='json')
+        return response
+
+    def _check_put(self, data):
+        response = self._put(data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        return response
+
+    def _get(self):
+        """Shortcut to read graph data from pre-created fragment."""
+
+        response = self.client.get(self.url_graph, format='json')
+        return response
+
+    def _check_get(self):
+        response = self._get()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("graph", response.data)
+        return response
+
+    def _check_put_get(self, data):
+        self._check_put(data)
+        freshdata = self._check_get().data['graph']
+        fixtures.sort_payload(freshdata)
+        self.assertEqual(freshdata, data)
+
+    def _check_put_get_from_json(self, path):
+        with open(path) as f:
+            data = json.load(f)
+        self._check_put_get(data)
+
+    def test_put_get(self):
+        self._check_put_get(self.data)
+
+    def test_put_get_duplicated_edges(self):
         data = {
             "nodes": [{"primitiveID": "france"}, {"primitiveID": "spain"}],
             "edges": [
@@ -62,72 +176,44 @@ class TestNeo4jGraphView(APISimpleTestCase):
                     "targetPort": "madrid"},
             ]
         }
-        fixtures.sort_payload(data)
-        # post
-        response = self.client.post(self.url, data={'graph': data}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self._check_put_get(data)
 
-        # get
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        freshdata = response.data['graph']
-        fixtures.sort_payload(freshdata)
-        self.assertEqual(data, freshdata)
+    def test_put_get_basic(self):
+        self._check_put_get_from_json(DATA_DIR / "basic.json")
 
-    @tag('slow')
-    def test_post_get_large(self):
-        with open(FIXTURES_DIR / "graph-sample-large.json") as f:
-            data = json.load(f)
-        fixtures.sort_payload(data)
+    def test_put_get_basic_attributes(self):
+        self._check_put_get_from_json(DATA_DIR / "basic-attributes.json")
 
-        # post
-        response = self.client.post(self.url, data={'graph': data}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    def test_put_get_basic_edges(self):
+        self._check_put_get_from_json(DATA_DIR / "basic-edges.json")
 
-        # get
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        freshdata = response.data['graph']
-        fixtures.sort_payload(freshdata)
-        self.assertEqual(data, freshdata)
+    def test_put_get_basic_ports(self):
+        self._check_put_get_from_json(DATA_DIR / "basic-ports.json")
+
+    def test_put_get_basic_nested_attributes(self):
+        self._check_put_get_from_json(DATA_DIR / "basic-nested-attributes.json")
+
+    def test_put_get_basic_nested_edges(self):
+        self._check_put_get_from_json(DATA_DIR / "basic-nested-edges.json")
+
+    def test_put_get_basic_nested_ports(self):
+        self._check_put_get_from_json(DATA_DIR / "basic-nested-ports.json")
 
     @tag('slow')
-    def test_post_get_many_times(self):
-        for i in range(N):
-            self.maxDiff = None  # to see full difference
+    def test_put_get_large(self):
+        self._check_put_get_from_json(FIXTURES_DIR / "graph-sample-large.json")
 
-            # post
-            response = self.client.post(self.url, data={'graph': self.data}, format='json')
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    def test_put_get_empty(self):
+        self._check_put_get_from_json(DATA_DIR / "empty.json")
 
-            # get
-            response = self.client.get(self.url)
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            freshdata = response.data['graph']
-            fixtures.sort_payload(freshdata)
-            self.assertEqual(
-                self.data, freshdata, msg=f"Lap {i}"
-            )
-
-    @unittest.skip
     @tag('slow')
-    def test_post_get_many_times_large_graph(self):
-        with open(FIXTURES_DIR / "graph-sample-large.json") as f:
-            data = json.load(f)
-        fixtures.sort_payload(data)
+    def test_put_get_n25_e25(self):
+        self._check_put_get_from_json(DATA_DIR / "n25_e25.json")
 
-        for i in range(N):
-            self.maxDiff = None  # to see full difference
+    @tag('slow')
+    def test_put_get_n50_e25(self):
+        self._check_put_get_from_json(DATA_DIR / "n50_e25.json")
 
-            # post
-            response = self.client.post(self.url, data={'graph': data}, format='json')
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-            # get
-            response = self.client.get(self.url)
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            freshdata = response.data['graph']
-            fixtures.sort_payload(freshdata)
-            self.assertEqual(
-                data, freshdata, msg=f"Lap {i}"
-            )
+if __name__ == '__main__':
+    unittest.main()

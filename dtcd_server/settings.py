@@ -2,8 +2,9 @@ import configparser
 import json
 import os
 from pathlib import Path
-from neotools.serializers import DEFAULTS
+
 from core.settings.ini_config import merge_ini_config_with_defaults, merge_dicts
+from neotools.serializers import DEFAULTS
 
 
 PROJECT_DIR = Path(__file__).parent
