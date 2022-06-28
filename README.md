@@ -1,6 +1,6 @@
 # dtcd_utils
 
-[Complex rest](https://github.com/ISGNeuroTeam/complex_rest/) plugin for graph management.
+[Complex rest](https://github.com/ISGNeuroTeam/complex_rest/) plugin for front-end needs.
 
 ## Getting Started
 

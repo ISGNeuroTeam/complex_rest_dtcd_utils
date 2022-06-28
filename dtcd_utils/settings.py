@@ -28,12 +28,12 @@ if not os.path.isdir(PROJECT_DIR / "plugins"):
 if not os.path.isdir(PROJECT_DIR / "public"):
     os.mkdir(PROJECT_DIR / "public")
 
-# workspace configuration
-# WORKSPACE_BASE_PATH = ini_config['workspace']['base_path']
-# WORKSPACE_TMP_PATH = ini_config['workspace']['tmp_path']
-#
-# if not os.path.isdir(WORKSPACE_BASE_PATH):
-#     os.mkdir(Path(WORKSPACE_BASE_PATH))
-#
-# if not os.path.isdir(WORKSPACE_TMP_PATH):
-#     os.mkdir(Path(WORKSPACE_TMP_PATH))
+# primitives configuration
+PRIMITIVES_BASE_PATH = ini_config['primitives']['base_path']
+PRIMITIVES_TMP_PATH = ini_config['primitives']['tmp_path']
+
+if not os.path.isdir(PRIMITIVES_BASE_PATH):
+    os.mkdir(Path(PRIMITIVES_BASE_PATH))
+
+if not os.path.isdir(PRIMITIVES_TMP_PATH):
+    os.mkdir(Path(PRIMITIVES_TMP_PATH))

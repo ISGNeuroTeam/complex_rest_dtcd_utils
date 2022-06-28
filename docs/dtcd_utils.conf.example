@@ -1,2 +1,6 @@
 [logging]
 level = INFO
+
+[primitives]
+base_path = /opt/otp/complex_rest/plugins/dtcd_utils/primitives
+tmp_path = /opt/otp/complex_rest/plugins/dtcd_utils/tmp
