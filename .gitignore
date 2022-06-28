@@ -129,6 +129,7 @@ dtcd_utils/public/fonts
 dtcd_utils/public/*.js
 dtcd_utils/public/*.ico
 dtcd_utils/public/*.html
+dtcd_utils/primitives
 make_build/
 
 dtcd_utils/pages/*.json
