@@ -5,7 +5,7 @@ from pathlib import Path
 import json
 import logging
 
-logger = logging.getLogger('dtcd_server')
+logger = logging.getLogger('dtcd_utils')
 
 
 class DependenceList(APIView):

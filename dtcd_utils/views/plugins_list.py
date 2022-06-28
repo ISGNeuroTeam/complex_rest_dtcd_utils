@@ -5,7 +5,7 @@ from pathlib import Path
 import os
 import logging
 
-logger = logging.getLogger('dtcd_server')
+logger = logging.getLogger('dtcd_utils')
 
 
 class PluginsList(APIView):

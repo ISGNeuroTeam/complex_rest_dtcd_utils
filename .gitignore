@@ -115,19 +115,20 @@ requirements_local.txt
 
 start.sh
 stop.sh
-dtcd_server-*.tar.gz
+dtcd_utils-*.tar.gz
 # symlinks to config files in plugin directory
-dtcd_server/*.conf
-dtcd_server/*.json
+dtcd_utils/*.conf
+dtcd_utils/*.json
 venv.tar.gz
 
 nginx/
 *.conf
-dtcd_server/plugins/DTCD*
-dtcd_server/public/fonts
-dtcd_server/public/*.js
-dtcd_server/public/*.ico
-dtcd_server/public/*.html
+*.json
+dtcd_utils/plugins/DTCD*
+dtcd_utils/public/fonts
+dtcd_utils/public/*.js
+dtcd_utils/public/*.ico
+dtcd_utils/public/*.html
 make_build/
 
-dtcd_server/pages/*.json
+dtcd_utils/pages/*.json

@@ -1,12 +1,10 @@
 #.SILENT:
 SHELL = /bin/bash
 
-plugin_name := dtcd_server
+plugin_name := dtcd_utils
 build_dir := make_build
 plugin_dir := $(build_dir)/$(plugin_name)
 requirements_file := requirements.txt
-url_neo4j := https://neo4j.com/artifact.php?name=neo4j-community-4.4.6-unix.tar.gz
-# url_drive_neo4j := https://drive.google.com/uc?export=download&id=1YipGGkmYhEveSSJ4ZsPC0pIjxivBKxYu
 
 
 all:
@@ -33,7 +31,7 @@ pack: make_build
 clean_pack: clean_build
 	rm -f $(plugin_name)-*.tar.gz
 
-dtcd_server.tar.gz: build
+dtcd_utils.tar.gz: build
 	cd $(build_dir); tar czf ../$(plugin_name).tar.gz $(plugin_name) && rm -rf ../$(build_dir)
 
 build: make_build
@@ -43,19 +41,13 @@ make_build: venv.tar.gz
 	cp -r $(plugin_name) $(build_dir)
 
 	# copy configuration files
-	rm -rf $(plugin_dir)/serialization.json 2> /dev/null
-	rm -rf $(plugin_dir)/exchange.json 2> /dev/null
-	cp docs/dtcd_server.conf.example $(plugin_dir)/dtcd_server.conf
+	cp docs/dtcd_utils.conf.example $(plugin_dir)/dtcd_utils.conf
 	cp docs/log_configuration.json.example $(plugin_dir)/log_configuration.json
-	cp docs/serialization.json.example $(plugin_dir)/serialization.json
-	cp docs/exchange.json.example $(plugin_dir)/exchange.json
-#	cp docs/proc.conf.example $(plugin_dir)/proc.conf  # TODO deployment
 
 	mkdir $(plugin_dir)/tmp
 	mkdir $(plugin_dir)/pages
 	mkdir $(plugin_dir)/plugins
 	mkdir $(plugin_dir)/public
-	mkdir $(plugin_dir)/workspaces
 
 	cp *.md $(plugin_dir)
 	cp *.py $(plugin_dir)
@@ -83,12 +75,12 @@ complex_rest:
 	@echo "Should clone complex_rest repository in future..."
 # 	git clone git@github.com:ISGNeuroTeam/complex_rest.git
 # 	{ cd ./complex_rest; git checkout develop; make venv; make redis; }
-# 	ln -s ../../../../dtcd_server/dtcd_server ./complex_rest/complex_rest/plugins/dtcd_server
+# 	ln -s ../../../../dtcd_utils/dtcd_utils ./complex_rest/complex_rest/plugins/dtcd_utils
 
 clean_complex_rest:
 ifneq (,$(wildcard ./complex_rest))
 	{ cd ./complex_rest; make clean;}
-	rm -f ./complex_rest/plugins/dtcd_server
+	rm -f ./complex_rest/plugins/dtcd_utils
 	rm -rf ./complex_rest
 endif
 
