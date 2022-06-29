@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+<<<<<<< HEAD
+=======
+### Changed
+- Graphs and Workspaces removed from plugin
+
+### Added
+- Primitives support added
+
+>>>>>>> changelog upd
 ## [0.2.2] - 2022-06-16
 ### Fixed
 - Freeze package versions in requirements file.
