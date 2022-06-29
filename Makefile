@@ -44,7 +44,6 @@ make_build: venv.tar.gz
 	cp docs/dtcd_utils.conf.example $(plugin_dir)/dtcd_utils.conf
 	cp docs/log_configuration.json.example $(plugin_dir)/log_configuration.json
 
-	mkdir $(plugin_dir)/tmp
 	mkdir $(plugin_dir)/pages
 	mkdir $(plugin_dir)/plugins
 	mkdir $(plugin_dir)/public
