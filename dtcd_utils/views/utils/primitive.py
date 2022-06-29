@@ -4,6 +4,10 @@ from typing import Dict, Optional
 import base64
 import json
 import uuid
+import logging
+
+
+logger = logging.getLogger('dtcd_utils')
 
 
 def _encode_name(name: str) -> str:
@@ -42,6 +46,9 @@ class Primitive:
     def save(self):
         if self.primitive_path.exists():
             raise Exception('Such primitive already exists')
+        self._save()
+
+    def _save(self):
         temp_file = self.tmp_path / Path(f'temp_{str(uuid.uuid4())}').with_suffix('.json')
         with open(temp_file, 'w') as fr:
             json.dump(self.content, fr)
@@ -51,8 +58,7 @@ class Primitive:
         if new_name:
             self._rename(new_name)
         if self.content is not None:
-            self.delete()
-            self.save()
+            self._save()
         if not new_name and self.content is None:
             raise Exception('Nothing to update')
 
