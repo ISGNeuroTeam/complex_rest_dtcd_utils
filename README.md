@@ -1,4 +1,4 @@
-# dtcd_utils
+# DTCD Utils
 
 [Complex rest](https://github.com/ISGNeuroTeam/complex_rest/) plugin for front-end needs.
 
@@ -9,6 +9,19 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 - Deploy [complex rest](https://github.com/ISGNeuroTeam/complex_rest/).
+
+### Installing
+
+* Make symlink for ./dtcd_utils/dtcd_utils in plugins directory
+* Run complex rest server
+
+## Running the tests
+Run all tests:
+```bash
+python ./complex_rest/manage.py test ./plugin_dev/dtcd_utils/tests --settings=core.settings.test
+```
+
+## Deployment
 
 ### Deploy from Nexus
 
@@ -57,6 +70,11 @@ For this plugin, you can get the latest build from Nexus.
 
 ## Built With
 
+* [Django](https://docs.djangoproject.com/en/3.2/) - The web framework used
+
+## Contributing
+
+- not there yet
 
 ## Versioning
 
@@ -65,9 +83,13 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 ## Authors
 
 - Ilia Sagaidak (isagaidak@isgneuro.com)
-- Aleksei Tsysin (atsysin@isgneuro.com)
 
 
 ## License
 
 [OT.PLATFORM. License agreement.](LICENSE.md)
+
+## Acknowledgments
+
+* Hat tip to anyone whose code was used
+* Inspiration
