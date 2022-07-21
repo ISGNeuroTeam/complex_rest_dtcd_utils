@@ -6,7 +6,7 @@ from .views.log_config import LogsView
 from .views.page import PageView
 from .views.plugins_list import PluginsList
 from .views.user import UserView
-from .views.primitives import PrimitivesView
+from .views.primitives import PrimitivesView, RawPrimitivesView
 
 
 app_name = 'dtcd_utils'
@@ -17,5 +17,6 @@ urlpatterns = [
     path('page/<str:pagename>', PageView.as_view()),
     re_path(r'^user/?$', UserView.as_view()),
     re_path(r'^user/change-password/?$', ChPassView.as_view()),
-    re_path(r'^custom-primitive-templates/?$', PrimitivesView.as_view())
+    re_path(r'^custom-primitive-templates/?$', PrimitivesView.as_view()),
+    re_path(r'^raw-primitives/?$', RawPrimitivesView.as_view())
 ]
