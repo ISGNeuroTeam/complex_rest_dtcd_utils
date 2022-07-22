@@ -31,7 +31,7 @@ class RawPrimitive:
             try:
                 with open(cls.base_path / primitive / cls.json_name) as fr:
                     primitive_info = json.load(fr)
-                    primitive_info['name'] = primitive
+                    primitive_info['primitiveName'] = primitive
                 primitives.append(primitive_info)
             except Exception as e:
                 logger.warning(f'While listing: primitive {primitive} errored out - {str(e)}')
