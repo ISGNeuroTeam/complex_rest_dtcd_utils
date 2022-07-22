@@ -37,3 +37,9 @@ if not os.path.isdir(PRIMITIVES_BASE_PATH):
 
 if not os.path.isdir(PRIMITIVES_TMP_PATH):
     os.mkdir(Path(PRIMITIVES_TMP_PATH))
+
+RAW_PRIMITIVES_BASE_PATH = ini_config['raw_primitives']['base_path']
+RAW_PRIMITIVES_JSON_NAME = ini_config['raw_primitives']['json_name']
+
+if not os.path.isdir(RAW_PRIMITIVES_BASE_PATH):
+    os.mkdir(Path(RAW_PRIMITIVES_BASE_PATH))

@@ -1,11 +1,11 @@
-from dtcd_utils.settings import PRIMITIVES_BASE_PATH, PRIMITIVES_TMP_PATH
+from dtcd_utils.settings import PRIMITIVES_BASE_PATH, PRIMITIVES_TMP_PATH, RAW_PRIMITIVES_BASE_PATH, RAW_PRIMITIVES_JSON_NAME
 from pathlib import Path
 from typing import Dict, Optional
 import base64
 import json
 import uuid
 import logging
-
+import os
 
 logger = logging.getLogger('dtcd_utils')
 
@@ -18,6 +18,24 @@ def _encode_name(name: str) -> str:
 def _decode_name(encoded_name: str) -> str:
     decoded = base64.urlsafe_b64decode(encoded_name).decode()
     return decoded
+
+
+class RawPrimitive:
+    json_name = RAW_PRIMITIVES_JSON_NAME
+    base_path = Path(RAW_PRIMITIVES_BASE_PATH)
+
+    @classmethod
+    def list_primitives(cls):
+        primitives = []
+        for primitive in os.listdir(cls.base_path):
+            try:
+                with open(cls.base_path / primitive / cls.json_name) as fr:
+                    primitive_info = json.load(fr)
+                    primitive_info['primitiveName'] = primitive
+                primitives.append(primitive_info)
+            except Exception as e:
+                logger.warning(f'While listing: primitive {primitive} errored out - {str(e)}')
+        return primitives
 
 
 class Primitive:

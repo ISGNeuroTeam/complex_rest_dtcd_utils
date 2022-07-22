@@ -2,11 +2,22 @@ from rest.views import APIView
 from rest.response import status, SuccessResponse, ErrorResponse, Response
 from rest.permissions import AllowAny
 from rest_framework.request import Request
-from .utils.primitive import Primitive
+from .utils.primitive import Primitive, RawPrimitive
 import logging
 
 
 logger = logging.getLogger('dtcd_utils')
+
+
+class RawPrimitivesView(APIView):
+    permission_classes = (AllowAny,)
+    http_method_names = ['get']
+
+    def get(self, request):
+        try:
+            return SuccessResponse({"raw_primitives": RawPrimitive.list_primitives()})
+        except Exception as e:
+            return ErrorResponse(error_message=str(e))
 
 
 class PrimitivesView(APIView):

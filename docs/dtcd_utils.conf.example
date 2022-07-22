@@ -4,3 +4,7 @@ level = INFO
 [primitives]
 base_path = /opt/otp/complex_rest/plugins/dtcd_utils/primitives
 tmp_path = /opt/otp/complex_rest/plugins/dtcd_utils/tmp
+
+[raw_primitives]
+base_path = /opt/otp/complex_rest/plugins/dtcd_utils/rawPrimitives
+json_name = primitive.json
