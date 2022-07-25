@@ -1,7 +1,7 @@
 from rest.views import APIView
 from rest.response import Response, status
 from rest.permissions import IsAuthenticated
-from tools.image_compressor import ImageCompressor
+from .tools.image_compressor import ImageCompressor
 
 
 def pick_attribute(user, k, compressed_photo) -> str:
@@ -27,9 +27,9 @@ class UserView(APIView):
     def get(self, request):
         """get current user info"""
         compressed_photo = None
-        if 'picture_quality' in request.query_params:
+        if 'photo_quality' in request.query_params:
             compressed_photo = ImageCompressor.compress_image(request.user.photo,
-                                                              quality=request.query_params['picture_quality'])
+                                                              quality_key=request.query_params['photo_quality'])
 
         if not request.query_params or len(request.query_params) == 1 and compressed_photo:
             return Response(

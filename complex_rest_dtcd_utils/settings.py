@@ -43,3 +43,6 @@ RAW_PRIMITIVES_JSON_NAME = ini_config['raw_primitives']['json_name']
 
 if not os.path.isdir(RAW_PRIMITIVES_BASE_PATH):
     os.mkdir(Path(RAW_PRIMITIVES_BASE_PATH))
+
+DTCD_LOGS_FILE = ini_config['logging'].get('dtcd_logs_file', 'calc_log.json')
+DTCD_LOGS_CONF = ini_config['logging'].get('dtcd_logs_conf', 'log_configuration.json')
