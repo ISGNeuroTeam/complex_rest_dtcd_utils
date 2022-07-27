@@ -13,7 +13,7 @@ These instructions will get you a copy of the project up and running on your loc
 ### Installing
 
 * Make symlink for ./dtcd_utils/dtcd_utils in plugins directory
-* Make symlink for dtcd logs `ln -s /opt/otp/complex_rest/plugins/<dtcd_logs_file from dtcd_utils.conf> /opt/otp/external_data/<dtcd_logs_file from dtcd_utils.conf>`
+* Make symlink for dtcd logs `ln -s /opt/otp/complex_rest/plugins/dtcd_utils/<dtcd_logs_file from dtcd_utils.conf> /opt/otp/external_data/<dtcd_logs_file from dtcd_utils.conf>`
 * Run complex rest server
 
 ## Running the tests

@@ -14,6 +14,8 @@ QUALITY = {
 
 class ImageCompressor:
 
+    META_SEPARATOR = ','
+
     @staticmethod
     def _convert_base64_to_image(image_base64: str) -> Image:
         return Image.open(BytesIO(base64.b64decode(image_base64)))
@@ -30,11 +32,22 @@ class ImageCompressor:
         if not quality:
             logger.warning(f'Wrong quality option: {quality_key}. Returning photo in original size')
             return image_base64
+        amount_of_separators = image_base64.count(cls.META_SEPARATOR)
+        meta = None
+        if amount_of_separators:
+            if not amount_of_separators == 1:
+                logger.warning(f'Too many separators in base64. Returning photo in original size')
+                return image_base64
+            meta, image_base64 = image_base64.split(cls.META_SEPARATOR)
+        else:
+            logger.warning(f'No meta in base64.')
         image = cls._convert_base64_to_image(image_base64)
         width, height = image.size
         if width < quality[0] or height < quality[1]:
             logger.warning(f'Image size ({width}, {height}) '
                            f'at least on one side is smaller than the size you want to receive {quality}.')
         image.thumbnail(quality, Image.ANTIALIAS)
-        return cls._convert_image_to_base64(image)
+        if not meta:
+            return cls._convert_image_to_base64(image)
+        return f"{meta},{cls._convert_image_to_base64(image)}"
 
