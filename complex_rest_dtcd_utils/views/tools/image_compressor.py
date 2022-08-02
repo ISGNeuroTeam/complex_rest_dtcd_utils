@@ -7,7 +7,7 @@ logger = logging.getLogger('dtcd_utils')
 
 QUALITY = {
         'low': (64, 64),
-        'medium': (512, 64),
+        'medium': (512, 512),
         'high': (1024, 1024)
 }
 
