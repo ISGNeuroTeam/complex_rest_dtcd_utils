@@ -12,13 +12,23 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Installing
 
-* Make symlink for ./dtcd_utils/dtcd_utils in plugins directory
+* Make a symlink for `dtcd_utils/dtcd_utils` in plugins directory
+* Make a symlink for DTCD logs:
+    ```sh
+    rootdir="/opt/otp"
+    plugindir="$rootdir/complex_rest/plugins/dtcd_utils"
+    ln -s \
+        $plugindir/<dtcd_logs_file from dtcd_utils.conf> \
+        $rootdir/external_data/<dtcd_logs_file from dtcd_utils.conf>
+    ```
 * Run complex rest server
 
 ## Running the tests
 Run all tests:
 ```bash
-python ./complex_rest/manage.py test ./plugin_dev/dtcd_utils/tests --settings=core.settings.test
+python complex_rest/manage.py test \
+    plugin_dev/dtcd_utils/tests \
+    --settings=core.settings.test
 ```
 
 ## Deployment
