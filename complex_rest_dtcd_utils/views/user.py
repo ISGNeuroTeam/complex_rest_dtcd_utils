@@ -27,7 +27,7 @@ class UserView(APIView):
     def get(self, request):
         """get current user info"""
         compressed_photo = None
-        if 'photo_quality' in request.query_params:
+        if 'photo_quality' in request.query_params and request.user.photo:
             compressed_photo = ImageCompressor.compress_image(request.user.photo,
                                                               quality_key=request.query_params['photo_quality'])
 
