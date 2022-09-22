@@ -31,7 +31,7 @@ class UserView(APIView):
             compressed_photo = ImageCompressor.compress_image(request.user.photo,
                                                               quality_key=request.query_params['photo_quality'])
 
-        if not request.query_params or len(request.query_params) == 1 and compressed_photo:
+        if not request.query_params or len(request.query_params) == 1 and 'photo_quality' in request.query_params:
             return Response(
                 {
                     "id": request.user.id,
