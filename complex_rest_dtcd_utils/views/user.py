@@ -1,3 +1,4 @@
+from django.forms.models import model_to_dict
 from rest.views import APIView
 from rest.response import Response, status
 from rest.permissions import IsAuthenticated
@@ -17,6 +18,10 @@ def pick_attribute(user, k, compressed_photo) -> str:
         return user.email
     if k == 'phone':
         return user.phone
+    if k == 'groups':
+        return list(
+            map(lambda group: model_to_dict(group, fields=('id', 'name')), request.user.groups.all())
+        )
     return compressed_photo or user.photo
 
 
@@ -40,7 +45,10 @@ class UserView(APIView):
                     "lastName": request.user.last_name,
                     "email": request.user.email,
                     "phone": request.user.phone,
-                    "photo": compressed_photo or request.user.photo
+                    "photo": compressed_photo or request.user.photo,
+                    "groups": list(
+                        map(lambda group: model_to_dict(group, fields=('id', 'name')), request.user.groups.all())
+                    )
                 },
                 status.HTTP_200_OK
             )
