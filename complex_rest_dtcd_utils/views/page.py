@@ -14,7 +14,7 @@ class PageView(APIView):
         page_name = kwargs['pagename'] + '.json'
         page_path = Path(__file__).parent.parent / self.pages_dir / page_name
         try:
-            with open(page_path) as page:
+            with open(page_path, encoding='utf-8') as page:
                 content = json.load(page)
         except Exception as e:
             return Response(

@@ -15,7 +15,7 @@ class LogsView(APIView):
     http_method_names = ['get', 'post']
 
     def get(self, request):
-        with open(Path(__file__).parent.parent / DTCD_LOGS_CONF, "r") as file:
+        with open(Path(__file__).parent.parent / DTCD_LOGS_CONF, "r", encoding='utf-8') as file:
             data = json.load(file)
         return Response(
             data,
@@ -24,6 +24,6 @@ class LogsView(APIView):
 
     def post(self, request: Request):  # when on Front buffer is full or timeout reached
         logs = request.data
-        with open(Path(__file__).parent.parent / DTCD_LOGS_FILE, 'a') as file:
+        with open(Path(__file__).parent.parent / DTCD_LOGS_FILE, 'a', encoding='utf-8') as file:
             file.write(json.dumps(logs) + '\n')
         return Response('saved!', status.HTTP_200_OK)

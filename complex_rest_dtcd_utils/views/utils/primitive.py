@@ -27,14 +27,15 @@ class RawPrimitive:
     @classmethod
     def list_primitives(cls):
         primitives = []
-        for primitive in os.listdir(cls.base_path):
-            try:
-                with open(cls.base_path / primitive / cls.json_name) as fr:
-                    primitive_info = json.load(fr)
-                    primitive_info['primitiveName'] = primitive
-                primitives.append(primitive_info)
-            except Exception as e:
-                logger.warning(f'While listing: primitive {primitive} errored out - {str(e)}')
+        for primitive_dir in cls.base_path.iterdir():
+            if primitive_dir.is_dir():
+                try:
+                    with open(cls.base_path / primitive_dir / cls.json_name, encoding='utf-8') as fr:
+                        primitive_info = json.load(fr)
+                        primitive_info['primitiveName'] = str(primitive_dir)
+                    primitives.append(primitive_info)
+                except Exception as e:
+                    logger.warning(f'While listing: primitive {primitive_dir} errored out - {str(e)}')
         return primitives
 
 
@@ -47,7 +48,7 @@ class Primitive:
     def list_primitives(cls):
         primitives = []
         for primitive in cls.base_path.glob('*.json'):
-            with open(primitive, "r") as file:
+            with open(primitive, "r", encoding='utf-8') as file:
                 primitives.append({
                     "name": _decode_name(primitive.stem),
                     "content": json.load(file)})
@@ -68,7 +69,7 @@ class Primitive:
 
     def _save(self):
         temp_file = self.tmp_path / Path(f'temp_{str(uuid.uuid4())}').with_suffix('.json')
-        with open(temp_file, 'w') as fr:
+        with open(temp_file, 'w', encoding='utf-8') as fr:
             json.dump(self.content, fr)
         temp_file.rename(self.primitive_path)
 

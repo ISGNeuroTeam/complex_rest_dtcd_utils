@@ -14,7 +14,7 @@ class ReadHTML(APIView):
     renderer_classes = [renderers.StaticHTMLRenderer]
 
     def get(self, request):
-        with open(Path(__file__).parent / "../public/index.html", 'r') as file:
+        with open(Path(__file__).parent / "../public/index.html", 'r', encoding='utf-8') as file:
             html = file.read()
         return Response(
             html,
