@@ -32,7 +32,7 @@ class RawPrimitive:
                 try:
                     with open(cls.base_path / primitive_dir / cls.json_name, encoding='utf-8') as fr:
                         primitive_info = json.load(fr)
-                        primitive_info['primitiveName'] = str(primitive_dir)
+                        primitive_info['primitiveName'] = primitive_dir.name
                     primitives.append(primitive_info)
                 except Exception as e:
                     logger.warning(f'While listing: primitive {primitive_dir} errored out - {str(e)}')
