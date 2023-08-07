@@ -13,7 +13,7 @@ class DependenceList(APIView):
     http_method_names = ['get']
 
     def get(self, request):
-        with open(Path(__file__).parent / "../dependencies/manifest.json", "r") as file:
+        with open(Path(__file__).parent / "../dependencies/manifest.json", "r", encoding='utf-8') as file:
             data = json.load(file)
         return Response(
             data,
